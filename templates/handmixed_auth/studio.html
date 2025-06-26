@@ -1,10 +1,10 @@
-<!-- templates/handmixed_auth/studio.html -->
+<!-- templates/handmixed_auth/studio.html - Updated with Spotify Web Playback SDK -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>HAND MIXED - DJ Studio</title>
+    <title>HAND MIXED - DJ Studio (Full Spotify Integration)</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Exo+2:wght@300;400;600&display=swap');
         
@@ -254,6 +254,12 @@
             color: #00d4ff;
         }
 
+        .status.premium-required {
+            background: linear-gradient(135deg, rgba(255, 215, 0, 0.2), rgba(255, 165, 0, 0.2));
+            border-color: #ffd700;
+            color: #ffd700;
+        }
+
         .control-btn {
             background: linear-gradient(135deg, #00d4ff, #f39c12);
             border: none;
@@ -297,7 +303,50 @@
             box-shadow: 0 15px 40px rgba(255, 107, 107, 0.5);
         }
 
-        /* Current Track Display - Spotify Style */
+        /* NEW: Spotify Web Player Status */
+        .spotify-player-status {
+            background: linear-gradient(135deg, rgba(30, 215, 96, 0.2), rgba(0, 0, 0, 0.3));
+            border: 2px solid #1ed760;
+            border-radius: 15px;
+            padding: 15px;
+            margin: 15px 0;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .player-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .player-indicator {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: #1ed760;
+            animation: pulse 2s infinite;
+        }
+
+        .player-indicator.disconnected {
+            background: #ff6b6b;
+            animation: none;
+        }
+
+        .player-text {
+            font-family: 'Orbitron', monospace;
+            font-weight: 600;
+            color: #1ed760;
+        }
+
+        .player-text.disconnected {
+            color: #ff6b6b;
+        }
+
+        /* Current Track Display - Enhanced for Full Playback */
         .current-track {
             background: linear-gradient(135deg, rgba(30, 215, 96, 0.2), rgba(0, 212, 255, 0.2));
             border: 2px solid #1ed760;
@@ -321,6 +370,14 @@
             font-size: 24px;
             color: white;
             flex-shrink: 0;
+            overflow: hidden;
+        }
+
+        .track-artwork img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 8px;
         }
 
         .track-info {
@@ -424,7 +481,7 @@
             padding-right: 10px;
         }
 
-        /* Track List Styles */
+        /* Track List Styles - Enhanced */
         .tracks-section {
             margin-top: 20px;
             padding-top: 20px;
@@ -481,9 +538,8 @@
             box-shadow: 0 0 15px rgba(30, 215, 96, 0.3);
         }
 
-        .track-item.no-preview {
-            opacity: 0.5;
-            cursor: not-allowed;
+        .track-item.playable {
+            border-left: 3px solid #1ed760;
         }
 
         .track-number {
@@ -548,15 +604,22 @@
             font-family: 'Orbitron', monospace;
         }
 
-        .track-preview-indicator {
+        .track-playback-indicator {
             width: 8px;
             height: 8px;
             border-radius: 50%;
-            background: #1ed760;
             margin-left: 8px;
         }
 
-        .track-preview-indicator.no-preview {
+        .track-playback-indicator.full {
+            background: #1ed760;
+        }
+
+        .track-playback-indicator.preview {
+            background: #f39c12;
+        }
+
+        .track-playback-indicator.none {
             background: #666;
         }
 
@@ -658,13 +721,18 @@
             .track-info {
                 text-align: center;
             }
+
+            .spotify-player-status {
+                flex-direction: column;
+                text-align: center;
+            }
         }
     </style>
 </head>
 <body>
     <div class="header">
         <div class="welcome">
-            HAND MIXED ✦ {{ user_name }}
+            HAND MIXED ✦ {{ user_name }} ✦ FULL SPOTIFY
         </div>
         <a href="{% url 'logout' %}" class="logout-btn">
             ⚡ LOGOUT
@@ -677,7 +745,18 @@
             <h2>🎛️ HAND DJ STUDIO</h2>
             
             <div id="status" class="status info">
-                ▸ Ready to start hand-controlled DJ session
+                ▸ Ready to start hand-controlled DJ session with full Spotify integration
+            </div>
+
+            <!-- NEW: Spotify Web Player Status -->
+            <div class="spotify-player-status">
+                <div class="player-info">
+                    <div class="player-indicator disconnected" id="playerIndicator"></div>
+                    <div class="player-text disconnected" id="playerText">Spotify Player: Disconnected</div>
+                </div>
+                <button class="control-btn" onclick="initializeSpotifyPlayer()" id="initPlayerBtn" style="margin: 0; padding: 8px 16px; font-size: 0.9rem;">
+                    🔗 CONNECT SPOTIFY PLAYER
+                </button>
             </div>
 
             <div class="video-controls">
@@ -709,10 +788,10 @@
             <div class="track-artwork" id="trackArtwork">🎵</div>
             <div class="track-info">
                 <div class="track-name" id="currentTrackName">No track playing</div>
-                <div class="track-artist" id="currentTrackArtist">Load a playlist and use gestures to control</div>
+                <div class="track-artist" id="currentTrackArtist">Connect Spotify Player and load a playlist to begin</div>
                 <div class="track-status" id="trackStatus" style="display: none;">
                     <div class="pulse-dot"></div>
-                    <span>Now Playing</span>
+                    <span>Now Playing (Full Track)</span>
                 </div>
             </div>
         </div>
@@ -731,7 +810,7 @@
 
             <div id="playlistsContainer">
                 <div class="loading">
-                    ▸ Load your Spotify playlists to start mixing
+                    ▸ Load your Spotify playlists to start mixing with full tracks
                 </div>
             </div>
 
@@ -756,6 +835,9 @@
         </div>
     </div>
 
+    <!-- Spotify Web Playback SDK -->
+    <script src="https://sdk.scdn.co/spotify-player.js"></script>
+    
     <!-- MediaPipe Scripts -->
     <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@mediapipe/control_utils/control_utils.js"></script>
@@ -763,21 +845,26 @@
     <script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js"></script>
 
     <script>
-        console.log('🎛️ Hand Mixed DJ Studio Ready');
+        console.log('🎛️ Hand Mixed DJ Studio with Full Spotify Integration Ready');
         
         // Global variables
         let stream = null;
         let hands = null;
         let camera = null;
-        let currentAudio = null;
         let isTracking = false;
         let debugMode = false;
         
-        // Spotify Integration Variables
+        // Spotify Integration Variables - UPDATED FOR FULL PLAYBACK
+        let spotifyPlayer = null;
+        let spotifyDeviceId = null;
+        let spotifyAccessToken = null;
+        let isSpotifyPlayerReady = false;
+        let isSpotifyPremium = false;
         let currentPlaylist = [];
         let currentTrackIndex = 0;
         let allPlaylists = [];
         let isSpotifyConnected = false;
+        let currentPlaybackState = null;
         
         // Performance tracking
         let frameCount = 0;
@@ -785,7 +872,7 @@
         let currentFps = 0;
         
         // Gesture tracking with better stability for multiple hands
-        let handGestures = {}; // Store gestures for each hand
+        let handGestures = {};
         let gestureHistory = [];
         let gestureStabilityCount = 0;
         const GESTURE_STABILITY_THRESHOLD = 3;
@@ -797,7 +884,432 @@
             { main: '#e74c3c', accent: '#9b59b6', name: 'Tertiary' },
             { main: '#1abc9c', accent: '#e67e22', name: 'Quaternary' }
         ];
-        
+
+        // ========== SPOTIFY WEB PLAYBACK SDK FUNCTIONS ==========
+
+        // Initialize Spotify Web Playback SDK
+        window.onSpotifyWebPlaybackSDKReady = () => {
+            console.log('🎵 Spotify Web Playback SDK is ready');
+            // Don't auto-initialize - wait for user click
+        };
+
+        async function initializeSpotifyPlayer() {
+            console.log('🔗 Initializing Spotify Player...');
+            updateStatus('Connecting to Spotify Player...', 'info');
+            
+            try {
+                // Get access token from backend
+                const tokenResponse = await fetch('/api/spotify/token/');
+                const tokenData = await tokenResponse.json();
+                
+                if (!tokenResponse.ok) {
+                    if (tokenData.premium_required) {
+                        updateStatus('Spotify Premium required for full track playback', 'premium-required');
+                        updatePlayerStatus('Premium Required', false);
+                        return;
+                    }
+                    throw new Error(tokenData.error || 'Failed to get access token');
+                }
+                
+                spotifyAccessToken = tokenData.access_token;
+                isSpotifyPremium = tokenData.premium;
+                
+                if (!isSpotifyPremium) {
+                    updateStatus('Spotify Premium required for full track playback', 'premium-required');
+                    updatePlayerStatus('Premium Required', false);
+                    return;
+                }
+                
+                // Create Spotify Player
+                spotifyPlayer = new Spotify.Player({
+                    name: 'HandMixed DJ Studio',
+                    getOAuthToken: cb => { cb(spotifyAccessToken); },
+                    volume: 0.5
+                });
+                
+                // Add event listeners
+                spotifyPlayer.addListener('initialization_error', ({ message }) => {
+                    console.error('🚫 Spotify Player initialization error:', message);
+                    updateStatus('Spotify Player initialization failed', 'error');
+                    updatePlayerStatus('Initialization Failed', false);
+                });
+
+                spotifyPlayer.addListener('authentication_error', ({ message }) => {
+                    console.error('🚫 Spotify Player authentication error:', message);
+                    updateStatus('Spotify authentication failed', 'error');
+                    updatePlayerStatus('Authentication Failed', false);
+                });
+
+                spotifyPlayer.addListener('account_error', ({ message }) => {
+                    console.error('🚫 Spotify Account error:', message);
+                    updateStatus('Spotify Premium account required', 'premium-required');
+                    updatePlayerStatus('Premium Required', false);
+                });
+
+                spotifyPlayer.addListener('playback_error', ({ message }) => {
+                    console.error('🚫 Spotify Playback error:', message);
+                    updateStatus('Playback error occurred', 'error');
+                });
+
+                spotifyPlayer.addListener('player_state_changed', state => {
+                    console.log('🎵 Player state changed:', state);
+                    currentPlaybackState = state;
+                    
+                    if (state) {
+                        const track = state.track_window.current_track;
+                        const isPlaying = !state.paused;
+                        
+                        updateCurrentTrackDisplayFull(track, isPlaying, state);
+                        updateTrackListPlayingStateFull(track, isPlaying);
+                    }
+                });
+
+                spotifyPlayer.addListener('ready', ({ device_id }) => {
+                    console.log('✅ Spotify Player ready with Device ID:', device_id);
+                    spotifyDeviceId = device_id;
+                    isSpotifyPlayerReady = true;
+                    updatePlayerStatus('Connected', true);
+                    updateStatus('Spotify Player connected! Load playlists to start mixing', 'success');
+                    
+                    // Transfer playback to this device
+                    transferPlaybackToDevice(device_id);
+                });
+
+                spotifyPlayer.addListener('not_ready', ({ device_id }) => {
+                    console.log('🚫 Spotify Player not ready:', device_id);
+                    spotifyDeviceId = null;
+                    isSpotifyPlayerReady = false;
+                    updatePlayerStatus('Disconnected', false);
+                });
+
+                // Connect the player
+                const success = await spotifyPlayer.connect();
+                
+                if (success) {
+                    console.log('🎵 Successfully connected to Spotify Player');
+                    updateStatus('Spotify Player connecting...', 'info');
+                } else {
+                    throw new Error('Failed to connect to Spotify Player');
+                }
+                
+            } catch (error) {
+                console.error('❌ Spotify Player initialization error:', error);
+                updateStatus(`Spotify connection failed: ${error.message}`, 'error');
+                updatePlayerStatus('Connection Failed', false);
+            }
+        }
+
+        // Transfer playback to our device
+        async function transferPlaybackToDevice(deviceId) {
+            try {
+                const response = await fetch('/api/spotify/transfer-playback/', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ device_id: deviceId })
+                });
+                
+                if (response.ok) {
+                    console.log('✅ Playback transferred to HandMixed device');
+                } else {
+                    console.warn('⚠️ Playback transfer failed, but player is ready');
+                }
+            } catch (error) {
+                console.warn('⚠️ Playback transfer error:', error);
+            }
+        }
+
+        // Update player status display
+        function updatePlayerStatus(status, isConnected) {
+            const indicator = document.getElementById('playerIndicator');
+            const text = document.getElementById('playerText');
+            const initBtn = document.getElementById('initPlayerBtn');
+            
+            if (isConnected) {
+                indicator.classList.remove('disconnected');
+                text.classList.remove('disconnected');
+                text.textContent = `Spotify Player: ${status}`;
+                initBtn.style.display = 'none';
+            } else {
+                indicator.classList.add('disconnected');
+                text.classList.add('disconnected');
+                text.textContent = `Spotify Player: ${status}`;
+                initBtn.style.display = 'block';
+            }
+        }
+
+        // Play track using Spotify Web API
+        async function playSpotifyTrack(trackUri) {
+            if (!spotifyDeviceId) {
+                updateStatus('Spotify Player not connected', 'error');
+                return false;
+            }
+            
+            try {
+                const response = await fetch('/api/spotify/play/', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        track_uri: trackUri,
+                        device_id: spotifyDeviceId
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    console.log('✅ Track playing via Spotify Web API');
+                    return true;
+                } else {
+                    console.error('❌ Play track failed:', data.error);
+                    updateStatus(`Play failed: ${data.error}`, 'error');
+                    return false;
+                }
+                
+            } catch (error) {
+                console.error('❌ Play track error:', error);
+                updateStatus('Network error playing track', 'error');
+                return false;
+            }
+        }
+
+        // Control Spotify playback
+        async function controlSpotifyPlayback(action) {
+            if (!spotifyDeviceId) {
+                updateStatus('Spotify Player not connected', 'error');
+                return false;
+            }
+            
+            try {
+                const response = await fetch('/api/spotify/control/', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        action: action,
+                        device_id: spotifyDeviceId
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    console.log(`✅ ${action} command sent successfully`);
+                    return true;
+                } else {
+                    console.error(`❌ ${action} failed:`, data.error);
+                    updateStatus(`${action} failed: ${data.error}`, 'error');
+                    return false;
+                }
+                
+            } catch (error) {
+                console.error(`❌ ${action} error:`, error);
+                updateStatus(`Network error: ${action}`, 'error');
+                return false;
+            }
+        }
+
+        // ========== ENHANCED MUSIC CONTROL FUNCTIONS ==========
+
+        // Toggle music (play/pause)
+        function toggleMusic() {
+            if (isSpotifyPlayerReady && currentPlaybackState) {
+                const action = currentPlaybackState.paused ? 'play' : 'pause';
+                controlSpotifyPlayback(action);
+                console.log(`🎵 ${action} via gesture`);
+            } else if (currentPlaylist.length > 0) {
+                // Fallback: play first track if nothing is playing
+                playTrackFromPlaylist(currentTrackIndex);
+            } else {
+                updateStatus('Load a playlist first', 'error');
+            }
+        }
+
+        // Stop music
+        function stopMusic() {
+            if (isSpotifyPlayerReady) {
+                controlSpotifyPlayback('pause');
+                console.log('⏹️ Music stopped via gesture');
+            }
+        }
+
+        // Next track
+        function nextTrack() {
+            if (isSpotifyPlayerReady) {
+                controlSpotifyPlayback('next');
+                console.log('⏭️ Next track via gesture');
+            } else if (currentPlaylist.length > 0) {
+                // Fallback for preview mode
+                currentTrackIndex = (currentTrackIndex + 1) % currentPlaylist.length;
+                playTrackFromPlaylist(currentTrackIndex);
+            }
+        }
+
+        // Previous track
+        function prevTrack() {
+            if (isSpotifyPlayerReady) {
+                controlSpotifyPlayback('previous');
+                console.log('⏮️ Previous track via gesture');
+            } else if (currentPlaylist.length > 0) {
+                // Fallback for preview mode
+                currentTrackIndex = (currentTrackIndex - 1 + currentPlaylist.length) % currentPlaylist.length;
+                playTrackFromPlaylist(currentTrackIndex);
+            }
+        }
+
+        // Play track from playlist
+        function playTrackFromPlaylist(trackIndex) {
+            if (currentPlaylist.length === 0) {
+                updateStatus('No playlist loaded', 'error');
+                return;
+            }
+            
+            const track = currentPlaylist[trackIndex];
+            if (!track) {
+                updateStatus('Track not found', 'error');
+                return;
+            }
+            
+            currentTrackIndex = trackIndex;
+            
+            if (isSpotifyPlayerReady && track.uri) {
+                // Play full track via Spotify Web API
+                playSpotifyTrack(track.uri);
+                updateStatus(`Playing full track: ${track.name}`, 'success');
+            } else if (track.preview_url) {
+                // Fallback to preview
+                playPreviewTrack(track);
+                updateStatus(`Playing preview: ${track.name}`, 'info');
+            } else {
+                updateStatus(`No playback available for: ${track.name}`, 'error');
+                // Try next track
+                setTimeout(() => nextTrack(), 1000);
+            }
+        }
+
+        // Fallback preview playback (for non-premium users)
+        let currentPreviewAudio = null;
+
+        function playPreviewTrack(track) {
+            if (currentPreviewAudio) {
+                currentPreviewAudio.pause();
+                currentPreviewAudio = null;
+            }
+            
+            if (track.preview_url) {
+                currentPreviewAudio = new Audio(track.preview_url);
+                currentPreviewAudio.volume = 0.7;
+                
+                currentPreviewAudio.play()
+                    .then(() => {
+                        updateCurrentTrackDisplayPreview(track, true);
+                        console.log('✅ Preview playing:', track.name);
+                    })
+                    .catch(e => {
+                        console.log('❌ Preview play failed:', e);
+                        updateStatus('Preview playback failed', 'error');
+                    });
+                
+                currentPreviewAudio.addEventListener('ended', () => {
+                    setTimeout(nextTrack, 500);
+                });
+            }
+        }
+
+        // Update current track display for full Spotify playback
+        function updateCurrentTrackDisplayFull(track, isPlaying, playbackState) {
+            const trackName = document.getElementById('currentTrackName');
+            const trackArtist = document.getElementById('currentTrackArtist');
+            const trackStatus = document.getElementById('trackStatus');
+            const trackArtwork = document.getElementById('trackArtwork');
+
+            if (track) {
+                trackName.textContent = track.name;
+                trackArtist.textContent = track.artists.map(artist => artist.name).join(', ') + 
+                                        (track.album ? ` • ${track.album.name}` : '');
+                
+                // Update artwork if available
+                if (track.album && track.album.images && track.album.images.length > 0) {
+                    trackArtwork.innerHTML = `<img src="${track.album.images[0].url}" alt="${track.name}">`;
+                } else {
+                    trackArtwork.textContent = '🎵';
+                }
+                
+                if (isPlaying) {
+                    trackStatus.style.display = 'flex';
+                    trackStatus.innerHTML = '<div class="pulse-dot"></div><span>Now Playing (Full Track)</span>';
+                } else {
+                    trackStatus.style.display = 'flex';
+                    trackStatus.innerHTML = '<span>⏸️ Paused (Full Track)</span>';
+                }
+            } else {
+                updateCurrentTrackDisplayEmpty();
+            }
+        }
+
+        // Update current track display for preview playback
+        function updateCurrentTrackDisplayPreview(track, isPlaying) {
+            const trackName = document.getElementById('currentTrackName');
+            const trackArtist = document.getElementById('currentTrackArtist');
+            const trackStatus = document.getElementById('trackStatus');
+            const trackArtwork = document.getElementById('trackArtwork');
+
+            if (track) {
+                trackName.textContent = track.name;
+                trackArtist.textContent = track.artist + (track.album ? ` • ${track.album}` : '');
+                trackArtwork.textContent = '🎵';
+                
+                if (isPlaying) {
+                    trackStatus.style.display = 'flex';
+                    trackStatus.innerHTML = '<div class="pulse-dot"></div><span>Preview Playing (30s)</span>';
+                } else {
+                    trackStatus.style.display = 'flex';
+                    trackStatus.innerHTML = '<span>⏸️ Preview Paused</span>';
+                }
+            } else {
+                updateCurrentTrackDisplayEmpty();
+            }
+        }
+
+        // Update empty track display
+        function updateCurrentTrackDisplayEmpty() {
+            const trackName = document.getElementById('currentTrackName');
+            const trackArtist = document.getElementById('currentTrackArtist');
+            const trackStatus = document.getElementById('trackStatus');
+            const trackArtwork = document.getElementById('trackArtwork');
+
+            trackName.textContent = 'No track playing';
+            const playlistStatus = currentPlaylist.length > 0 
+                ? `${currentPlaylist.length} tracks loaded • Use gestures to control`
+                : 'Connect Spotify Player and load a playlist to begin';
+            trackArtist.textContent = playlistStatus;
+            trackStatus.style.display = 'none';
+            trackArtwork.textContent = '🎵';
+        }
+
+        // Update track list playing state for full playback
+        function updateTrackListPlayingStateFull(currentTrack, isPlaying) {
+            if (!currentTrack) return;
+            
+            document.querySelectorAll('.track-item').forEach((item, index) => {
+                const playIcon = item.querySelector('.track-play-icon');
+                const trackTitle = item.querySelector('.track-title');
+                
+                if (trackTitle && trackTitle.textContent === currentTrack.name) {
+                    if (isPlaying) {
+                        item.classList.add('playing');
+                        playIcon.textContent = '⏸️';
+                    } else {
+                        item.classList.remove('playing');
+                        playIcon.textContent = '▶️';
+                    }
+                } else {
+                    item.classList.remove('playing');
+                    playIcon.textContent = '▶️';
+                }
+            });
+        }
+
+        // ========== HAND TRACKING FUNCTIONS (UNCHANGED) ==========
+
         // Improved MediaPipe hand tracking with multi-hand support
         function onResults(results) {
             if (!isTracking) return;
@@ -1058,7 +1570,7 @@
             }
         }
 
-        // Basic gesture detection logic (unchanged)
+        // Basic gesture detection logic
         function detectGestureBasic(landmarks) {
             try {
                 const tips = [4, 8, 12, 16, 20]; // Thumb, Index, Middle, Ring, Pinky tips
@@ -1141,7 +1653,7 @@
             }
         }
 
-        // Get emoji for gesture (unchanged)
+        // Get emoji for gesture
         function getGestureEmoji(gesture) {
             const emojiMap = {
                 'fist': '✊',
@@ -1154,7 +1666,7 @@
             return emojiMap[gesture] || '👋';
         }
 
-        // Handle gesture actions (unchanged)
+        // Handle gesture actions
         function handleGestureAction(gesture) {
             console.log(`🎵 Gesture Action: ${gesture}`);
             
@@ -1176,7 +1688,7 @@
             }
         }
 
-        // Start hand tracking with improved error handling (unchanged)
+        // Start hand tracking with improved error handling
         function startHandTracking() {
             console.log('🚀 Starting Hand Tracking...');
             updateStatus('Starting camera...', 'info');
@@ -1223,7 +1735,7 @@
             });
         }
 
-        // Initialize MediaPipe with better error handling (unchanged)
+        // Initialize MediaPipe with better error handling
         function initializeHandTracking() {
             try {
                 console.log('🔧 Initializing MediaPipe Hands...');
@@ -1236,7 +1748,7 @@
                 
                 // Configure for stability and performance - allow multiple hands
                 hands.setOptions({
-                    maxNumHands: 4, // Increased to support up to 4 hands
+                    maxNumHands: 4,
                     modelComplexity: 1,
                     minDetectionConfidence: 0.7,
                     minTrackingConfidence: 0.5
@@ -1254,7 +1766,6 @@
                                 await hands.send({image: video});
                             } catch (e) {
                                 console.warn('Frame processing error:', e);
-                                // Don't stop tracking on individual frame errors
                             }
                         }
                     },
@@ -1265,7 +1776,7 @@
                 camera.start()
                     .then(() => {
                         console.log('✅ Camera started successfully');
-                        updateStatus('🚀 Multi-hand tracking active! Show your hands to control music', 'success');
+                        updateStatus('🚀 Multi-hand tracking active! Use gestures to control full Spotify tracks', 'success');
                         
                         // Show debug info by default
                         document.getElementById('debugInfo').style.display = 'block';
@@ -1282,7 +1793,7 @@
             }
         }
 
-        // Stop hand tracking with proper cleanup (unchanged)
+        // Stop hand tracking with proper cleanup
         function stopHandTracking() {
             console.log('🛑 Stopping Hand Tracking...');
             
@@ -1346,7 +1857,7 @@
             console.log('✅ Hand tracking stopped and cleaned up');
         }
 
-        // Debug functions (unchanged)
+        // Debug functions
         function toggleDebugInfo() {
             const debugInfo = document.getElementById('debugInfo');
             const debugControls = document.getElementById('debugControls');
@@ -1371,190 +1882,8 @@
             }, 2000);
         }
 
-        // Music control functions (unchanged)
-        function toggleMusic() {
-            if (currentAudio) {
-                if (currentAudio.paused) {
-                    currentAudio.play().catch(e => console.log('Play failed:', e));
-                    console.log('▶️ Music resumed');
-                    updateStatus('Music playing', 'success');
-                    updateCurrentTrackDisplay(currentPlaylist[currentTrackIndex], true);
-                } else {
-                    currentAudio.pause();
-                    console.log('⏸️ Music paused');
-                    updateStatus('Music paused', 'info');
-                    updateCurrentTrackDisplay(currentPlaylist[currentTrackIndex], false);
-                }
-            } else {
-                playRandomTrack();
-            }
-        }
+        // ========== SPOTIFY PLAYLIST FUNCTIONS (ENHANCED) ==========
 
-        function stopMusic() {
-            if (currentAudio) {
-                currentAudio.pause();
-                currentAudio.currentTime = 0;
-                currentAudio = null;
-                updateCurrentTrackDisplay(null);
-                console.log('⏹️ Music stopped');
-                updateStatus('Music stopped', 'info');
-            }
-        }
-
-        function nextTrack() {
-            if (currentPlaylist.length > 0) {
-                // Find next track with preview
-                let attempts = 0;
-                const maxAttempts = currentPlaylist.length;
-                
-                do {
-                    currentTrackIndex = (currentTrackIndex + 1) % currentPlaylist.length;
-                    attempts++;
-                    
-                    if (currentPlaylist[currentTrackIndex] && currentPlaylist[currentTrackIndex].preview_url) {
-                        playTrack(currentPlaylist[currentTrackIndex]);
-                        console.log('⏭️ Next track found and playing');
-                        return;
-                    }
-                    
-                } while (attempts < maxAttempts);
-                
-                // If no tracks with previews found
-                console.log('❌ No tracks with previews available');
-                updateStatus('No more tracks with previews available', 'error');
-                
-            } else {
-                updateStatus('No playlist loaded - load Spotify playlists first', 'error');
-            }
-        }
-
-        function prevTrack() {
-            if (currentPlaylist.length > 0) {
-                // Find previous track with preview
-                let attempts = 0;
-                const maxAttempts = currentPlaylist.length;
-                
-                do {
-                    currentTrackIndex = (currentTrackIndex - 1 + currentPlaylist.length) % currentPlaylist.length;
-                    attempts++;
-                    
-                    if (currentPlaylist[currentTrackIndex] && currentPlaylist[currentTrackIndex].preview_url) {
-                        playTrack(currentPlaylist[currentTrackIndex]);
-                        console.log('⏮️ Previous track found and playing');
-                        return;
-                    }
-                    
-                } while (attempts < maxAttempts);
-                
-                // If no tracks with previews found
-                console.log('❌ No tracks with previews available');
-                updateStatus('No tracks with previews available', 'error');
-                
-            } else {
-                updateStatus('No playlist loaded - load Spotify playlists first', 'error');
-            }
-        }
-
-        function playRandomTrack() {
-            if (currentPlaylist.length > 0) {
-                currentTrackIndex = Math.floor(Math.random() * currentPlaylist.length);
-                playTrack(currentPlaylist[currentTrackIndex]);
-                console.log('🎲 Random track');
-            } else {
-                updateStatus('No playlist loaded - load Spotify playlists first', 'error');
-            }
-        }
-
-        function playTrack(track) {
-            if (track && track.preview_url) {
-                stopMusic();
-                
-                console.log(`🎵 Attempting to play: ${track.name} by ${track.artist}`);
-                updateStatus(`Loading: ${track.name}...`, 'info');
-                
-                currentAudio = new Audio(track.preview_url);
-                currentAudio.volume = 0.7;
-                currentAudio.crossOrigin = "anonymous"; // For CORS
-                
-                // Show loading state immediately
-                updateCurrentTrackDisplay(track, false);
-                
-                currentAudio.play()
-                    .then(() => {
-                        updateCurrentTrackDisplay(track, true);
-                        updateStatus(`♪ Playing: ${track.name}`, 'success');
-                        console.log('✅ Successfully playing:', track.name, 'by', track.artist);
-                    })
-                    .catch(e => {
-                        console.log('❌ Audio play failed:', e);
-                        updateStatus('Audio playback failed - trying next track', 'error');
-                        setTimeout(() => nextTrack(), 1000);
-                    });
-                
-                // Auto-next when track ends
-                currentAudio.addEventListener('ended', () => {
-                    console.log('Track ended, playing next...');
-                    setTimeout(nextTrack, 500);
-                });
-                
-                // Handle audio errors
-                currentAudio.addEventListener('error', (e) => {
-                    console.log('Audio error:', e);
-                    updateStatus('Audio error - skipping to next track', 'error');
-                    setTimeout(nextTrack, 1000);
-                });
-                
-                // Add loading state handler
-                currentAudio.addEventListener('loadstart', () => {
-                    console.log('🔄 Loading audio...');
-                });
-                
-                currentAudio.addEventListener('canplay', () => {
-                    console.log('✅ Audio ready to play');
-                });
-                
-            } else if (track) {
-                console.log('❌ No preview available for:', track.name);
-                updateStatus(`No preview for "${track.name}" - finding next track...`, 'info');
-                updateCurrentTrackDisplay(track, false);
-                setTimeout(nextTrack, 1500);
-            } else {
-                console.log('❌ No track provided to play function');
-                updateStatus('No track to play', 'error');
-            }
-        }
-
-        // Update current track display (Spotify-style) (unchanged)
-        function updateCurrentTrackDisplay(track, isPlaying = false) {
-            const trackName = document.getElementById('currentTrackName');
-            const trackArtist = document.getElementById('currentTrackArtist');
-            const trackStatus = document.getElementById('trackStatus');
-            const trackArtwork = document.getElementById('trackArtwork');
-
-            if (track) {
-                trackName.textContent = track.name;
-                trackArtist.textContent = track.artist + (track.album ? ` • ${track.album}` : '');
-                trackArtwork.textContent = '🎵';
-                
-                if (isPlaying) {
-                    trackStatus.style.display = 'flex';
-                    trackStatus.innerHTML = '<div class="pulse-dot"></div><span>Now Playing</span>';
-                } else {
-                    trackStatus.style.display = 'flex';
-                    trackStatus.innerHTML = '<span>⏸️ Paused</span>';
-                }
-            } else {
-                trackName.textContent = 'No track playing';
-                const playlistStatus = currentPlaylist.length > 0 
-                    ? `${currentPlaylist.length} tracks loaded • Use gestures to control`
-                    : 'Load a Spotify playlist to begin';
-                trackArtist.textContent = playlistStatus;
-                trackStatus.style.display = 'none';
-                trackArtwork.textContent = '🎵';
-            }
-        }
-
-        // Spotify Integration Functions (unchanged)
         function loadPlaylists() {
             console.log('🎵 Loading Spotify playlists...');
             const container = document.getElementById('playlistsContainer');
@@ -1566,6 +1895,21 @@
                 .then(data => {
                     if (data.authenticated) {
                         isSpotifyConnected = true;
+                        isSpotifyPremium = data.premium;
+                        
+                        if (!isSpotifyPremium) {
+                            container.innerHTML = `
+                                <div class="status premium-required">
+                                    ⚠️ Spotify Premium Required<br>
+                                    Full track playback requires Spotify Premium. You can still use 30-second previews.<br>
+                                    <button class="control-btn" onclick="fetchPlaylists()" style="margin-top: 10px;">
+                                        🎵 LOAD PLAYLISTS (PREVIEW MODE)
+                                    </button>
+                                </div>
+                            `;
+                            return;
+                        }
+                        
                         return fetchPlaylists();
                     } else {
                         // Redirect to Spotify auth
@@ -1665,6 +2009,7 @@
             const container = document.getElementById('playlistsContainer');
             
             const tracksWithPreviews = tracks.filter(track => track.preview_url);
+            const tracksWithUris = tracks.filter(track => track.uri);
             
             let tracksHTML = `
                 <div class="tracks-section">
@@ -1675,35 +2020,47 @@
                         </button>
                     </div>
                     <div class="tracks-info">
-                        ${tracks.length} tracks • ${tracksWithPreviews.length} with previews
+                        ${tracks.length} tracks • ${tracksWithUris.length} full tracks • ${tracksWithPreviews.length} previews
                     </div>
                     <div class="tracks-container">
             `;
             
             tracks.forEach((track, index) => {
-                const hasPreview = track.preview_url ? '' : 'no-preview';
+                const hasPreview = track.preview_url;
+                const hasUri = track.uri;
+                const playbackType = hasUri ? 'full' : (hasPreview ? 'preview' : 'none');
                 const isCurrentTrack = currentPlaylist.length > 0 && 
                                       currentTrackIndex < currentPlaylist.length && 
                                       currentPlaylist[currentTrackIndex].id === track.id;
-                const playingClass = isCurrentTrack && currentAudio && !currentAudio.paused ? 'playing' : '';
+                
+                let playingClass = '';
+                if (isCurrentTrack) {
+                    if (isSpotifyPlayerReady && currentPlaybackState && !currentPlaybackState.paused) {
+                        playingClass = 'playing';
+                    } else if (currentPreviewAudio && !currentPreviewAudio.paused) {
+                        playingClass = 'playing';
+                    }
+                }
+                
+                const playableClass = (hasUri || hasPreview) ? 'playable' : '';
                 
                 // Format duration
                 const duration = track.duration_ms ? formatDuration(track.duration_ms) : '--:--';
                 
                 tracksHTML += `
-                    <div class="track-item ${hasPreview} ${playingClass}" 
+                    <div class="track-item ${playableClass} ${playingClass}" 
                          ondblclick="playTrackFromList(${index})"
                          onclick="selectTrack(${index})">
                         <div class="track-number">${index + 1}</div>
                         <div class="track-play-icon">
-                            ${isCurrentTrack && currentAudio && !currentAudio.paused ? '⏸️' : '▶️'}
+                            ${playingClass ? '⏸️' : '▶️'}
                         </div>
                         <div class="track-info-container">
                             <div class="track-title">${track.name}</div>
                             <div class="track-artist">${track.artists.map(artist => artist.name).join(', ')}</div>
                         </div>
                         <div class="track-duration">${duration}</div>
-                        <div class="track-preview-indicator ${hasPreview}"></div>
+                        <div class="track-playback-indicator ${playbackType}"></div>
                     </div>
                 `;
             });
@@ -1736,27 +2093,21 @@
         function playTrackFromList(trackIndex) {
             console.log(`🎵 Playing track from list: ${trackIndex}`);
             
-            // Find the track in the full track list
+            // Get all track items
             const allTracks = document.querySelectorAll('.track-item');
             if (trackIndex >= 0 && trackIndex < allTracks.length) {
-                // Get track data from the currentPlaylist (which contains tracks with previews)
-                const tracksWithPreviews = currentPlaylist;
-                
-                // Find the corresponding track with preview
+                // Find the track data by getting track title from DOM
                 const trackElement = allTracks[trackIndex];
                 const trackTitle = trackElement.querySelector('.track-title').textContent;
                 
-                // Find this track in our preview playlist
-                const playableTrackIndex = tracksWithPreviews.findIndex(track => track.name === trackTitle);
+                // Find this track in our current playlist data
+                const playableTrackIndex = currentPlaylist.findIndex(track => track.name === trackTitle);
                 
                 if (playableTrackIndex !== -1) {
-                    currentTrackIndex = playableTrackIndex;
-                    playTrack(tracksWithPreviews[playableTrackIndex]);
-                    
-                    // Update visual state
+                    playTrackFromPlaylist(playableTrackIndex);
                     updateTrackListPlayingState(trackIndex);
                 } else {
-                    updateStatus('This track has no preview available', 'error');
+                    updateStatus('This track is not available for playback', 'error');
                 }
             }
         }
@@ -1804,31 +2155,36 @@
                     // Store all tracks for display
                     const allTracks = data.tracks || [];
                     
-                    // Filter tracks that have preview URLs for playback
-                    const tracksWithPreviews = allTracks.filter(track => 
-                        track && track.preview_url && track.name && track.artists
-                    );
-                    
-                    currentPlaylist = tracksWithPreviews.map(track => ({
+                    // Create playlist for playback - prefer full tracks, fallback to previews
+                    currentPlaylist = allTracks.filter(track => track && (track.uri || track.preview_url)).map(track => ({
                         id: track.id,
                         name: track.name,
                         artist: track.artists.map(artist => artist.name).join(', '),
                         album: track.album?.name || 'Unknown Album',
-                        preview_url: track.preview_url,
+                        uri: track.uri, // For full playback
+                        preview_url: track.preview_url, // Fallback
                         external_url: track.external_urls?.spotify,
                         duration_ms: track.duration_ms,
-                        popularity: track.popularity
+                        popularity: track.popularity,
+                        images: track.album?.images || []
                     }));
                     
                     currentTrackIndex = 0;
                     
-                    console.log(`✅ Loaded ${currentPlaylist.length} playable tracks out of ${allTracks.length} total`);
+                    const fullTracks = currentPlaylist.filter(track => track.uri).length;
+                    const previewTracks = currentPlaylist.filter(track => track.preview_url && !track.uri).length;
                     
-                    // Display the track list instead of auto-playing
+                    console.log(`✅ Loaded ${currentPlaylist.length} playable tracks: ${fullTracks} full, ${previewTracks} preview`);
+                    
+                    // Display the track list
                     displayTrackList(allTracks, playlistName);
                     
                     if (currentPlaylist.length > 0) {
-                        updateStatus(`${currentPlaylist.length} playable tracks loaded • Double-click to play`, 'success');
+                        if (isSpotifyPlayerReady && fullTracks > 0) {
+                            updateStatus(`${fullTracks} full tracks loaded • Double-click to play`, 'success');
+                        } else {
+                            updateStatus(`${previewTracks} preview tracks loaded • Connect Spotify Player for full tracks`, 'info');
+                        }
                     } else {
                         updateStatus(`No playable tracks found in "${playlistName}"`, 'error');
                         currentPlaylist = [];
@@ -1850,7 +2206,7 @@
             loadPlaylists();
         }
 
-        // Utility functions (unchanged)
+        // Utility functions
         function updateStatus(message, type) {
             const statusDiv = document.getElementById('status');
             statusDiv.textContent = '▸ ' + message;
@@ -1865,17 +2221,20 @@
         });
 
         // Initialize application
-        updateStatus('Ready - load Spotify playlists to begin', 'info');
-        updateCurrentTrackDisplay(null);
+        updateStatus('Ready - connect Spotify Player and load playlists to begin', 'info');
+        updateCurrentTrackDisplayEmpty();
+        updatePlayerStatus('Disconnected', false);
         
-        console.log('🎮 Multi-Hand DJ Studio Ready');
+        console.log('🎮 Multi-Hand DJ Studio with Full Spotify Integration Ready');
         console.log('🎵 Features:');
+        console.log('  - Full Spotify track playback via Web Playback SDK');
         console.log('  - Multi-hand detection and visualization');
         console.log('  - Hand masks and color-coded tracking');
         console.log('  - Spotify playlist integration');
-        console.log('  - Current track display (Spotify-style)');
+        console.log('  - Premium account support for full tracks');
+        console.log('  - Fallback to 30-second previews for free accounts');
         console.log('  - Hand gesture controls: ✋=play/pause, ☝️=next, ✌️=prev, ✊=stop');
-        console.log('💡 Load playlists first, then start hand tracking!');
+        console.log('💡 Steps: 1) Connect Spotify Player, 2) Load playlists, 3) Start hand tracking!');
         console.log('🖐️ Now supports up to 4 hands with individual masks!');
     </script>
 </body>

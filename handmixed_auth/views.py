@@ -1,4 +1,4 @@
-# handmixed_auth/views.py
+# handmixed_auth/views.py - CSRF Fixed Version
 import requests
 import base64
 import urllib.parse
@@ -43,15 +43,20 @@ def logout_view(request):
     request.session.pop('spotify_token_expires', None)
     return redirect('login')
 
-# Spotify OAuth Views
+# Spotify OAuth Views - UPDATED WITH FULL PLAYBACK SCOPES
 def spotify_auth(request):
-    """Redirect to Spotify authorization"""
+    """Redirect to Spotify authorization - UPDATED FOR FULL PLAYBACK"""
     scopes = [
         'user-read-private',
         'user-read-email', 
         'playlist-read-private',
         'playlist-read-collaborative',
-        'user-library-read'
+        'user-library-read',
+        # NEW SCOPES FOR FULL PLAYBACK:
+        'streaming',                    # Play full tracks
+        'user-modify-playback-state',   # Control playback
+        'user-read-playback-state',     # Read current playback
+        'user-read-currently-playing'   # Get current track
     ]
     
     # Store where user came from
@@ -88,11 +93,10 @@ def spotify_callback(request):
         })
     
     # Exchange code for access token
-    # IMPORTANT: Use the same redirect_uri that was used in authorization
     token_data = {
         'grant_type': 'authorization_code',
         'code': code,
-        'redirect_uri': 'http://127.0.0.1:8000/auth/callback/',  # Must match authorization
+        'redirect_uri': 'http://127.0.0.1:8000/auth/callback/',
     }
     
     # Create authorization header
@@ -142,13 +146,21 @@ def spotify_callback(request):
         spotify_email = spotify_user.get('email', f"{spotify_id}@spotify.local")
         spotify_name = spotify_user.get('display_name', spotify_id)
         
+        # Check if user has Spotify Premium (required for full playback)
+        is_premium = spotify_user.get('product') == 'premium'
+        if not is_premium:
+            logger.warning(f"User {spotify_id} does not have Spotify Premium")
+            request.session['spotify_premium'] = False
+        else:
+            request.session['spotify_premium'] = True
+        
         # Create or get Django user
         user, created = User.objects.get_or_create(
             username=spotify_id,
             defaults={
                 'email': spotify_email,
                 'first_name': spotify_name,
-                'last_name': '',  # Clear last name
+                'last_name': '',
             }
         )
         
@@ -156,7 +168,6 @@ def spotify_callback(request):
             logger.info(f"Created new user: {spotify_id} ({spotify_name})")
         else:
             logger.info(f"User already exists: {spotify_id} ({spotify_name})")
-            # Always update user info in case it changed on Spotify
             user.email = spotify_email
             user.first_name = spotify_name
             user.last_name = ''
@@ -188,12 +199,14 @@ def spotify_callback(request):
             'error': f'An unexpected error occurred: {str(e)}'
         })
 
-# API Views for the frontend
+# API Views for the frontend - FIXED WITH CSRF EXEMPT
 @login_required
+@csrf_exempt  # ADDED: Exempt from CSRF for API calls
 @require_http_methods(["GET"])
 def check_spotify_auth(request):
-    """Check if user has valid Spotify authentication"""
+    """Check if user has valid Spotify authentication - UPDATED"""
     access_token = request.session.get('spotify_access_token')
+    is_premium = request.session.get('spotify_premium', False)
     
     if not access_token:
         return JsonResponse({'authenticated': False})
@@ -211,10 +224,12 @@ def check_spotify_auth(request):
             user_info = response.json()
             return JsonResponse({
                 'authenticated': True,
+                'premium': is_premium,
                 'user': {
                     'id': user_info.get('id'),
                     'display_name': user_info.get('display_name'),
-                    'email': user_info.get('email')
+                    'email': user_info.get('email'),
+                    'product': user_info.get('product')
                 }
             })
         else:
@@ -226,11 +241,175 @@ def check_spotify_auth(request):
         logger.error(f"Error checking Spotify auth: {e}")
         return JsonResponse({'authenticated': False, 'error': str(e)})
 
-# Renamed function to match the frontend expectations
+# NEW API ENDPOINT: Get access token for frontend Web Playback SDK - FIXED CSRF
 @login_required
+@csrf_exempt  # ADDED: Exempt from CSRF for API calls
+@require_http_methods(["GET"])
+def get_spotify_token(request):
+    """Get Spotify access token for frontend Web Playback SDK"""
+    access_token = request.session.get('spotify_access_token')
+    is_premium = request.session.get('spotify_premium', False)
+    
+    logger.info(f"Token request: access_token={bool(access_token)}, premium={is_premium}")
+    
+    if not access_token:
+        return JsonResponse({'error': 'Not authenticated with Spotify'}, status=401)
+    
+    if not is_premium:
+        return JsonResponse({
+            'error': 'Spotify Premium required for full track playback',
+            'premium_required': True
+        }, status=403)
+    
+    return JsonResponse({
+        'access_token': access_token,
+        'premium': is_premium
+    })
+
+# NEW API ENDPOINT: Transfer playback to Web Playback SDK device - ALREADY HAS CSRF EXEMPT
+@login_required
+@require_http_methods(["POST"])
+@csrf_exempt
+def transfer_playback(request):
+    """Transfer playback to Web Playback SDK device"""
+    import json
+    
+    access_token = request.session.get('spotify_access_token')
+    if not access_token:
+        return JsonResponse({'error': 'Not authenticated'}, status=401)
+    
+    try:
+        data = json.loads(request.body)
+        device_id = data.get('device_id')
+        
+        if not device_id:
+            return JsonResponse({'error': 'Device ID required'}, status=400)
+        
+        headers = {'Authorization': f'Bearer {access_token}'}
+        response = requests.put(
+            'https://api.spotify.com/v1/me/player',
+            headers=headers,
+            json={
+                'device_ids': [device_id],
+                'play': False
+            },
+            timeout=10
+        )
+        
+        if response.status_code in [200, 204]:
+            return JsonResponse({'success': True})
+        else:
+            return JsonResponse({
+                'error': f'Transfer failed: {response.status_code}'
+            }, status=response.status_code)
+            
+    except Exception as e:
+        logger.error(f"Transfer playback error: {e}")
+        return JsonResponse({'error': str(e)}, status=500)
+
+# NEW API ENDPOINT: Play track on Web Playback SDK - ALREADY HAS CSRF EXEMPT
+@login_required
+@require_http_methods(["POST"])
+@csrf_exempt
+def play_track(request):
+    """Play a track using Spotify Web API"""
+    import json
+    
+    access_token = request.session.get('spotify_access_token')
+    if not access_token:
+        return JsonResponse({'error': 'Not authenticated'}, status=401)
+    
+    try:
+        data = json.loads(request.body)
+        track_uri = data.get('track_uri')
+        device_id = data.get('device_id')
+        
+        if not track_uri:
+            return JsonResponse({'error': 'Track URI required'}, status=400)
+        
+        headers = {'Authorization': f'Bearer {access_token}'}
+        play_data = {'uris': [track_uri]}
+        
+        url = 'https://api.spotify.com/v1/me/player/play'
+        if device_id:
+            url += f'?device_id={device_id}'
+        
+        response = requests.put(
+            url,
+            headers=headers,
+            json=play_data,
+            timeout=10
+        )
+        
+        if response.status_code in [200, 204]:
+            return JsonResponse({'success': True})
+        else:
+            return JsonResponse({
+                'error': f'Play failed: {response.status_code}',
+                'details': response.text
+            }, status=response.status_code)
+            
+    except Exception as e:
+        logger.error(f"Play track error: {e}")
+        return JsonResponse({'error': str(e)}, status=500)
+
+# NEW API ENDPOINT: Control playback - ALREADY HAS CSRF EXEMPT
+@login_required
+@require_http_methods(["POST"])
+@csrf_exempt
+def control_playback(request):
+    """Control Spotify playback (pause/play/next/previous)"""
+    import json
+    
+    access_token = request.session.get('spotify_access_token')
+    if not access_token:
+        return JsonResponse({'error': 'Not authenticated'}, status=401)
+    
+    try:
+        data = json.loads(request.body)
+        action = data.get('action')
+        device_id = data.get('device_id')
+        
+        if not action:
+            return JsonResponse({'error': 'Action required'}, status=400)
+        
+        headers = {'Authorization': f'Bearer {access_token}'}
+        
+        endpoint_map = {
+            'play': '/me/player/play',
+            'pause': '/me/player/pause',
+            'next': '/me/player/next',
+            'previous': '/me/player/previous'
+        }
+        
+        if action not in endpoint_map:
+            return JsonResponse({'error': 'Invalid action'}, status=400)
+        
+        url = f'https://api.spotify.com/v1{endpoint_map[action]}'
+        if device_id and action in ['play', 'pause']:
+            url += f'?device_id={device_id}'
+        
+        method = requests.put if action in ['play', 'pause'] else requests.post
+        response = method(url, headers=headers, timeout=10)
+        
+        if response.status_code in [200, 204]:
+            return JsonResponse({'success': True})
+        else:
+            return JsonResponse({
+                'error': f'{action.title()} failed: {response.status_code}',
+                'details': response.text
+            }, status=response.status_code)
+            
+    except Exception as e:
+        logger.error(f"Control playback error: {e}")
+        return JsonResponse({'error': str(e)}, status=500)
+
+# EXISTING FUNCTIONS (with CSRF exempt added where needed)
+@login_required
+@csrf_exempt  # ADDED: Exempt from CSRF for API calls
 @require_http_methods(["GET"])
 def get_user_playlists(request):
-    """Get user's Spotify playlists - renamed to match frontend API calls"""
+    """Get user's Spotify playlists"""
     access_token = request.session.get('spotify_access_token')
     
     if not access_token:
@@ -239,7 +418,6 @@ def get_user_playlists(request):
     try:
         headers = {'Authorization': f'Bearer {access_token}'}
         
-        # Get user's playlists
         playlists = []
         url = 'https://api.spotify.com/v1/me/playlists'
         
@@ -247,7 +425,6 @@ def get_user_playlists(request):
             response = requests.get(url, headers=headers, params={'limit': 50}, timeout=10)
             
             if response.status_code == 401:
-                # Token expired
                 request.session.pop('spotify_access_token', None)
                 return JsonResponse({'error': 'Spotify authentication expired'}, status=401)
             elif response.status_code != 200:
@@ -256,7 +433,6 @@ def get_user_playlists(request):
             data = response.json()
             
             for playlist in data.get('items', []):
-                # Only include playlists with tracks
                 if playlist.get('tracks', {}).get('total', 0) > 0:
                     playlists.append({
                         'id': playlist['id'],
@@ -273,7 +449,7 @@ def get_user_playlists(request):
                         'public': playlist.get('public', False)
                     })
             
-            url = data.get('next')  # Pagination
+            url = data.get('next')
         
         logger.info(f"Retrieved {len(playlists)} playlists for user {request.user.username}")
         return JsonResponse({'playlists': playlists})
@@ -283,9 +459,10 @@ def get_user_playlists(request):
         return JsonResponse({'error': f'Network error: {str(e)}'}, status=500)
 
 @login_required
+@csrf_exempt  # ADDED: Exempt from CSRF for API calls
 @require_http_methods(["GET"])
 def get_playlist_tracks(request, playlist_id):
-    """Get tracks from a specific playlist"""
+    """Get tracks from a specific playlist with Spotify URIs"""
     access_token = request.session.get('spotify_access_token')
     
     if not access_token:
@@ -294,7 +471,6 @@ def get_playlist_tracks(request, playlist_id):
     try:
         headers = {'Authorization': f'Bearer {access_token}'}
         
-        # Get playlist tracks
         tracks = []
         url = f'https://api.spotify.com/v1/playlists/{playlist_id}/tracks'
         
@@ -302,7 +478,10 @@ def get_playlist_tracks(request, playlist_id):
             response = requests.get(
                 url, 
                 headers=headers, 
-                params={'limit': 100, 'fields': 'items(track(id,name,artists,album,preview_url,external_urls,duration_ms,popularity)),next'},
+                params={
+                    'limit': 100, 
+                    'fields': 'items(track(id,name,artists,album,preview_url,external_urls,duration_ms,popularity,uri)),next'
+                },
                 timeout=10
             )
             
@@ -318,10 +497,11 @@ def get_playlist_tracks(request, playlist_id):
             
             for item in data.get('items', []):
                 track = item.get('track')
-                if track and track.get('id'):  # Skip null tracks
+                if track and track.get('id'):
                     tracks.append({
                         'id': track['id'],
                         'name': track['name'],
+                        'uri': track.get('uri'),
                         'artists': [{'name': artist['name']} for artist in track.get('artists', [])],
                         'album': {
                             'name': track.get('album', {}).get('name', 'Unknown Album'),
@@ -333,18 +513,19 @@ def get_playlist_tracks(request, playlist_id):
                         'popularity': track.get('popularity', 0)
                     })
             
-            url = data.get('next')  # Pagination
+            url = data.get('next')
         
-        # Filter tracks with previews and count them
         tracks_with_previews = [t for t in tracks if t['preview_url']]
+        tracks_with_uris = [t for t in tracks if t['uri']]
         
-        logger.info(f"Retrieved {len(tracks)} tracks, {len(tracks_with_previews)} with previews for user {request.user.username}")
+        logger.info(f"Retrieved {len(tracks)} tracks, {len(tracks_with_previews)} with previews, {len(tracks_with_uris)} with URIs")
         
         return JsonResponse({
             'tracks': tracks,
             'stats': {
                 'total_tracks': len(tracks),
-                'tracks_with_previews': len(tracks_with_previews)
+                'tracks_with_previews': len(tracks_with_previews),
+                'tracks_with_uris': len(tracks_with_uris)
             }
         })
         
