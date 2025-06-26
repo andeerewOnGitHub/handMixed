@@ -1,0 +1,139 @@
+<!-- templates/handmixed_auth/login.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HAND MIXED - Login</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Exo+2:wght@300;400;600&display=swap');
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Exo 2', sans-serif;
+            background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 25%, #2d2d30 50%, #1a1a1a 75%, #0a0a0a 100%);
+            background-size: 400% 400%;
+            animation: cosmicFlow 20s ease-in-out infinite;
+            min-height: 100vh;
+            color: #e0e0e0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        @keyframes cosmicFlow {
+            0%, 100% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+        }
+
+        .login-container {
+            background: linear-gradient(135deg, rgba(45, 45, 48, 0.9), rgba(26, 26, 26, 0.9));
+            backdrop-filter: blur(20px);
+            border-radius: 25px;
+            padding: 50px 40px;
+            text-align: center;
+            border: 2px solid;
+            border-image: linear-gradient(45deg, #00d4ff, #ff6b6b, #f39c12) 1;
+            box-shadow: 0 15px 50px rgba(0, 0, 0, 0.5);
+            max-width: 500px;
+            width: 90%;
+        }
+
+        .title {
+            font-family: 'Orbitron', monospace;
+            font-size: 3rem;
+            font-weight: 900;
+            background: linear-gradient(45deg, #00d4ff, #ff6b6b);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 20px;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+        }
+
+        .subtitle {
+            font-size: 1.2rem;
+            margin-bottom: 40px;
+            opacity: 0.8;
+            font-weight: 300;
+        }
+
+        .login-btn {
+            background: linear-gradient(135deg, #00d4ff, #f39c12);
+            border: none;
+            padding: 15px 30px;
+            border-radius: 25px;
+            color: #1a1a1a;
+            font-size: 1.2rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.4s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-family: 'Orbitron', monospace;
+            box-shadow: 0 8px 25px rgba(0, 212, 255, 0.3);
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .login-btn:hover {
+            transform: translateY(-5px) scale(1.05);
+            box-shadow: 0 15px 40px rgba(0, 212, 255, 0.5);
+            background: linear-gradient(135deg, #f39c12, #00d4ff);
+        }
+
+        .features {
+            margin-top: 40px;
+            text-align: left;
+        }
+
+        .feature {
+            display: flex;
+            align-items: center;
+            margin: 15px 0;
+            font-size: 1rem;
+        }
+
+        .feature-icon {
+            font-size: 1.5rem;
+            margin-right: 15px;
+            color: #00d4ff;
+        }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <h1 class="title">HAND MIXED</h1>
+        <p class="subtitle">Control Your Music with Hand Gestures</p>
+        
+        <a href="{% url 'spotify_auth' %}" class="login-btn">
+            🎵 LOGIN WITH SPOTIFY
+        </a>
+        
+        <div class="features">
+            <div class="feature">
+                <span class="feature-icon">✋</span>
+                <span>Control playback with hand gestures</span>
+            </div>
+            <div class="feature">
+                <span class="feature-icon">🎵</span>
+                <span>Access your Spotify playlists</span>
+            </div>
+            <div class="feature">
+                <span class="feature-icon">🎛️</span>
+                <span>Real-time DJ experience</span>
+            </div>
+            <div class="feature">
+                <span class="feature-icon">📹</span>
+                <span>Advanced hand tracking technology</span>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
