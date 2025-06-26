@@ -1,10 +1,9 @@
-<!-- templates/handmixed_auth/studio.html - Updated with Spotify Web Playback SDK -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>HAND MIXED - DJ Studio (Full Spotify Integration)</title>
+    <title>HandMixed - DJ Studio</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Exo+2:wght@300;400;600&display=swap');
         
@@ -19,11 +18,10 @@
             background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 25%, #2d2d30 50%, #1a1a1a 75%, #0a0a0a 100%);
             background-size: 400% 400%;
             animation: cosmicFlow 20s ease-in-out infinite;
-            min-height: 100vh;
+            height: 100vh;
             color: #e0e0e0;
-            padding: 15px;
+            overflow: hidden;
             position: relative;
-            overflow-x: hidden;
         }
 
         body::before {
@@ -54,38 +52,55 @@
             to { transform: translateY(-100px); }
         }
 
+        /* Header Section */
         .header {
-            background: linear-gradient(135deg, rgba(45, 45, 48, 0.9), rgba(26, 26, 26, 0.9));
+            background: linear-gradient(135deg, rgba(0, 0, 0, 0.9), rgba(26, 26, 26, 0.8));
             backdrop-filter: blur(20px);
-            border-radius: 15px;
-            padding: 20px 25px;
-            margin-bottom: 20px;
+            padding: 15px 30px;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            border: 2px solid;
+            border-bottom: 2px solid;
             border-image: linear-gradient(45deg, #00d4ff, #ff6b6b, #f39c12) 1;
-            box-shadow: 0 8px 32px rgba(0, 212, 255, 0.1);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+            height: 70px;
+            z-index: 100;
+            position: relative;
         }
 
-        .welcome {
+        .logo {
             font-family: 'Orbitron', monospace;
-            font-size: clamp(1.2rem, 3vw, 1.8rem);
-            font-weight: 700;
+            font-size: 2.5rem;
+            font-weight: 900;
             background: linear-gradient(45deg, #00d4ff, #ff6b6b);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .username {
+            font-family: 'Orbitron', monospace;
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: #00d4ff;
         }
 
         .logout-btn {
             background: linear-gradient(135deg, rgba(255, 107, 107, 0.2), rgba(0, 212, 255, 0.2));
             border: 1px solid rgba(255, 107, 107, 0.5);
             color: #ff6b6b;
-            padding: 12px 24px;
+            padding: 10px 20px;
             border-radius: 25px;
             cursor: pointer;
-            font-size: 1rem;
+            font-size: 0.9rem;
             font-weight: 600;
             transition: all 0.3s ease;
             text-decoration: none;
@@ -97,62 +112,61 @@
         .logout-btn:hover {
             background: linear-gradient(135deg, rgba(255, 107, 107, 0.4), rgba(0, 212, 255, 0.4));
             border-color: #ff6b6b;
-            transform: translateY(-3px);
-            box-shadow: 0 10px 30px rgba(255, 107, 107, 0.3);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(255, 107, 107, 0.3);
         }
 
-        .main-content {
+        /* Main DJ Interface */
+        .dj-interface {
             display: flex;
-            flex-direction: column;
+            height: calc(100vh - 70px - 300px); /* Header height - bottom section height */
+            padding: 20px;
             gap: 20px;
-            max-width: 1200px;
-            margin: 0 auto;
-            width: 100%;
         }
 
-        .video-section {
+        /* Left Deck */
+        .deck {
+            flex: 1;
             background: linear-gradient(135deg, rgba(45, 45, 48, 0.8), rgba(26, 26, 26, 0.8));
             backdrop-filter: blur(25px);
             border-radius: 20px;
             padding: 20px;
             border: 1px solid rgba(255, 255, 255, 0.1);
             box-shadow: 0 15px 50px rgba(0, 0, 0, 0.5);
-            position: relative;
-            width: 100%;
-        }
-
-        .section {
-            background: linear-gradient(135deg, rgba(45, 45, 48, 0.8), rgba(26, 26, 26, 0.8));
-            backdrop-filter: blur(25px);
-            border-radius: 25px;
-            padding: 35px;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            box-shadow: 0 15px 50px rgba(0, 0, 0, 0.5);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
             position: relative;
         }
 
-        .section h2 {
+        .deck-title {
             font-family: 'Orbitron', monospace;
             background: linear-gradient(45deg, #00d4ff, #f39c12);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
             margin-bottom: 20px;
-            font-size: clamp(1.5rem, 4vw, 2.2rem);
+            font-size: 1.5rem;
             font-weight: 900;
             text-align: center;
             text-transform: uppercase;
             letter-spacing: 2px;
         }
 
+        /* Center Video Section */
+        .center-section {
+            flex: 1.5;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
         .video-container {
             position: relative;
             width: 100%;
-            max-width: 800px;
-            margin: 0 auto;
             aspect-ratio: 16/9;
             background: #000;
-            border-radius: 15px;
+            border-radius: 20px;
             border: 4px solid #00d4ff;
             overflow: hidden;
             box-shadow: 
@@ -164,7 +178,7 @@
             width: 100%;
             height: 100%;
             object-fit: cover;
-            border-radius: 11px;
+            border-radius: 16px;
             display: none;
         }
 
@@ -174,66 +188,82 @@
             left: 0;
             width: 100%;
             height: 100%;
-            border-radius: 11px;
+            border-radius: 16px;
             pointer-events: none;
             z-index: 10;
         }
 
-        .video-controls {
+        .video-placeholder {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+            color: #00d4ff;
+            font-family: 'Orbitron', monospace;
+            font-size: 1.2rem;
+            font-weight: 600;
+        }
+
+        .control-buttons {
             display: flex;
+            gap: 10px;
             justify-content: center;
-            gap: 15px;
-            margin: 20px 0;
             flex-wrap: wrap;
         }
 
-        .video-controls .control-btn {
-            margin: 0;
-            width: auto;
-            min-width: 180px;
-            padding: 12px 25px;
-            font-size: clamp(0.9rem, 2vw, 1.1rem);
+        .control-btn {
+            background: linear-gradient(135deg, #00d4ff, #f39c12);
+            border: none;
+            padding: 12px 20px;
+            border-radius: 25px;
+            color: #1a1a1a;
+            font-size: 0.9rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.4s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-family: 'Orbitron', monospace;
+            box-shadow: 0 8px 25px rgba(0, 212, 255, 0.3);
+            min-width: 150px;
         }
 
+        .control-btn:hover {
+            transform: translateY(-3px) scale(1.02);
+            box-shadow: 0 12px 35px rgba(0, 212, 255, 0.5);
+            background: linear-gradient(135deg, #f39c12, #00d4ff);
+        }
+
+        .control-btn:disabled {
+            background: linear-gradient(135deg, #6c757d, #495057);
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+            opacity: 0.6;
+        }
+
+        .control-btn.stop {
+            background: linear-gradient(135deg, #ff6b6b, #e74c3c);
+            box-shadow: 0 8px 25px rgba(255, 107, 107, 0.3);
+        }
+
+        .control-btn.stop:hover {
+            background: linear-gradient(135deg, #e74c3c, #ff6b6b);
+            box-shadow: 0 12px 35px rgba(255, 107, 107, 0.5);
+        }
+
+        /* Status Messages */
         .status {
             background: linear-gradient(135deg, rgba(0, 212, 255, 0.1), rgba(243, 156, 18, 0.1));
             border-radius: 15px;
-            padding: 15px 20px;
-            margin: 15px 0;
-            font-size: clamp(1rem, 2.5vw, 1.1rem);
+            padding: 12px 20px;
+            margin: 10px 0;
+            font-size: 0.95rem;
             border: 1px solid rgba(0, 212, 255, 0.3);
             text-align: center;
             font-weight: 400;
             backdrop-filter: blur(10px);
-        }
-
-        .gesture-status {
-            background: linear-gradient(135deg, rgba(46, 204, 113, 0.2), rgba(0, 212, 255, 0.2));
-            border: 1px solid #2ecc71;
-            color: #2ecc71;
-            padding: 12px 15px;
-            border-radius: 12px;
-            text-align: center;
-            margin: 15px 0;
-            font-family: 'Orbitron', monospace;
-            font-weight: 600;
-            font-size: clamp(0.9rem, 2.5vw, 1.1rem);
-            min-height: 60px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .debug-info {
-            background: linear-gradient(135deg, rgba(243, 156, 18, 0.1), rgba(255, 107, 107, 0.1));
-            border: 1px solid #f39c12;
-            color: #f39c12;
-            padding: 15px;
-            border-radius: 12px;
-            margin: 15px 0;
-            font-family: 'Courier New', monospace;
-            font-size: 0.9rem;
-            line-height: 1.4;
         }
 
         .status.success {
@@ -254,78 +284,128 @@
             color: #00d4ff;
         }
 
-        .status.premium-required {
-            background: linear-gradient(135deg, rgba(255, 215, 0, 0.2), rgba(255, 165, 0, 0.2));
-            border-color: #ffd700;
-            color: #ffd700;
-        }
-
-        .control-btn {
-            background: linear-gradient(135deg, #00d4ff, #f39c12);
-            border: none;
-            padding: 12px 20px;
-            border-radius: 25px;
-            color: #1a1a1a;
-            font-size: clamp(0.9rem, 2.5vw, 1.2rem);
-            font-weight: 700;
-            cursor: pointer;
-            transition: all 0.4s ease;
-            margin: 10px;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            display: block;
-            width: calc(100% - 20px);
+        .gesture-status {
+            background: linear-gradient(135deg, rgba(46, 204, 113, 0.2), rgba(0, 212, 255, 0.2));
+            border: 1px solid #2ecc71;
+            color: #2ecc71;
+            padding: 10px 15px;
+            border-radius: 12px;
+            text-align: center;
+            margin: 10px 0;
             font-family: 'Orbitron', monospace;
-            box-shadow: 0 8px 25px rgba(0, 212, 255, 0.3);
+            font-weight: 600;
+            font-size: 0.9rem;
+            min-height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
 
-        .control-btn:hover {
-            transform: translateY(-5px) scale(1.02);
-            box-shadow: 0 15px 40px rgba(0, 212, 255, 0.5);
-            background: linear-gradient(135deg, #f39c12, #00d4ff);
+        /* Right Deck */
+        .right-deck {
+            flex: 1;
         }
 
-        .control-btn:disabled {
-            background: linear-gradient(135deg, #6c757d, #495057);
-            cursor: not-allowed;
-            transform: none;
-            box-shadow: none;
-            opacity: 0.6;
-        }
-
-        .control-btn.stop {
-            background: linear-gradient(135deg, #ff6b6b, #e74c3c);
-            box-shadow: 0 10px 30px rgba(255, 107, 107, 0.3);
-        }
-
-        .control-btn.stop:hover {
-            background: linear-gradient(135deg, #e74c3c, #ff6b6b);
-            box-shadow: 0 15px 40px rgba(255, 107, 107, 0.5);
-        }
-
-        /* NEW: Spotify Web Player Status */
-        .spotify-player-status {
-            background: linear-gradient(135deg, rgba(30, 215, 96, 0.2), rgba(0, 0, 0, 0.3));
+        /* Current Track Display */
+        .current-track {
+            background: linear-gradient(135deg, rgba(30, 215, 96, 0.2), rgba(0, 212, 255, 0.2));
             border: 2px solid #1ed760;
             border-radius: 15px;
             padding: 15px;
-            margin: 15px 0;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            min-height: 70px;
+        }
+
+        .track-artwork {
+            width: 50px;
+            height: 50px;
+            border-radius: 8px;
+            background: linear-gradient(135deg, #1ed760, #00d4ff);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            color: white;
+            flex-shrink: 0;
+            overflow: hidden;
+        }
+
+        .track-artwork img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 6px;
+        }
+
+        .track-info {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .track-name {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: #1ed760;
+            margin-bottom: 3px;
+            font-family: 'Orbitron', monospace;
+        }
+
+        .track-artist {
+            font-size: 0.9rem;
+            color: #e0e0e0;
+            opacity: 0.9;
+        }
+
+        .track-status {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.8rem;
+            color: #1ed760;
+            margin-top: 5px;
+        }
+
+        .pulse-dot {
+            width: 6px;
+            height: 6px;
+            background: #1ed760;
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.5; transform: scale(1.2); }
+        }
+
+        /* Spotify Player Status */
+        .spotify-player-status {
+            background: linear-gradient(135deg, rgba(30, 215, 96, 0.2), rgba(0, 0, 0, 0.3));
+            border: 2px solid #1ed760;
+            border-radius: 12px;
+            padding: 12px;
+            margin-bottom: 15px;
             display: flex;
             align-items: center;
             justify-content: space-between;
             flex-wrap: wrap;
-            gap: 10px;
+            gap: 8px;
         }
 
         .player-info {
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 8px;
         }
 
         .player-indicator {
-            width: 12px;
-            height: 12px;
+            width: 10px;
+            height: 10px;
             border-radius: 50%;
             background: #1ed760;
             animation: pulse 2s infinite;
@@ -340,152 +420,139 @@
             font-family: 'Orbitron', monospace;
             font-weight: 600;
             color: #1ed760;
+            font-size: 0.9rem;
         }
 
         .player-text.disconnected {
             color: #ff6b6b;
         }
 
-        /* Current Track Display - Enhanced for Full Playback */
-        .current-track {
-            background: linear-gradient(135deg, rgba(30, 215, 96, 0.2), rgba(0, 212, 255, 0.2));
-            border: 2px solid #1ed760;
-            border-radius: 20px;
-            padding: 20px;
-            margin: 20px 0;
-            display: flex;
-            align-items: center;
-            gap: 20px;
-            min-height: 80px;
-        }
-
-        .track-artwork {
-            width: 60px;
-            height: 60px;
-            border-radius: 10px;
-            background: linear-gradient(135deg, #1ed760, #00d4ff);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 24px;
-            color: white;
-            flex-shrink: 0;
-            overflow: hidden;
-        }
-
-        .track-artwork img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            border-radius: 8px;
-        }
-
-        .track-info {
-            flex: 1;
+        /* Bottom Music Library Section */
+        .music-library {
+            height: 300px;
+            background: linear-gradient(135deg, rgba(0, 0, 0, 0.9), rgba(26, 26, 26, 0.8));
+            backdrop-filter: blur(20px);
+            border-top: 2px solid;
+            border-image: linear-gradient(45deg, #00d4ff, #ff6b6b, #f39c12) 1;
             display: flex;
             flex-direction: column;
-            justify-content: center;
         }
 
-        .track-name {
-            font-size: clamp(1.1rem, 2.5vw, 1.4rem);
+        .library-header {
+            padding: 15px 30px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .library-title {
+            font-family: 'Orbitron', monospace;
+            font-size: 1.3rem;
             font-weight: 700;
-            color: #1ed760;
-            margin-bottom: 5px;
+            color: #00d4ff;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        .library-controls {
+            display: flex;
+            gap: 10px;
+        }
+
+        .library-btn {
+            background: linear-gradient(135deg, #00d4ff, #f39c12);
+            border: none;
+            padding: 8px 16px;
+            border-radius: 20px;
+            color: #1a1a1a;
+            font-size: 0.8rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
             font-family: 'Orbitron', monospace;
         }
 
-        .track-artist {
-            font-size: clamp(0.9rem, 2vw, 1.1rem);
-            color: #e0e0e0;
-            opacity: 0.9;
+        .library-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(0, 212, 255, 0.3);
         }
 
-        .track-status {
+        .library-content {
+            flex: 1;
             display: flex;
-            align-items: center;
-            gap: 10px;
-            font-size: 0.9rem;
-            color: #1ed760;
+            overflow: hidden;
         }
 
-        .pulse-dot {
-            width: 8px;
-            height: 8px;
-            background: #1ed760;
-            border-radius: 50%;
-            animation: pulse 2s infinite;
+        .playlists-sidebar {
+            width: 250px;
+            background: rgba(0, 0, 0, 0.5);
+            border-right: 1px solid rgba(255, 255, 255, 0.1);
+            overflow-y: auto;
+            padding: 15px;
         }
 
-        @keyframes pulse {
-            0%, 100% { opacity: 1; transform: scale(1); }
-            50% { opacity: 0.5; transform: scale(1.2); }
-        }
-
-        /* Playlist Styles */
         .playlist-item {
             background: linear-gradient(135deg, rgba(45, 45, 48, 0.6), rgba(26, 26, 26, 0.6));
-            border-radius: 18px;
-            padding: 15px;
-            margin: 10px 0;
+            border-radius: 12px;
+            padding: 12px;
+            margin: 8px 0;
             border: 1px solid rgba(0, 212, 255, 0.2);
             cursor: pointer;
-            transition: all 0.4s ease;
+            transition: all 0.3s ease;
             display: flex;
             align-items: center;
-            gap: 15px;
+            gap: 12px;
         }
 
         .playlist-item:hover {
             background: linear-gradient(135deg, rgba(0, 212, 255, 0.2), rgba(243, 156, 18, 0.2));
             border-color: #00d4ff;
-            transform: translateY(-2px) scale(1.01);
-            box-shadow: 0 10px 25px rgba(0, 212, 255, 0.3);
+            transform: translateY(-1px);
         }
 
         .playlist-item.active {
             background: linear-gradient(135deg, rgba(46, 204, 113, 0.3), rgba(0, 212, 255, 0.3));
             border-color: #2ecc71;
-            box-shadow: 0 0 20px rgba(46, 204, 113, 0.4);
+            box-shadow: 0 0 15px rgba(46, 204, 113, 0.4);
         }
 
         .playlist-image {
-            width: 50px;
-            height: 50px;
-            border-radius: 10px;
+            width: 40px;
+            height: 40px;
+            border-radius: 8px;
             object-fit: cover;
             border: 2px solid rgba(0, 212, 255, 0.5);
         }
 
         .playlist-info {
             flex: 1;
+            min-width: 0;
         }
 
         .playlist-name {
             font-family: 'Orbitron', monospace;
             font-weight: 600;
-            font-size: 1rem;
-            margin-bottom: 3px;
+            font-size: 0.9rem;
+            margin-bottom: 2px;
             color: #e0e0e0;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
 
         .playlist-details {
-            font-size: 0.8rem;
+            font-size: 0.7rem;
             opacity: 0.7;
             color: #00d4ff;
         }
 
-        .playlists-container {
-            max-height: 400px;
-            overflow-y: auto;
-            padding-right: 10px;
-        }
-
-        /* Track List Styles - Enhanced */
         .tracks-section {
-            margin-top: 20px;
-            padding-top: 20px;
-            border-top: 1px solid rgba(0, 212, 255, 0.3);
+            flex: 1;
+            overflow-y: auto;
+            padding: 15px;
         }
 
         .tracks-header {
@@ -493,37 +560,33 @@
             justify-content: space-between;
             align-items: center;
             margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid rgba(0, 212, 255, 0.3);
         }
 
         .tracks-title {
             font-family: 'Orbitron', monospace;
-            font-size: 1.2rem;
+            font-size: 1.1rem;
             font-weight: 600;
             color: #00d4ff;
         }
 
         .tracks-info {
-            font-size: 0.9rem;
+            font-size: 0.8rem;
             color: #f39c12;
-        }
-
-        .tracks-container {
-            max-height: 300px;
-            overflow-y: auto;
-            padding-right: 10px;
         }
 
         .track-item {
             background: linear-gradient(135deg, rgba(26, 26, 26, 0.6), rgba(45, 45, 48, 0.6));
-            border-radius: 12px;
-            padding: 12px 15px;
-            margin: 8px 0;
+            border-radius: 10px;
+            padding: 10px 12px;
+            margin: 6px 0;
             border: 1px solid rgba(255, 255, 255, 0.1);
             cursor: pointer;
             transition: all 0.3s ease;
             display: flex;
             align-items: center;
-            gap: 12px;
+            gap: 10px;
         }
 
         .track-item:hover {
@@ -544,23 +607,23 @@
 
         .track-number {
             font-family: 'Orbitron', monospace;
-            font-size: 0.9rem;
+            font-size: 0.8rem;
             font-weight: 600;
             color: #f39c12;
-            min-width: 25px;
+            min-width: 20px;
             text-align: center;
         }
 
         .track-play-icon {
-            width: 25px;
-            height: 25px;
+            width: 20px;
+            height: 20px;
             display: flex;
             align-items: center;
             justify-content: center;
             background: linear-gradient(135deg, #00d4ff, #f39c12);
             border-radius: 50%;
             color: #1a1a1a;
-            font-size: 12px;
+            font-size: 10px;
             font-weight: bold;
             opacity: 0;
             transition: opacity 0.3s ease;
@@ -581,7 +644,7 @@
         }
 
         .track-title {
-            font-size: 1rem;
+            font-size: 0.9rem;
             font-weight: 600;
             color: #e0e0e0;
             margin-bottom: 2px;
@@ -591,7 +654,7 @@
         }
 
         .track-artist {
-            font-size: 0.85rem;
+            font-size: 0.75rem;
             color: #b0b0b0;
             white-space: nowrap;
             overflow: hidden;
@@ -599,16 +662,16 @@
         }
 
         .track-duration {
-            font-size: 0.8rem;
+            font-size: 0.7rem;
             color: #888;
             font-family: 'Orbitron', monospace;
         }
 
         .track-playback-indicator {
-            width: 8px;
-            height: 8px;
+            width: 6px;
+            height: 6px;
             border-radius: 50%;
-            margin-left: 8px;
+            margin-left: 6px;
         }
 
         .track-playback-indicator.full {
@@ -623,14 +686,23 @@
             background: #666;
         }
 
+        .loading {
+            text-align: center;
+            padding: 40px;
+            font-size: 1.1rem;
+            opacity: 0.8;
+            color: #00d4ff;
+            font-family: 'Orbitron', monospace;
+        }
+
         .back-to-playlists {
             background: linear-gradient(135deg, rgba(255, 107, 107, 0.2), rgba(0, 212, 255, 0.2));
             border: 1px solid rgba(255, 107, 107, 0.5);
             color: #ff6b6b;
-            padding: 8px 16px;
-            border-radius: 20px;
+            padding: 6px 12px;
+            border-radius: 15px;
             cursor: pointer;
-            font-size: 0.9rem;
+            font-size: 0.8rem;
             font-weight: 600;
             transition: all 0.3s ease;
             font-family: 'Orbitron', monospace;
@@ -641,203 +713,238 @@
         .back-to-playlists:hover {
             background: linear-gradient(135deg, rgba(255, 107, 107, 0.4), rgba(0, 212, 255, 0.4));
             border-color: #ff6b6b;
-            transform: translateY(-2px);
+            transform: translateY(-1px);
         }
 
-        .loading {
-            text-align: center;
-            padding: 30px;
-            font-size: 1.1rem;
-            opacity: 0.8;
-            color: #00d4ff;
-            font-family: 'Orbitron', monospace;
+        /* Debug Info */
+        .debug-info {
+            background: linear-gradient(135deg, rgba(243, 156, 18, 0.1), rgba(255, 107, 107, 0.1));
+            border: 1px solid #f39c12;
+            color: #f39c12;
+            padding: 10px;
+            border-radius: 10px;
+            margin: 10px 0;
+            font-family: 'Courier New', monospace;
+            font-size: 0.8rem;
+            line-height: 1.3;
         }
 
+        /* Scrollbar Styling */
         ::-webkit-scrollbar {
-            width: 8px;
+            width: 6px;
         }
 
         ::-webkit-scrollbar-track {
             background: rgba(26, 26, 26, 0.5);
-            border-radius: 10px;
+            border-radius: 5px;
         }
 
         ::-webkit-scrollbar-thumb {
             background: linear-gradient(135deg, #00d4ff, #f39c12);
-            border-radius: 10px;
+            border-radius: 5px;
         }
 
-        /* Mobile responsive styles */
-        @media (max-width: 768px) {
-            body {
-                padding: 10px;
+        /* Mobile Responsive */
+        @media (max-width: 1200px) {
+            .dj-interface {
+                flex-direction: column;
+                height: auto;
+                max-height: calc(100vh - 70px - 350px);
             }
+            
+            .deck {
+                flex: none;
+                height: 200px;
+            }
+            
+            .music-library {
+                height: 350px;
+            }
+        }
 
+        @media (max-width: 768px) {
             .header {
                 flex-direction: column;
-                gap: 15px;
-                text-align: center;
-                padding: 15px 20px;
-            }
-            
-            .video-container {
-                max-width: 100%;
                 height: auto;
-            }
-            
-            .video-controls {
-                flex-direction: column;
-                align-items: center;
+                padding: 15px;
                 gap: 10px;
             }
             
-            .video-controls .control-btn {
-                min-width: 200px;
+            .logo {
+                font-size: 2rem;
+            }
+            
+            .dj-interface {
+                padding: 10px;
+                gap: 10px;
+            }
+            
+            .library-content {
+                flex-direction: column;
+            }
+            
+            .playlists-sidebar {
                 width: 100%;
-                max-width: 300px;
+                height: 120px;
+                border-right: none;
+                border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+                display: flex;
+                overflow-x: auto;
+                overflow-y: hidden;
+                padding: 10px;
             }
-
-            .section {
-                padding: 15px;
-            }
-
+            
             .playlist-item {
-                flex-direction: column;
-                text-align: center;
-                gap: 10px;
-                padding: 15px;
-            }
-
-            .playlist-info {
-                text-align: center;
-            }
-
-            .current-track {
-                flex-direction: column;
-                text-align: center;
-                gap: 15px;
-            }
-
-            .track-info {
-                text-align: center;
-            }
-
-            .spotify-player-status {
-                flex-direction: column;
-                text-align: center;
+                min-width: 200px;
+                margin: 0 5px;
             }
         }
     </style>
 </head>
 <body>
+    <!-- Header -->
     <div class="header">
-        <div class="welcome">
-            HAND MIXED ✦ {{ user_name }} ✦ FULL SPOTIFY
+        <div class="logo">HandMixed</div>
+        <div class="user-info">
+            <div class="username">{{ user_name }}</div>
+            <a href="{% url 'logout' %}" class="logout-btn">Logout</a>
         </div>
-        <a href="{% url 'logout' %}" class="logout-btn">
-            ⚡ LOGOUT
-        </a>
     </div>
 
-    <div class="main-content">
-        <!-- Video Section -->
-        <div class="video-section">
-            <h2>🎛️ HAND DJ STUDIO</h2>
+    <!-- Main DJ Interface -->
+    <div class="dj-interface">
+        <!-- Left Deck -->
+        <div class="deck">
+            <div class="deck-title">🎛️ Controls</div>
             
-            <div id="status" class="status info">
-                ▸ Ready to start hand-controlled DJ session with full Spotify integration
-            </div>
-
-            <!-- NEW: Spotify Web Player Status -->
+            <!-- Spotify Player Status -->
             <div class="spotify-player-status">
                 <div class="player-info">
                     <div class="player-indicator disconnected" id="playerIndicator"></div>
-                    <div class="player-text disconnected" id="playerText">Spotify Player: Disconnected</div>
+                    <div class="player-text disconnected" id="playerText">Disconnected</div>
                 </div>
-                <button class="control-btn" onclick="initializeSpotifyPlayer()" id="initPlayerBtn" style="margin: 0; padding: 8px 16px; font-size: 0.9rem;">
-                    🔗 CONNECT SPOTIFY PLAYER
+                <button class="library-btn" onclick="initializeSpotifyPlayer()" id="initPlayerBtn">
+                    Connect Spotify
                 </button>
             </div>
 
-            <div class="video-controls">
+            <!-- Current Track Display -->
+            <div class="current-track">
+                <div class="track-artwork" id="trackArtwork">🎵</div>
+                <div class="track-info">
+                    <div class="track-name" id="currentTrackName">No track playing</div>
+                    <div class="track-artist" id="currentTrackArtist">Connect Spotify to begin</div>
+                    <div class="track-status" id="trackStatus" style="display: none;">
+                        <div class="pulse-dot"></div>
+                        <span>Now Playing</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Control Buttons -->
+            <div class="control-buttons">
                 <button id="startBtn" class="control-btn" onclick="startHandTracking()">
-                    ◈ START HAND DJ MODE
+                    Start Hand DJ
                 </button>
                 <button id="stopBtn" class="control-btn stop" onclick="stopHandTracking()" style="display: none;">
-                    ◼ STOP HAND DJ MODE
+                    Stop Hand DJ
                 </button>
             </div>
 
+            <!-- Status Display -->
+            <div id="status" class="status info">
+                Ready to start hand-controlled DJ session
+            </div>
+        </div>
+
+        <!-- Center Video Section -->
+        <div class="center-section">
             <div class="video-container">
                 <video id="video" autoplay muted playsinline></video>
                 <canvas id="canvas"></canvas>
+                <div class="video-placeholder" id="videoPlaceholder">
+                    🎥 Camera Feed<br>
+                    <small>Start Hand DJ Mode to activate</small>
+                </div>
             </div>
 
+            <!-- Gesture Status -->
             <div id="gestureStatus" class="gesture-status">
-                🖐️ Show your hands to control music - gestures will appear here
+                🖐️ Show your hands to control music
             </div>
 
+            <!-- Debug Info -->
             <div id="debugInfo" class="debug-info" style="display: none;">
                 <div><strong>Debug Information:</strong></div>
-                <div id="debugText">Waiting for hand tracking to start...</div>
+                <div id="debugText">Hand tracking inactive</div>
             </div>
         </div>
 
-        <!-- Current Track Display -->
-        <div class="current-track">
-            <div class="track-artwork" id="trackArtwork">🎵</div>
-            <div class="track-info">
-                <div class="track-name" id="currentTrackName">No track playing</div>
-                <div class="track-artist" id="currentTrackArtist">Connect Spotify Player and load a playlist to begin</div>
-                <div class="track-status" id="trackStatus" style="display: none;">
-                    <div class="pulse-dot"></div>
-                    <span>Now Playing (Full Track)</span>
-                </div>
-            </div>
-        </div>
-
-        <!-- Music Library Section -->
-        <div class="section">
-            <h2>🎵 MUSIC LIBRARY</h2>
+        <!-- Right Deck -->
+        <div class="deck right-deck">
+            <div class="deck-title">🎚️ Effects</div>
             
-            <button class="control-btn" onclick="loadPlaylists()">
-                ◈ LOAD SPOTIFY PLAYLISTS
-            </button>
-
-            <button class="control-btn" onclick="toggleDebugInfo()" style="margin-top: 10px;">
-                🐛 TOGGLE DEBUG MODE
-            </button>
-
-            <button class="control-btn" onclick="testPlayFirstTrack()" id="testPlayBtn" style="margin-top: 10px;">
-                🧪 TEST PLAY FIRST TRACK
-            </button>
-
-            <button class="control-btn" onclick="testPlayFirstTrack()" id="testPlayBtn" style="margin-top: 10px;">
-                🧪 TEST PLAY FIRST TRACK
-            </button>
-
-            <div id="playlistsContainer">
-                <div class="loading">
-                    ▸ Load your Spotify playlists to start mixing with full tracks
-                </div>
+            <!-- Library Controls -->
+            <div class="control-buttons">
+                <button class="library-btn" onclick="toggleDebugInfo()">
+                    Toggle Debug
+                </button>
+                <button class="library-btn" onclick="testPlayFirstTrack()" id="testPlayBtn">
+                    Test Play Track
+                </button>
             </div>
 
-            <!-- Debug Test Controls (Hidden by default) -->
-            <div id="debugControls" style="display: none; margin-top: 20px;">
-                <h3 style="color: #f39c12; margin-bottom: 15px; text-align: center;">Gesture Tests</h3>
-                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 10px;">
-                    <button class="control-btn" onclick="testGesture('open')" style="font-size: 0.8rem; margin: 5px;">
-                        ✋ OPEN
+            <!-- Debug Test Controls -->
+            <div id="debugControls" style="display: none; margin-top: 15px;">
+                <h4 style="color: #f39c12; margin-bottom: 10px; text-align: center; font-size: 0.9rem;">Gesture Tests</h4>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+                    <button class="library-btn" onclick="testGesture('open')" style="font-size: 0.7rem; padding: 6px 10px;">
+                        ✋ Open
                     </button>
-                    <button class="control-btn" onclick="testGesture('one')" style="font-size: 0.8rem; margin: 5px;">
-                        ☝️ ONE
+                    <button class="library-btn" onclick="testGesture('one')" style="font-size: 0.7rem; padding: 6px 10px;">
+                        ☝️ One
                     </button>
-                    <button class="control-btn" onclick="testGesture('peace')" style="font-size: 0.8rem; margin: 5px;">
-                        ✌️ PEACE
+                    <button class="library-btn" onclick="testGesture('peace')" style="font-size: 0.7rem; padding: 6px 10px;">
+                        ✌️ Peace
                     </button>
-                    <button class="control-btn" onclick="testGesture('fist')" style="font-size: 0.8rem; margin: 5px;">
-                        ✊ FIST
+                    <button class="library-btn" onclick="testGesture('fist')" style="font-size: 0.7rem; padding: 6px 10px;">
+                        ✊ Fist
                     </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bottom Music Library Section -->
+    <div class="music-library">
+        <div class="library-header">
+            <div class="library-title">🎵 Music Library</div>
+            <div class="library-controls">
+                <button class="library-btn" onclick="loadPlaylists()" id="loadPlaylistsBtn">
+                    Load Playlists
+                </button>
+                <button class="library-btn" onclick="refreshPlaylists()" style="display: none;" id="refreshBtn">
+                    Refresh
+                </button>
+            </div>
+        </div>
+        
+        <div class="library-content">
+            <!-- Left Sidebar - Playlists -->
+            <div class="playlists-sidebar">
+                <div id="playlistsContainer">
+                    <div class="loading">
+                        Connect Spotify to load your playlists
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Right Section - Tracks -->
+            <div class="tracks-section">
+                <div id="tracksContainer">
+                    <div class="loading">
+                        Select a playlist to view tracks
+                    </div>
                 </div>
             </div>
         </div>
@@ -853,7 +960,7 @@
     <script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js"></script>
 
     <script>
-        console.log('🎛️ Hand Mixed DJ Studio with Full Spotify Integration Ready');
+        console.log('🎛️ HandMixed DJ Studio Ready');
         
         // Global variables
         let stream = null;
@@ -862,7 +969,7 @@
         let isTracking = false;
         let debugMode = false;
         
-        // Spotify Integration Variables - UPDATED FOR FULL PLAYBACK
+        // Spotify Integration Variables
         let spotifyPlayer = null;
         let spotifyDeviceId = null;
         let spotifyAccessToken = null;
@@ -879,7 +986,7 @@
         let lastFpsUpdate = Date.now();
         let currentFps = 0;
         
-        // Gesture tracking with better stability for multiple hands
+        // Gesture tracking
         let handGestures = {};
         let gestureHistory = [];
         let gestureStabilityCount = 0;
@@ -895,10 +1002,8 @@
 
         // ========== SPOTIFY WEB PLAYBACK SDK FUNCTIONS ==========
 
-        // Initialize Spotify Web Playback SDK
         window.onSpotifyWebPlaybackSDKReady = () => {
             console.log('🎵 Spotify Web Playback SDK is ready');
-            // Don't auto-initialize - wait for user click
         };
 
         async function initializeSpotifyPlayer() {
@@ -906,13 +1011,12 @@
             updateStatus('Connecting to Spotify Player...', 'info');
             
             try {
-                // Get access token from backend
                 const tokenResponse = await fetch('/api/spotify/token/');
                 const tokenData = await tokenResponse.json();
                 
                 if (!tokenResponse.ok) {
                     if (tokenData.premium_required) {
-                        updateStatus('Spotify Premium required for full track playback', 'premium-required');
+                        updateStatus('Spotify Premium required for full track playback', 'error');
                         updatePlayerStatus('Premium Required', false);
                         return;
                     }
@@ -923,12 +1027,11 @@
                 isSpotifyPremium = tokenData.premium;
                 
                 if (!isSpotifyPremium) {
-                    updateStatus('Spotify Premium required for full track playback', 'premium-required');
+                    updateStatus('Spotify Premium required for full track playback', 'error');
                     updatePlayerStatus('Premium Required', false);
                     return;
                 }
                 
-                // Create Spotify Player
                 spotifyPlayer = new Spotify.Player({
                     name: 'HandMixed DJ Studio',
                     getOAuthToken: cb => { cb(spotifyAccessToken); },
@@ -950,7 +1053,7 @@
 
                 spotifyPlayer.addListener('account_error', ({ message }) => {
                     console.error('🚫 Spotify Account error:', message);
-                    updateStatus('Spotify Premium account required', 'premium-required');
+                    updateStatus('Spotify Premium account required', 'error');
                     updatePlayerStatus('Premium Required', false);
                 });
 
@@ -977,10 +1080,14 @@
                     spotifyDeviceId = device_id;
                     isSpotifyPlayerReady = true;
                     updatePlayerStatus('Connected', true);
-                    updateStatus('Spotify Player connected! Load playlists to start mixing', 'success');
+                    updateStatus('Spotify Player connected! Loading playlists...', 'success');
                     
-                    // Transfer playback to this device
                     transferPlaybackToDevice(device_id);
+                    
+                    // Auto-load playlists after connection
+                    setTimeout(() => {
+                        loadPlaylists();
+                    }, 1000);
                 });
 
                 spotifyPlayer.addListener('not_ready', ({ device_id }) => {
@@ -990,7 +1097,6 @@
                     updatePlayerStatus('Disconnected', false);
                 });
 
-                // Connect the player
                 const success = await spotifyPlayer.connect();
                 
                 if (success) {
@@ -1007,7 +1113,6 @@
             }
         }
 
-        // Transfer playback to our device
         async function transferPlaybackToDevice(deviceId) {
             try {
                 const response = await fetch('/api/spotify/transfer-playback/', {
@@ -1026,7 +1131,6 @@
             }
         }
 
-        // Update player status display
         function updatePlayerStatus(status, isConnected) {
             const indicator = document.getElementById('playerIndicator');
             const text = document.getElementById('playerText');
@@ -1035,17 +1139,16 @@
             if (isConnected) {
                 indicator.classList.remove('disconnected');
                 text.classList.remove('disconnected');
-                text.textContent = `Spotify Player: ${status}`;
+                text.textContent = status;
                 initBtn.style.display = 'none';
             } else {
                 indicator.classList.add('disconnected');
                 text.classList.add('disconnected');
-                text.textContent = `Spotify Player: ${status}`;
+                text.textContent = status;
                 initBtn.style.display = 'block';
             }
         }
 
-        // Play track using Spotify Web API
         async function playSpotifyTrack(trackUri) {
             if (!spotifyDeviceId) {
                 updateStatus('Spotify Player not connected', 'error');
@@ -1080,7 +1183,6 @@
             }
         }
 
-        // Control Spotify playback
         async function controlSpotifyPlayback(action) {
             if (!spotifyDeviceId) {
                 updateStatus('Spotify Player not connected', 'error');
@@ -1115,23 +1217,20 @@
             }
         }
 
-        // ========== ENHANCED MUSIC CONTROL FUNCTIONS ==========
+        // ========== MUSIC CONTROL FUNCTIONS ==========
 
-        // Toggle music (play/pause)
         function toggleMusic() {
             if (isSpotifyPlayerReady && currentPlaybackState) {
                 const action = currentPlaybackState.paused ? 'play' : 'pause';
                 controlSpotifyPlayback(action);
                 console.log(`🎵 ${action} via gesture`);
             } else if (currentPlaylist.length > 0) {
-                // Fallback: play first track if nothing is playing
                 playTrackFromPlaylist(currentTrackIndex);
             } else {
                 updateStatus('Load a playlist first', 'error');
             }
         }
 
-        // Stop music
         function stopMusic() {
             if (isSpotifyPlayerReady) {
                 controlSpotifyPlayback('pause');
@@ -1139,31 +1238,26 @@
             }
         }
 
-        // Next track
         function nextTrack() {
             if (isSpotifyPlayerReady) {
                 controlSpotifyPlayback('next');
                 console.log('⏭️ Next track via gesture');
             } else if (currentPlaylist.length > 0) {
-                // Fallback for preview mode
                 currentTrackIndex = (currentTrackIndex + 1) % currentPlaylist.length;
                 playTrackFromPlaylist(currentTrackIndex);
             }
         }
 
-        // Previous track
         function prevTrack() {
             if (isSpotifyPlayerReady) {
                 controlSpotifyPlayback('previous');
                 console.log('⏮️ Previous track via gesture');
             } else if (currentPlaylist.length > 0) {
-                // Fallback for preview mode
                 currentTrackIndex = (currentTrackIndex - 1 + currentPlaylist.length) % currentPlaylist.length;
                 playTrackFromPlaylist(currentTrackIndex);
             }
         }
 
-        // Play track from playlist
         function playTrackFromPlaylist(trackIndex) {
             if (currentPlaylist.length === 0) {
                 updateStatus('No playlist loaded', 'error');
@@ -1179,21 +1273,17 @@
             currentTrackIndex = trackIndex;
             
             if (isSpotifyPlayerReady && track.uri) {
-                // Play full track via Spotify Web API
                 playSpotifyTrack(track.uri);
-                updateStatus(`Playing full track: ${track.name}`, 'success');
+                updateStatus(`Playing: ${track.name}`, 'success');
             } else if (track.preview_url) {
-                // Fallback to preview
                 playPreviewTrack(track);
                 updateStatus(`Playing preview: ${track.name}`, 'info');
             } else {
                 updateStatus(`No playback available for: ${track.name}`, 'error');
-                // Try next track
                 setTimeout(() => nextTrack(), 1000);
             }
         }
 
-        // Fallback preview playback (for non-premium users)
         let currentPreviewAudio = null;
 
         function playPreviewTrack(track) {
@@ -1222,7 +1312,6 @@
             }
         }
 
-        // Update current track display for full Spotify playback
         function updateCurrentTrackDisplayFull(track, isPlaying, playbackState) {
             const trackName = document.getElementById('currentTrackName');
             const trackArtist = document.getElementById('currentTrackArtist');
@@ -1234,7 +1323,6 @@
                 trackArtist.textContent = track.artists.map(artist => artist.name).join(', ') + 
                                         (track.album ? ` • ${track.album.name}` : '');
                 
-                // Update artwork if available
                 if (track.album && track.album.images && track.album.images.length > 0) {
                     trackArtwork.innerHTML = `<img src="${track.album.images[0].url}" alt="${track.name}">`;
                 } else {
@@ -1243,17 +1331,16 @@
                 
                 if (isPlaying) {
                     trackStatus.style.display = 'flex';
-                    trackStatus.innerHTML = '<div class="pulse-dot"></div><span>Now Playing (Full Track)</span>';
+                    trackStatus.innerHTML = '<div class="pulse-dot"></div><span>Now Playing</span>';
                 } else {
                     trackStatus.style.display = 'flex';
-                    trackStatus.innerHTML = '<span>⏸️ Paused (Full Track)</span>';
+                    trackStatus.innerHTML = '<span>⏸️ Paused</span>';
                 }
             } else {
                 updateCurrentTrackDisplayEmpty();
             }
         }
 
-        // Update current track display for preview playback
         function updateCurrentTrackDisplayPreview(track, isPlaying) {
             const trackName = document.getElementById('currentTrackName');
             const trackArtist = document.getElementById('currentTrackArtist');
@@ -1267,7 +1354,7 @@
                 
                 if (isPlaying) {
                     trackStatus.style.display = 'flex';
-                    trackStatus.innerHTML = '<div class="pulse-dot"></div><span>Preview Playing (30s)</span>';
+                    trackStatus.innerHTML = '<div class="pulse-dot"></div><span>Preview (30s)</span>';
                 } else {
                     trackStatus.style.display = 'flex';
                     trackStatus.innerHTML = '<span>⏸️ Preview Paused</span>';
@@ -1277,7 +1364,6 @@
             }
         }
 
-        // Update empty track display
         function updateCurrentTrackDisplayEmpty() {
             const trackName = document.getElementById('currentTrackName');
             const trackArtist = document.getElementById('currentTrackArtist');
@@ -1286,14 +1372,13 @@
 
             trackName.textContent = 'No track playing';
             const playlistStatus = currentPlaylist.length > 0 
-                ? `${currentPlaylist.length} tracks loaded • Use gestures to control`
-                : 'Connect Spotify Player and load a playlist to begin';
+                ? `${currentPlaylist.length} tracks loaded`
+                : 'Connect Spotify to begin';
             trackArtist.textContent = playlistStatus;
             trackStatus.style.display = 'none';
             trackArtwork.textContent = '🎵';
         }
 
-        // Update track list playing state for full playback
         function updateTrackListPlayingStateFull(currentTrack, isPlaying) {
             if (!currentTrack) return;
             
@@ -1316,900 +1401,8 @@
             });
         }
 
-        // ========== HAND TRACKING FUNCTIONS (UNCHANGED) ==========
+        // ========== TEST FUNCTION ==========
 
-        // Improved MediaPipe hand tracking with multi-hand support
-        function onResults(results) {
-            if (!isTracking) return;
-            
-            // Update FPS counter
-            frameCount++;
-            const now = Date.now();
-            if (now - lastFpsUpdate > 1000) {
-                currentFps = Math.round(frameCount * 1000 / (now - lastFpsUpdate));
-                frameCount = 0;
-                lastFpsUpdate = now;
-            }
-
-            const canvasElement = document.getElementById('canvas');
-            const canvasCtx = canvasElement.getContext('2d');
-            const videoElement = document.getElementById('video');
-            
-            // Ensure canvas matches video dimensions
-            if (videoElement.videoWidth && videoElement.videoHeight) {
-                if (canvasElement.width !== videoElement.videoWidth || canvasElement.height !== videoElement.videoHeight) {
-                    canvasElement.width = videoElement.videoWidth;
-                    canvasElement.height = videoElement.videoHeight;
-                }
-                
-                // Clear canvas
-                canvasCtx.clearRect(0, 0, canvasElement.width, canvasElement.height);
-                canvasCtx.save();
-                
-                // Set up text style
-                canvasCtx.fillStyle = '#ffffff';
-                canvasCtx.font = 'bold 18px Arial';
-                canvasCtx.shadowColor = '#000000';
-                canvasCtx.shadowBlur = 3;
-                
-                // Display performance info
-                canvasCtx.fillText(`FPS: ${currentFps} | Frame: ${frameCount}`, 10, 25);
-                
-                let debugText = `FPS: ${currentFps} | Processing: ${results.multiHandLandmarks ? results.multiHandLandmarks.length : 0} hands\n`;
-                
-                if (results.multiHandLandmarks && results.multiHandLandmarks.length > 0) {
-                    // Process all detected hands
-                    results.multiHandLandmarks.forEach((landmarks, handIndex) => {
-                        const handColor = handColors[handIndex % handColors.length];
-                        
-                        // Draw hand landmarks with unique colors for each hand
-                        drawDetailedHand(canvasCtx, landmarks, handIndex, handColor);
-                        
-                        // Detect gesture for this hand
-                        const detectedGesture = detectGestureBasic(landmarks);
-                        handGestures[handIndex] = detectedGesture;
-                        
-                        // Display gesture info on canvas
-                        canvasCtx.fillStyle = handColor.main;
-                        canvasCtx.font = 'bold 20px Arial';
-                        const yOffset = 55 + (handIndex * 30);
-                        canvasCtx.fillText(`Hand ${handIndex + 1} (${handColor.name}): ${detectedGesture ? detectedGesture.toUpperCase() : 'Unknown'}`, 10, yOffset);
-                        
-                        debugText += `Hand ${handIndex + 1}: ${detectedGesture || 'Unknown'}\n`;
-                        
-                        // Get hand center for debugging
-                        const handCenter = landmarks[9];
-                        debugText += `  Center: (${Math.round(handCenter.x * 1000)/1000}, ${Math.round(handCenter.y * 1000)/1000})\n`;
-                    });
-                    
-                    // Update gesture status with all hands
-                    updateMultiHandGestureStatus(handGestures);
-                    
-                    // Handle primary hand gesture (hand 0) for music control
-                    if (handGestures[0]) {
-                        handleGestureStability(handGestures[0]);
-                    }
-                    
-                } else {
-                    canvasCtx.fillStyle = '#ff6b6b';
-                    canvasCtx.fillText('No hands detected', 10, 55);
-                    debugText += 'No hands detected';
-                    
-                    // Reset all gestures when no hands
-                    handGestures = {};
-                    gestureStabilityCount = 0;
-                    updateMultiHandGestureStatus({});
-                }
-                
-                canvasCtx.restore();
-                
-                // Update debug info
-                if (debugMode) {
-                    document.getElementById('debugText').innerHTML = debugText.replace(/\n/g, '<br>');
-                }
-            }
-        }
-
-        // Enhanced hand drawing with unique colors and hand index
-        function drawDetailedHand(ctx, landmarks, handIndex, handColor) {
-            const { main, accent } = handColor;
-            
-            // Draw all landmarks as points with hand-specific colors
-            ctx.fillStyle = main;
-            landmarks.forEach((landmark, index) => {
-                const x = landmark.x * ctx.canvas.width;
-                const y = landmark.y * ctx.canvas.height;
-                
-                // Different sizes for key landmarks
-                const isKeyPoint = [0, 4, 8, 12, 16, 20].includes(index);
-                const radius = isKeyPoint ? 6 : 3;
-                
-                ctx.beginPath();
-                ctx.arc(x, y, radius, 0, 2 * Math.PI);
-                ctx.fill();
-                
-                // Label key points with hand index
-                if (isKeyPoint) {
-                    ctx.fillStyle = '#ffffff';
-                    ctx.font = 'bold 10px Arial';
-                    ctx.strokeStyle = '#000000';
-                    ctx.lineWidth = 2;
-                    ctx.strokeText(`H${handIndex + 1}:${index}`, x + 8, y - 8);
-                    ctx.fillText(`H${handIndex + 1}:${index}`, x + 8, y - 8);
-                    ctx.fillStyle = main;
-                }
-            });
-            
-            // Draw hand connections with accent color
-            const connections = [
-                [0, 1], [1, 2], [2, 3], [3, 4], // Thumb
-                [0, 5], [5, 6], [6, 7], [7, 8], // Index
-                [0, 9], [9, 10], [10, 11], [11, 12], // Middle
-                [0, 13], [13, 14], [14, 15], [15, 16], // Ring
-                [0, 17], [17, 18], [18, 19], [19, 20], // Pinky
-                [5, 9], [9, 13], [13, 17] // Palm connections
-            ];
-            
-            ctx.strokeStyle = accent;
-            ctx.lineWidth = 2;
-            ctx.beginPath();
-            
-            connections.forEach(([start, end]) => {
-                const startPoint = landmarks[start];
-                const endPoint = landmarks[end];
-                const x1 = startPoint.x * ctx.canvas.width;
-                const y1 = startPoint.y * ctx.canvas.height;
-                const x2 = endPoint.x * ctx.canvas.width;
-                const y2 = endPoint.y * ctx.canvas.height;
-                
-                ctx.moveTo(x1, y1);
-                ctx.lineTo(x2, y2);
-            });
-            
-            ctx.stroke();
-            
-            // Draw hand outline/mask with semi-transparent fill
-            drawHandMask(ctx, landmarks, handIndex, handColor);
-        }
-
-        // New function to draw hand mask/outline
-        function drawHandMask(ctx, landmarks, handIndex, handColor) {
-            const { main, accent } = handColor;
-            
-            // Create hand outline points (simplified hull around hand)
-            const hullPoints = [
-                landmarks[0],  // Wrist
-                landmarks[1],  // Thumb base
-                landmarks[2],  // Thumb joint
-                landmarks[4],  // Thumb tip
-                landmarks[3],  // Thumb back
-                landmarks[5],  // Index base
-                landmarks[8],  // Index tip
-                landmarks[12], // Middle tip
-                landmarks[16], // Ring tip
-                landmarks[20], // Pinky tip
-                landmarks[17], // Pinky base
-                landmarks[0]   // Back to wrist
-            ];
-            
-            // Draw filled mask
-            ctx.save();
-            ctx.globalAlpha = 0.15;
-            ctx.fillStyle = main;
-            ctx.beginPath();
-            
-            hullPoints.forEach((point, index) => {
-                const x = point.x * ctx.canvas.width;
-                const y = point.y * ctx.canvas.height;
-                
-                if (index === 0) {
-                    ctx.moveTo(x, y);
-                } else {
-                    ctx.lineTo(x, y);
-                }
-            });
-            
-            ctx.closePath();
-            ctx.fill();
-            ctx.restore();
-            
-            // Draw hand outline
-            ctx.save();
-            ctx.strokeStyle = main;
-            ctx.lineWidth = 3;
-            ctx.setLineDash([5, 5]);
-            ctx.beginPath();
-            
-            hullPoints.forEach((point, index) => {
-                const x = point.x * ctx.canvas.width;
-                const y = point.y * ctx.canvas.height;
-                
-                if (index === 0) {
-                    ctx.moveTo(x, y);
-                } else {
-                    ctx.lineTo(x, y);
-                }
-            });
-            
-            ctx.closePath();
-            ctx.stroke();
-            ctx.restore();
-            
-            // Add hand label
-            const palmCenter = landmarks[9];
-            const x = palmCenter.x * ctx.canvas.width;
-            const y = palmCenter.y * ctx.canvas.height;
-            
-            ctx.save();
-            ctx.fillStyle = main;
-            ctx.font = 'bold 16px Arial';
-            ctx.strokeStyle = '#000000';
-            ctx.lineWidth = 3;
-            ctx.textAlign = 'center';
-            
-            const label = `HAND ${handIndex + 1}`;
-            ctx.strokeText(label, x, y);
-            ctx.fillText(label, x, y);
-            ctx.restore();
-        }
-
-        // Handle gesture stability for primary hand only
-        function handleGestureStability(gesture) {
-            // Add to gesture history
-            gestureHistory.push(gesture);
-            if (gestureHistory.length > 5) {
-                gestureHistory.shift();
-            }
-            
-            // Check for stable gesture (only for primary hand control)
-            const currentGesture = gestureHistory[gestureHistory.length - 1];
-            const previousGesture = gestureHistory[gestureHistory.length - 2];
-            
-            if (currentGesture === previousGesture) {
-                gestureStabilityCount++;
-            } else {
-                gestureStabilityCount = 1;
-            }
-            
-            // Only trigger action if gesture is stable enough
-            if (gestureStabilityCount >= GESTURE_STABILITY_THRESHOLD) {
-                handleGestureAction(currentGesture);
-                gestureStabilityCount = 0; // Reset to prevent repeated actions
-            }
-        }
-
-        // Basic gesture detection logic
-        function detectGestureBasic(landmarks) {
-            try {
-                const tips = [4, 8, 12, 16, 20]; // Thumb, Index, Middle, Ring, Pinky tips
-                const mcp = [3, 6, 10, 14, 18]; // MCP joints for comparison
-                
-                let extendedFingers = 0;
-                let fingerStates = [];
-                
-                // Check thumb (different logic due to orientation)
-                const thumbExtended = landmarks[tips[0]].x > landmarks[mcp[0]].x + 0.05;
-                if (thumbExtended) {
-                    extendedFingers++;
-                    fingerStates.push('thumb');
-                }
-                
-                // Check other fingers (compare tip Y with MCP Y)
-                for (let i = 1; i < 5; i++) {
-                    const fingerExtended = landmarks[tips[i]].y < landmarks[mcp[i]].y - 0.03;
-                    if (fingerExtended) {
-                        extendedFingers++;
-                        fingerStates.push(['index', 'middle', 'ring', 'pinky'][i-1]);
-                    }
-                }
-                
-                // Gesture classification
-                if (extendedFingers === 0) {
-                    return 'fist';
-                } else if (extendedFingers === 1 && fingerStates.includes('index')) {
-                    return 'one';
-                } else if (extendedFingers === 2 && fingerStates.includes('index') && fingerStates.includes('middle')) {
-                    return 'peace';
-                } else if (extendedFingers >= 4) {
-                    return 'open';
-                } else {
-                    return `fingers_${extendedFingers}`;
-                }
-            } catch (error) {
-                console.error('Gesture detection error:', error);
-                return null;
-            }
-        }
-
-        // Update gesture status for multiple hands
-        function updateMultiHandGestureStatus(handGestures) {
-            const gestureStatus = document.getElementById('gestureStatus');
-            
-            const handCount = Object.keys(handGestures).length;
-            
-            if (handCount === 0) {
-                gestureStatus.innerHTML = '🖐️ Show your hands to control music - gestures will appear here';
-            } else if (handCount === 1) {
-                const gesture = handGestures[0];
-                gestureStatus.innerHTML = `
-                    <div style="display: flex; align-items: center; justify-content: center; gap: 10px;">
-                        <span style="font-size: 1.5em;">${getGestureEmoji(gesture)}</span>
-                        <span>Hand 1: ${gesture ? gesture.toUpperCase() : 'Unknown'}</span>
-                    </div>
-                `;
-            } else {
-                // Multiple hands detected
-                let gestureHTML = '<div style="display: flex; flex-direction: column; gap: 5px;">';
-                gestureHTML += `<div style="font-size: 0.9em; opacity: 0.8;">Detecting ${handCount} hands:</div>`;
-                
-                Object.keys(handGestures).forEach(handIndex => {
-                    const gesture = handGestures[handIndex];
-                    const colorIndex = parseInt(handIndex);
-                    const handColor = handColors[colorIndex % handColors.length];
-                    
-                    gestureHTML += `
-                        <div style="display: flex; align-items: center; justify-content: center; gap: 8px;">
-                            <span style="color: ${handColor.main}; font-weight: bold;">Hand ${parseInt(handIndex) + 1}:</span>
-                            <span style="font-size: 1.2em;">${getGestureEmoji(gesture)}</span>
-                            <span>${gesture ? gesture.toUpperCase() : 'Unknown'}</span>
-                        </div>
-                    `;
-                });
-                
-                gestureHTML += '</div>';
-                gestureStatus.innerHTML = gestureHTML;
-            }
-        }
-
-        // Get emoji for gesture
-        function getGestureEmoji(gesture) {
-            const emojiMap = {
-                'fist': '✊',
-                'one': '☝️',
-                'peace': '✌️',
-                'open': '✋',
-                'fingers_3': '🤟',
-                'fingers_4': '🖖'
-            };
-            return emojiMap[gesture] || '👋';
-        }
-
-        // Handle gesture actions
-        function handleGestureAction(gesture) {
-            console.log(`🎵 Gesture Action: ${gesture}`);
-            
-            switch(gesture) {
-                case 'open':
-                    toggleMusic();
-                    break;
-                case 'one':
-                    nextTrack();
-                    break;
-                case 'peace':
-                    prevTrack();
-                    break;
-                case 'fist':
-                    stopMusic();
-                    break;
-                default:
-                    console.log(`No action defined for gesture: ${gesture}`);
-            }
-        }
-
-        // Start hand tracking with improved error handling
-        function startHandTracking() {
-            console.log('🚀 Starting Hand Tracking...');
-            updateStatus('Starting camera...', 'info');
-            
-            const startBtn = document.getElementById('startBtn');
-            const stopBtn = document.getElementById('stopBtn');
-            const video = document.getElementById('video');
-            
-            startBtn.disabled = true;
-
-            // Request camera with optimal settings
-            navigator.mediaDevices.getUserMedia({
-                video: { 
-                    width: { ideal: 640, max: 1280 }, 
-                    height: { ideal: 480, max: 720 },
-                    frameRate: { ideal: 30, max: 30 },
-                    facingMode: 'user'
-                }
-            })
-            .then(function(mediaStream) {
-                console.log('✅ Camera stream obtained');
-                stream = mediaStream;
-                video.srcObject = stream;
-                video.style.display = 'block';
-                isTracking = true;
-                
-                // Wait for video to be ready before starting MediaPipe
-                video.addEventListener('loadedmetadata', () => {
-                    console.log('📹 Video metadata loaded, initializing MediaPipe...');
-                    setTimeout(() => {
-                        initializeHandTracking();
-                    }, 1000); // Give video time to stabilize
-                }, { once: true });
-                
-                updateStatus('Camera ready - initializing hand tracking...', 'info');
-                startBtn.style.display = 'none';
-                stopBtn.style.display = 'block';
-                
-            })
-            .catch(function(error) {
-                console.error('❌ Camera error:', error);
-                updateStatus(`Camera failed: ${error.message}`, 'error');
-                startBtn.disabled = false;
-            });
-        }
-
-        // Initialize MediaPipe with better error handling
-        function initializeHandTracking() {
-            try {
-                console.log('🔧 Initializing MediaPipe Hands...');
-                
-                hands = new Hands({
-                    locateFile: (file) => {
-                        return `https://cdn.jsdelivr.net/npm/@mediapipe/hands/${file}`;
-                    }
-                });
-                
-                // Configure for stability and performance - allow multiple hands
-                hands.setOptions({
-                    maxNumHands: 4,
-                    modelComplexity: 1,
-                    minDetectionConfidence: 0.7,
-                    minTrackingConfidence: 0.5
-                });
-                
-                hands.onResults(onResults);
-                
-                const video = document.getElementById('video');
-                
-                // Initialize camera with better error handling
-                camera = new Camera(video, {
-                    onFrame: async () => {
-                        if (isTracking && video.readyState >= 2) {
-                            try {
-                                await hands.send({image: video});
-                            } catch (e) {
-                                console.warn('Frame processing error:', e);
-                            }
-                        }
-                    },
-                    width: 640,
-                    height: 480
-                });
-                
-                camera.start()
-                    .then(() => {
-                        console.log('✅ Camera started successfully');
-                        updateStatus('🚀 Multi-hand tracking active! Use gestures to control full Spotify tracks', 'success');
-                        
-                        // Show debug info by default
-                        document.getElementById('debugInfo').style.display = 'block';
-                        debugMode = true;
-                    })
-                    .catch(error => {
-                        console.error('❌ Camera start error:', error);
-                        updateStatus('Camera start failed - try reloading', 'error');
-                    });
-                
-            } catch (error) {
-                console.error('❌ MediaPipe initialization error:', error);
-                updateStatus('Hand tracking initialization failed', 'error');
-            }
-        }
-
-        // Stop hand tracking with proper cleanup
-        function stopHandTracking() {
-            console.log('🛑 Stopping Hand Tracking...');
-            
-            isTracking = false;
-            
-            // Stop camera first
-            if (camera) {
-                try {
-                    camera.stop();
-                } catch (e) {
-                    console.warn('Camera stop error:', e);
-                }
-                camera = null;
-            }
-            
-            // Close MediaPipe hands
-            if (hands) {
-                try {
-                    hands.close();
-                } catch (e) {
-                    console.warn('Hands close error:', e);
-                }
-                hands = null;
-            }
-            
-            // Stop media stream
-            if (stream) {
-                stream.getTracks().forEach(track => {
-                    track.stop();
-                    console.log(`Stopped track: ${track.kind}`);
-                });
-                stream = null;
-            }
-            
-            // Reset UI elements
-            const video = document.getElementById('video');
-            const canvas = document.getElementById('canvas');
-            const startBtn = document.getElementById('startBtn');
-            const stopBtn = document.getElementById('stopBtn');
-            
-            video.srcObject = null;
-            video.style.display = 'none';
-            
-            // Clear canvas
-            const ctx = canvas.getContext('2d');
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            
-            // Reset UI
-            updateStatus('Hand tracking stopped', 'info');
-            document.getElementById('gestureStatus').innerHTML = '🖐️ Show your hands to control music - gestures will appear here';
-            
-            startBtn.style.display = 'block';
-            startBtn.disabled = false;
-            stopBtn.style.display = 'none';
-            
-            // Reset gesture state
-            handGestures = {};
-            gestureStabilityCount = 0;
-            gestureHistory = [];
-            
-            console.log('✅ Hand tracking stopped and cleaned up');
-        }
-
-        // Debug functions
-        function toggleDebugInfo() {
-            const debugInfo = document.getElementById('debugInfo');
-            const debugControls = document.getElementById('debugControls');
-            debugMode = !debugMode;
-            
-            debugInfo.style.display = debugMode ? 'block' : 'none';
-            debugControls.style.display = debugMode ? 'block' : 'none';
-            
-            console.log(`Debug mode: ${debugMode ? 'ON' : 'OFF'}`);
-        }
-
-        function testGesture(gesture) {
-            console.log(`🧪 Testing gesture: ${gesture}`);
-            updateMultiHandGestureStatus({ 0: gesture });
-            handleGestureAction(gesture);
-            
-            // Reset after 2 seconds
-            setTimeout(() => {
-                if (!isTracking) {
-                    document.getElementById('gestureStatus').innerHTML = '🖐️ Show your hands to control music - gestures will appear here';
-                }
-            }, 2000);
-        }
-
-        // ========== SPOTIFY PLAYLIST FUNCTIONS (ENHANCED) ==========
-
-        function loadPlaylists() {
-            console.log('🎵 Loading Spotify playlists...');
-            const container = document.getElementById('playlistsContainer');
-            container.innerHTML = '<div class="loading">◈ Connecting to Spotify...</div>';
-
-            // Check if user is authenticated
-            fetch('/api/spotify/check-auth/')
-                .then(response => response.json())
-                .then(data => {
-                    if (data.authenticated) {
-                        isSpotifyConnected = true;
-                        isSpotifyPremium = data.premium;
-                        
-                        if (!isSpotifyPremium) {
-                            container.innerHTML = `
-                                <div class="status premium-required">
-                                    ⚠️ Spotify Premium Required<br>
-                                    Full track playback requires Spotify Premium. You can still use 30-second previews.<br>
-                                    <button class="control-btn" onclick="fetchPlaylists()" style="margin-top: 10px;">
-                                        🎵 LOAD PLAYLISTS (PREVIEW MODE)
-                                    </button>
-                                </div>
-                            `;
-                            return;
-                        }
-                        
-                        return fetchPlaylists();
-                    } else {
-                        // Redirect to Spotify auth
-                        window.location.href = '/api/spotify/auth/';
-                    }
-                })
-                .catch(error => {
-                    console.error('❌ Auth check error:', error);
-                    container.innerHTML = `
-                        <div class="loading">
-                            ❌ Spotify connection failed<br>
-                            <button class="control-btn" onclick="retrySpotifyConnection()" style="margin-top: 10px;">
-                                🔄 RETRY CONNECTION
-                            </button>
-                        </div>
-                    `;
-                });
-        }
-
-        function fetchPlaylists() {
-            const container = document.getElementById('playlistsContainer');
-            container.innerHTML = '<div class="loading">◈ Loading your playlists...</div>';
-
-            return fetch('/api/spotify/playlists/')
-                .then(response => {
-                    if (!response.ok) {
-                        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-                    }
-                    return response.json();
-                })
-                .then(data => {
-                    if (data.error) {
-                        throw new Error(data.error);
-                    }
-                    
-                    allPlaylists = data.playlists || [];
-                    displayPlaylists(allPlaylists);
-                    console.log(`✅ Loaded ${allPlaylists.length} playlists`);
-                })
-                .catch(error => {
-                    console.error('❌ Error loading playlists:', error);
-                    container.innerHTML = `
-                        <div class="loading">
-                            ❌ Failed to load playlists: ${error.message}<br>
-                            <button class="control-btn" onclick="loadPlaylists()" style="margin-top: 10px;">
-                                🔄 TRY AGAIN
-                            </button>
-                        </div>
-                    `;
-                });
-        }
-
-        function displayPlaylists(playlists) {
-            const container = document.getElementById('playlistsContainer');
-            
-            if (!playlists || playlists.length === 0) {
-                container.innerHTML = `
-                    <div class="loading">
-                        No playlists found<br>
-                        <button class="control-btn" onclick="loadPlaylists()" style="margin-top: 10px;">
-                            🔄 REFRESH
-                        </button>
-                    </div>
-                `;
-                return;
-            }
-
-            let playlistsHTML = '<div class="playlists-container">';
-            
-            playlists.forEach((playlist, index) => {
-                const imageUrl = playlist.images && playlist.images.length > 0 
-                    ? playlist.images[0].url 
-                    : null;
-                
-                playlistsHTML += `
-                    <div class="playlist-item" onclick="loadPlaylistTracks('${playlist.id}', ${index}, '${playlist.name.replace(/'/g, "\\'")}')">
-                        ${imageUrl ? 
-                            `<img src="${imageUrl}" alt="${playlist.name}" class="playlist-image" loading="lazy">` :
-                            '<div class="playlist-image" style="background: linear-gradient(135deg, #00d4ff, #f39c12); display: flex; align-items: center; justify-content: center; color: white; font-weight: bold;">🎵</div>'
-                        }
-                        <div class="playlist-info">
-                            <div class="playlist-name">${playlist.name}</div>
-                            <div class="playlist-details">
-                                ${playlist.tracks?.total || 0} tracks
-                                ${playlist.owner?.display_name ? ` • by ${playlist.owner.display_name}` : ''}
-                            </div>
-                        </div>
-                    </div>
-                `;
-            });
-            
-            playlistsHTML += '</div>';
-            container.innerHTML = playlistsHTML;
-        }
-
-        function displayTrackList(tracks, playlistName) {
-            const container = document.getElementById('playlistsContainer');
-            
-            const tracksWithPreviews = tracks.filter(track => track.preview_url);
-            const tracksWithUris = tracks.filter(track => track.uri);
-            
-            let tracksHTML = `
-                <div class="tracks-section">
-                    <div class="tracks-header">
-                        <div class="tracks-title">🎵 ${playlistName}</div>
-                        <button class="back-to-playlists" onclick="showPlaylists()">
-                            ← Back to Playlists
-                        </button>
-                    </div>
-                    <div class="tracks-info">
-                        ${tracks.length} tracks • ${tracksWithUris.length} full tracks • ${tracksWithPreviews.length} previews
-                    </div>
-                    <div class="tracks-container">
-            `;
-            
-            tracks.forEach((track, index) => {
-                const hasPreview = track.preview_url;
-                const hasUri = track.uri;
-                const playbackType = hasUri ? 'full' : (hasPreview ? 'preview' : 'none');
-                const isCurrentTrack = currentPlaylist.length > 0 && 
-                                      currentTrackIndex < currentPlaylist.length && 
-                                      currentPlaylist[currentTrackIndex].id === track.id;
-                
-                let playingClass = '';
-                if (isCurrentTrack) {
-                    if (isSpotifyPlayerReady && currentPlaybackState && !currentPlaybackState.paused) {
-                        playingClass = 'playing';
-                    } else if (currentPreviewAudio && !currentPreviewAudio.paused) {
-                        playingClass = 'playing';
-                    }
-                }
-                
-                const playableClass = (hasUri || hasPreview) ? 'playable' : '';
-                
-                // Format duration
-                const duration = track.duration_ms ? formatDuration(track.duration_ms) : '--:--';
-                
-                tracksHTML += `
-                    <div class="track-item ${playableClass} ${playingClass}" 
-                         ondblclick="playTrackFromList(${index})"
-                         onclick="selectTrack(${index})">
-                        <div class="track-number">${index + 1}</div>
-                        <div class="track-play-icon">
-                            ${playingClass ? '⏸️' : '▶️'}
-                        </div>
-                        <div class="track-info-container">
-                            <div class="track-title">${track.name}</div>
-                            <div class="track-artist">${track.artists.map(artist => artist.name).join(', ')}</div>
-                        </div>
-                        <div class="track-duration">${duration}</div>
-                        <div class="track-playback-indicator ${playbackType}"></div>
-                    </div>
-                `;
-            });
-            
-            tracksHTML += '</div></div>';
-            container.innerHTML = tracksHTML;
-        }
-
-        function formatDuration(ms) {
-            const minutes = Math.floor(ms / 60000);
-            const seconds = Math.floor((ms % 60000) / 1000);
-            return `${minutes}:${seconds.toString().padStart(2, '0')}`;
-        }
-
-        function showPlaylists() {
-            displayPlaylists(allPlaylists);
-        }
-
-        function selectTrack(trackIndex) {
-            // Just highlight the track for now
-            document.querySelectorAll('.track-item').forEach((item, index) => {
-                if (index === trackIndex) {
-                    item.style.background = 'linear-gradient(135deg, rgba(0, 212, 255, 0.25), rgba(243, 156, 18, 0.25))';
-                } else if (!item.classList.contains('playing')) {
-                    item.style.background = '';
-                }
-            });
-        }
-
-        function playTrackFromList(trackIndex) {
-            console.log(`🎵 Playing track from list: ${trackIndex}`);
-            
-            // Get all track items
-            const allTracks = document.querySelectorAll('.track-item');
-            if (trackIndex >= 0 && trackIndex < allTracks.length) {
-                // Find the track data by getting track title from DOM
-                const trackElement = allTracks[trackIndex];
-                const trackTitle = trackElement.querySelector('.track-title').textContent;
-                
-                // Find this track in our current playlist data
-                const playableTrackIndex = currentPlaylist.findIndex(track => track.name === trackTitle);
-                
-                if (playableTrackIndex !== -1) {
-                    playTrackFromPlaylist(playableTrackIndex);
-                    updateTrackListPlayingState(trackIndex);
-                } else {
-                    updateStatus('This track is not available for playback', 'error');
-                }
-            }
-        }
-
-        function updateTrackListPlayingState(playingIndex) {
-            document.querySelectorAll('.track-item').forEach((item, index) => {
-                const playIcon = item.querySelector('.track-play-icon');
-                
-                if (index === playingIndex) {
-                    item.classList.add('playing');
-                    playIcon.textContent = '⏸️';
-                } else {
-                    item.classList.remove('playing');
-                    playIcon.textContent = '▶️';
-                }
-            });
-        }
-
-        function loadPlaylistTracks(playlistId, playlistIndex, playlistName) {
-            console.log(`🎵 Loading tracks for playlist: ${playlistName}`);
-            
-            // Highlight selected playlist
-            document.querySelectorAll('.playlist-item').forEach((item, index) => {
-                if (index === playlistIndex) {
-                    item.classList.add('active');
-                } else {
-                    item.classList.remove('active');
-                }
-            });
-
-            updateStatus(`Loading tracks from "${playlistName}"...`, 'info');
-
-            fetch(`/api/spotify/playlists/${playlistId}/tracks/`)
-                .then(response => {
-                    if (!response.ok) {
-                        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-                    }
-                    return response.json();
-                })
-                .then(data => {
-                    if (data.error) {
-                        throw new Error(data.error);
-                    }
-                    
-                    // Store all tracks for display
-                    const allTracks = data.tracks || [];
-                    
-                    // Create playlist for playback - prefer full tracks, fallback to previews
-                    currentPlaylist = allTracks.filter(track => track && (track.uri || track.preview_url)).map(track => ({
-                        id: track.id,
-                        name: track.name,
-                        artist: track.artists.map(artist => artist.name).join(', '),
-                        album: track.album?.name || 'Unknown Album',
-                        uri: track.uri, // For full playback
-                        preview_url: track.preview_url, // Fallback
-                        external_url: track.external_urls?.spotify,
-                        duration_ms: track.duration_ms,
-                        popularity: track.popularity,
-                        images: track.album?.images || []
-                    }));
-                    
-                    currentTrackIndex = 0;
-                    
-                    const fullTracks = currentPlaylist.filter(track => track.uri).length;
-                    const previewTracks = currentPlaylist.filter(track => track.preview_url && !track.uri).length;
-                    
-                    console.log(`✅ Loaded ${currentPlaylist.length} playable tracks: ${fullTracks} full, ${previewTracks} preview`);
-                    
-                    // Display the track list
-                    displayTrackList(allTracks, playlistName);
-                    
-                    if (currentPlaylist.length > 0) {
-                        if (isSpotifyPlayerReady && fullTracks > 0) {
-                            updateStatus(`${fullTracks} full tracks loaded • Double-click to play`, 'success');
-                        } else {
-                            updateStatus(`${previewTracks} preview tracks loaded • Connect Spotify Player for full tracks`, 'info');
-                        }
-                    } else {
-                        updateStatus(`No playable tracks found in "${playlistName}"`, 'error');
-                        currentPlaylist = [];
-                    }
-                })
-                .catch(error => {
-                    console.error('❌ Error loading tracks:', error);
-                    updateStatus(`Failed to load tracks: ${error.message}`, 'error');
-                    
-                    // Remove active state on error
-                    document.querySelectorAll('.playlist-item').forEach(item => {
-                        item.classList.remove('active');
-                    });
-                });
-        }
-
-            // Add this function for testing Spotify playback
         function testPlayFirstTrack() {
             console.log('🧪 Testing first track playback...');
             console.log('📊 Current state:');
@@ -2242,12 +1435,771 @@
             }
         }
 
+        // ========== HAND TRACKING FUNCTIONS ==========
+
+        function onResults(results) {
+            if (!isTracking) return;
+            
+            frameCount++;
+            const now = Date.now();
+            if (now - lastFpsUpdate > 1000) {
+                currentFps = Math.round(frameCount * 1000 / (now - lastFpsUpdate));
+                frameCount = 0;
+                lastFpsUpdate = now;
+            }
+
+            const canvasElement = document.getElementById('canvas');
+            const canvasCtx = canvasElement.getContext('2d');
+            const videoElement = document.getElementById('video');
+            
+            if (videoElement.videoWidth && videoElement.videoHeight) {
+                if (canvasElement.width !== videoElement.videoWidth || canvasElement.height !== videoElement.videoHeight) {
+                    canvasElement.width = videoElement.videoWidth;
+                    canvasElement.height = videoElement.videoHeight;
+                }
+                
+                canvasCtx.clearRect(0, 0, canvasElement.width, canvasElement.height);
+                canvasCtx.save();
+                
+                canvasCtx.fillStyle = '#ffffff';
+                canvasCtx.font = 'bold 16px Arial';
+                canvasCtx.shadowColor = '#000000';
+                canvasCtx.shadowBlur = 3;
+                
+                canvasCtx.fillText(`FPS: ${currentFps}`, 10, 25);
+                
+                let debugText = `FPS: ${currentFps} | Processing: ${results.multiHandLandmarks ? results.multiHandLandmarks.length : 0} hands\n`;
+                
+                if (results.multiHandLandmarks && results.multiHandLandmarks.length > 0) {
+                    results.multiHandLandmarks.forEach((landmarks, handIndex) => {
+                        const handColor = handColors[handIndex % handColors.length];
+                        
+                        drawDetailedHand(canvasCtx, landmarks, handIndex, handColor);
+                        
+                        const detectedGesture = detectGestureBasic(landmarks);
+                        handGestures[handIndex] = detectedGesture;
+                        
+                        canvasCtx.fillStyle = handColor.main;
+                        canvasCtx.font = 'bold 18px Arial';
+                        const yOffset = 50 + (handIndex * 25);
+                        canvasCtx.fillText(`Hand ${handIndex + 1}: ${detectedGesture ? detectedGesture.toUpperCase() : 'Unknown'}`, 10, yOffset);
+                        
+                        debugText += `Hand ${handIndex + 1}: ${detectedGesture || 'Unknown'}\n`;
+                        
+                        const handCenter = landmarks[9];
+                        debugText += `  Center: (${Math.round(handCenter.x * 1000)/1000}, ${Math.round(handCenter.y * 1000)/1000})\n`;
+                    });
+                    
+                    updateMultiHandGestureStatus(handGestures);
+                    
+                    if (handGestures[0]) {
+                        handleGestureStability(handGestures[0]);
+                    }
+                    
+                } else {
+                    canvasCtx.fillStyle = '#ff6b6b';
+                    canvasCtx.fillText('No hands detected', 10, 50);
+                    debugText += 'No hands detected';
+                    
+                    handGestures = {};
+                    gestureStabilityCount = 0;
+                    updateMultiHandGestureStatus({});
+                }
+                
+                canvasCtx.restore();
+                
+                if (debugMode) {
+                    document.getElementById('debugText').innerHTML = debugText.replace(/\n/g, '<br>');
+                }
+            }
+        }
+
+        function drawDetailedHand(ctx, landmarks, handIndex, handColor) {
+            const { main, accent } = handColor;
+            
+            ctx.fillStyle = main;
+            landmarks.forEach((landmark, index) => {
+                const x = landmark.x * ctx.canvas.width;
+                const y = landmark.y * ctx.canvas.height;
+                
+                const isKeyPoint = [0, 4, 8, 12, 16, 20].includes(index);
+                const radius = isKeyPoint ? 6 : 3;
+                
+                ctx.beginPath();
+                ctx.arc(x, y, radius, 0, 2 * Math.PI);
+                ctx.fill();
+                
+                if (isKeyPoint) {
+                    ctx.fillStyle = '#ffffff';
+                    ctx.font = 'bold 10px Arial';
+                    ctx.strokeStyle = '#000000';
+                    ctx.lineWidth = 2;
+                    ctx.strokeText(`H${handIndex + 1}:${index}`, x + 8, y - 8);
+                    ctx.fillText(`H${handIndex + 1}:${index}`, x + 8, y - 8);
+                    ctx.fillStyle = main;
+                }
+            });
+            
+            const connections = [
+                [0, 1], [1, 2], [2, 3], [3, 4], // Thumb
+                [0, 5], [5, 6], [6, 7], [7, 8], // Index
+                [0, 9], [9, 10], [10, 11], [11, 12], // Middle
+                [0, 13], [13, 14], [14, 15], [15, 16], // Ring
+                [0, 17], [17, 18], [18, 19], [19, 20], // Pinky
+                [5, 9], [9, 13], [13, 17] // Palm connections
+            ];
+            
+            ctx.strokeStyle = accent;
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            
+            connections.forEach(([start, end]) => {
+                const startPoint = landmarks[start];
+                const endPoint = landmarks[end];
+                const x1 = startPoint.x * ctx.canvas.width;
+                const y1 = startPoint.y * ctx.canvas.height;
+                const x2 = endPoint.x * ctx.canvas.width;
+                const y2 = endPoint.y * ctx.canvas.height;
+                
+                ctx.moveTo(x1, y1);
+                ctx.lineTo(x2, y2);
+            });
+            
+            ctx.stroke();
+        }
+
+        function handleGestureStability(gesture) {
+            gestureHistory.push(gesture);
+            if (gestureHistory.length > 5) {
+                gestureHistory.shift();
+            }
+            
+            const currentGesture = gestureHistory[gestureHistory.length - 1];
+            const previousGesture = gestureHistory[gestureHistory.length - 2];
+            
+            if (currentGesture === previousGesture) {
+                gestureStabilityCount++;
+            } else {
+                gestureStabilityCount = 1;
+            }
+            
+            if (gestureStabilityCount >= GESTURE_STABILITY_THRESHOLD) {
+                handleGestureAction(currentGesture);
+                gestureStabilityCount = 0;
+            }
+        }
+
+        function detectGestureBasic(landmarks) {
+            try {
+                const tips = [4, 8, 12, 16, 20];
+                const mcp = [3, 6, 10, 14, 18];
+                
+                let extendedFingers = 0;
+                let fingerStates = [];
+                
+                const thumbExtended = landmarks[tips[0]].x > landmarks[mcp[0]].x + 0.05;
+                if (thumbExtended) {
+                    extendedFingers++;
+                    fingerStates.push('thumb');
+                }
+                
+                for (let i = 1; i < 5; i++) {
+                    const fingerExtended = landmarks[tips[i]].y < landmarks[mcp[i]].y - 0.03;
+                    if (fingerExtended) {
+                        extendedFingers++;
+                        fingerStates.push(['index', 'middle', 'ring', 'pinky'][i-1]);
+                    }
+                }
+                
+                if (extendedFingers === 0) {
+                    return 'fist';
+                } else if (extendedFingers === 1 && fingerStates.includes('index')) {
+                    return 'one';
+                } else if (extendedFingers === 2 && fingerStates.includes('index') && fingerStates.includes('middle')) {
+                    return 'peace';
+                } else if (extendedFingers >= 4) {
+                    return 'open';
+                } else {
+                    return `fingers_${extendedFingers}`;
+                }
+            } catch (error) {
+                console.error('Gesture detection error:', error);
+                return null;
+            }
+        }
+
+        function updateMultiHandGestureStatus(handGestures) {
+            const gestureStatus = document.getElementById('gestureStatus');
+            
+            const handCount = Object.keys(handGestures).length;
+            
+            if (handCount === 0) {
+                gestureStatus.innerHTML = '🖐️ Show your hands to control music';
+            } else if (handCount === 1) {
+                const gesture = handGestures[0];
+                gestureStatus.innerHTML = `
+                    <div style="display: flex; align-items: center; justify-content: center; gap: 10px;">
+                        <span style="font-size: 1.5em;">${getGestureEmoji(gesture)}</span>
+                        <span>Hand 1: ${gesture ? gesture.toUpperCase() : 'Unknown'}</span>
+                    </div>
+                `;
+            } else {
+                let gestureHTML = '<div style="display: flex; flex-direction: column; gap: 5px;">';
+                gestureHTML += `<div style="font-size: 0.9em; opacity: 0.8;">Detecting ${handCount} hands:</div>`;
+                
+                Object.keys(handGestures).forEach(handIndex => {
+                    const gesture = handGestures[handIndex];
+                    const colorIndex = parseInt(handIndex);
+                    const handColor = handColors[colorIndex % handColors.length];
+                    
+                    gestureHTML += `
+                        <div style="display: flex; align-items: center; justify-content: center; gap: 8px;">
+                            <span style="color: ${handColor.main}; font-weight: bold;">Hand ${parseInt(handIndex) + 1}:</span>
+                            <span style="font-size: 1.2em;">${getGestureEmoji(gesture)}</span>
+                            <span>${gesture ? gesture.toUpperCase() : 'Unknown'}</span>
+                        </div>
+                    `;
+                });
+                
+                gestureHTML += '</div>';
+                gestureStatus.innerHTML = gestureHTML;
+            }
+        }
+
+        function getGestureEmoji(gesture) {
+            const emojiMap = {
+                'fist': '✊',
+                'one': '☝️',
+                'peace': '✌️',
+                'open': '✋',
+                'fingers_3': '🤟',
+                'fingers_4': '🖖'
+            };
+            return emojiMap[gesture] || '👋';
+        }
+
+        function handleGestureAction(gesture) {
+            console.log(`🎵 Gesture Action: ${gesture}`);
+            
+            switch(gesture) {
+                case 'open':
+                    toggleMusic();
+                    break;
+                case 'one':
+                    nextTrack();
+                    break;
+                case 'peace':
+                    prevTrack();
+                    break;
+                case 'fist':
+                    stopMusic();
+                    break;
+                default:
+                    console.log(`No action defined for gesture: ${gesture}`);
+            }
+        }
+
+        function startHandTracking() {
+            console.log('🚀 Starting Hand Tracking...');
+            updateStatus('Starting camera...', 'info');
+            
+            const startBtn = document.getElementById('startBtn');
+            const stopBtn = document.getElementById('stopBtn');
+            const video = document.getElementById('video');
+            const placeholder = document.getElementById('videoPlaceholder');
+            
+            startBtn.disabled = true;
+
+            navigator.mediaDevices.getUserMedia({
+                video: { 
+                    width: { ideal: 640, max: 1280 }, 
+                    height: { ideal: 480, max: 720 },
+                    frameRate: { ideal: 30, max: 30 },
+                    facingMode: 'user'
+                }
+            })
+            .then(function(mediaStream) {
+                console.log('✅ Camera stream obtained');
+                stream = mediaStream;
+                video.srcObject = stream;
+                video.style.display = 'block';
+                placeholder.style.display = 'none';
+                isTracking = true;
+                
+                video.addEventListener('loadedmetadata', () => {
+                    console.log('📹 Video metadata loaded, initializing MediaPipe...');
+                    setTimeout(() => {
+                        initializeHandTracking();
+                    }, 1000);
+                }, { once: true });
+                
+                updateStatus('Camera ready - initializing hand tracking...', 'info');
+                startBtn.style.display = 'none';
+                stopBtn.style.display = 'block';
+                
+            })
+            .catch(function(error) {
+                console.error('❌ Camera error:', error);
+                updateStatus(`Camera failed: ${error.message}`, 'error');
+                startBtn.disabled = false;
+            });
+        }
+
+        function initializeHandTracking() {
+            try {
+                console.log('🔧 Initializing MediaPipe Hands...');
+                
+                hands = new Hands({
+                    locateFile: (file) => {
+                        return `https://cdn.jsdelivr.net/npm/@mediapipe/hands/${file}`;
+                    }
+                });
+                
+                hands.setOptions({
+                    maxNumHands: 4,
+                    modelComplexity: 1,
+                    minDetectionConfidence: 0.7,
+                    minTrackingConfidence: 0.5
+                });
+                
+                hands.onResults(onResults);
+                
+                const video = document.getElementById('video');
+                
+                camera = new Camera(video, {
+                    onFrame: async () => {
+                        if (isTracking && video.readyState >= 2) {
+                            try {
+                                await hands.send({image: video});
+                            } catch (e) {
+                                console.warn('Frame processing error:', e);
+                            }
+                        }
+                    },
+                    width: 640,
+                    height: 480
+                });
+                
+                camera.start()
+                    .then(() => {
+                        console.log('✅ Camera started successfully');
+                        updateStatus('🚀 Hand tracking active! Use gestures to control music', 'success');
+                        
+                        document.getElementById('debugInfo').style.display = 'block';
+                        debugMode = true;
+                    })
+                    .catch(error => {
+                        console.error('❌ Camera start error:', error);
+                        updateStatus('Camera start failed - try reloading', 'error');
+                    });
+                
+            } catch (error) {
+                console.error('❌ MediaPipe initialization error:', error);
+                updateStatus('Hand tracking initialization failed', 'error');
+            }
+        }
+
+        function stopHandTracking() {
+            console.log('🛑 Stopping Hand Tracking...');
+            
+            isTracking = false;
+            
+            if (camera) {
+                try {
+                    camera.stop();
+                } catch (e) {
+                    console.warn('Camera stop error:', e);
+                }
+                camera = null;
+            }
+            
+            if (hands) {
+                try {
+                    hands.close();
+                } catch (e) {
+                    console.warn('Hands close error:', e);
+                }
+                hands = null;
+            }
+            
+            if (stream) {
+                stream.getTracks().forEach(track => {
+                    track.stop();
+                    console.log(`Stopped track: ${track.kind}`);
+                });
+                stream = null;
+            }
+            
+            const video = document.getElementById('video');
+            const canvas = document.getElementById('canvas');
+            const startBtn = document.getElementById('startBtn');
+            const stopBtn = document.getElementById('stopBtn');
+            const placeholder = document.getElementById('videoPlaceholder');
+            
+            video.srcObject = null;
+            video.style.display = 'none';
+            placeholder.style.display = 'block';
+            
+            const ctx = canvas.getContext('2d');
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            updateStatus('Hand tracking stopped', 'info');
+            document.getElementById('gestureStatus').innerHTML = '🖐️ Show your hands to control music';
+            
+            startBtn.style.display = 'block';
+            startBtn.disabled = false;
+            stopBtn.style.display = 'none';
+            
+            handGestures = {};
+            gestureStabilityCount = 0;
+            gestureHistory = [];
+            
+            console.log('✅ Hand tracking stopped and cleaned up');
+        }
+
+        function toggleDebugInfo() {
+            const debugInfo = document.getElementById('debugInfo');
+            const debugControls = document.getElementById('debugControls');
+            debugMode = !debugMode;
+            
+            debugInfo.style.display = debugMode ? 'block' : 'none';
+            debugControls.style.display = debugMode ? 'block' : 'none';
+            
+            console.log(`Debug mode: ${debugMode ? 'ON' : 'OFF'}`);
+        }
+
+        function testGesture(gesture) {
+            console.log(`🧪 Testing gesture: ${gesture}`);
+            updateMultiHandGestureStatus({ 0: gesture });
+            handleGestureAction(gesture);
+            
+            setTimeout(() => {
+                if (!isTracking) {
+                    document.getElementById('gestureStatus').innerHTML = '🖐️ Show your hands to control music';
+                }
+            }, 2000);
+        }
+
+        // ========== SPOTIFY PLAYLIST FUNCTIONS ==========
+
+        function loadPlaylists() {
+            console.log('🎵 Loading Spotify playlists...');
+            const container = document.getElementById('playlistsContainer');
+            container.innerHTML = '<div class="loading">◈ Connecting to Spotify...</div>';
+
+            fetch('/api/spotify/check-auth/')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.authenticated) {
+                        isSpotifyConnected = true;
+                        isSpotifyPremium = data.premium;
+                        
+                        if (!isSpotifyPremium) {
+                            container.innerHTML = `
+                                <div class="status error">
+                                    ⚠️ Spotify Premium Required<br>
+                                    Full track playback requires Spotify Premium. You can still use 30-second previews.<br>
+                                    <button class="library-btn" onclick="fetchPlaylists()" style="margin-top: 10px;">
+                                        🎵 Load Playlists (Preview Mode)
+                                    </button>
+                                </div>
+                            `;
+                            return;
+                        }
+                        
+                        return fetchPlaylists();
+                    } else {
+                        window.location.href = '/api/spotify/auth/';
+                    }
+                })
+                .catch(error => {
+                    console.error('❌ Auth check error:', error);
+                    container.innerHTML = `
+                        <div class="loading">
+                            ❌ Spotify connection failed<br>
+                            <button class="library-btn" onclick="retrySpotifyConnection()" style="margin-top: 10px;">
+                                🔄 Retry Connection
+                            </button>
+                        </div>
+                    `;
+                });
+        }
+
+        function fetchPlaylists() {
+            const container = document.getElementById('playlistsContainer');
+            container.innerHTML = '<div class="loading">◈ Loading your playlists...</div>';
+
+            return fetch('/api/spotify/playlists/')
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    if (data.error) {
+                        throw new Error(data.error);
+                    }
+                    
+                    allPlaylists = data.playlists || [];
+                    displayPlaylists(allPlaylists);
+                    console.log(`✅ Loaded ${allPlaylists.length} playlists`);
+                    
+                    // Show refresh button
+                    document.getElementById('loadPlaylistsBtn').style.display = 'none';
+                    document.getElementById('refreshBtn').style.display = 'block';
+                })
+                .catch(error => {
+                    console.error('❌ Error loading playlists:', error);
+                    container.innerHTML = `
+                        <div class="loading">
+                            ❌ Failed to load playlists: ${error.message}<br>
+                            <button class="library-btn" onclick="loadPlaylists()" style="margin-top: 10px;">
+                                🔄 Try Again
+                            </button>
+                        </div>
+                    `;
+                });
+        }
+
+        function displayPlaylists(playlists) {
+            const container = document.getElementById('playlistsContainer');
+            
+            if (!playlists || playlists.length === 0) {
+                container.innerHTML = `
+                    <div class="loading">
+                        No playlists found<br>
+                        <button class="library-btn" onclick="loadPlaylists()" style="margin-top: 10px;">
+                            🔄 Refresh
+                        </button>
+                    </div>
+                `;
+                return;
+            }
+
+            let playlistsHTML = '';
+            
+            playlists.forEach((playlist, index) => {
+                const imageUrl = playlist.images && playlist.images.length > 0 
+                    ? playlist.images[0].url 
+                    : null;
+                
+                playlistsHTML += `
+                    <div class="playlist-item" onclick="loadPlaylistTracks('${playlist.id}', ${index}, '${playlist.name.replace(/'/g, "\\'")}')">
+                        ${imageUrl ? 
+                            `<img src="${imageUrl}" alt="${playlist.name}" class="playlist-image" loading="lazy">` :
+                            '<div class="playlist-image" style="background: linear-gradient(135deg, #00d4ff, #f39c12); display: flex; align-items: center; justify-content: center; color: white; font-weight: bold;">🎵</div>'
+                        }
+                        <div class="playlist-info">
+                            <div class="playlist-name">${playlist.name}</div>
+                            <div class="playlist-details">
+                                ${playlist.tracks?.total || 0} tracks
+                                ${playlist.owner?.display_name ? ` • by ${playlist.owner.display_name}` : ''}
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            container.innerHTML = playlistsHTML;
+        }
+
+        function displayTrackList(tracks, playlistName) {
+            const container = document.getElementById('tracksContainer');
+            
+            const tracksWithPreviews = tracks.filter(track => track.preview_url);
+            const tracksWithUris = tracks.filter(track => track.uri);
+            
+            let tracksHTML = `
+                <div class="tracks-header">
+                    <div class="tracks-title">🎵 ${playlistName}</div>
+                    <button class="back-to-playlists" onclick="showPlaylists()">
+                        ← Back to Playlists
+                    </button>
+                </div>
+                <div class="tracks-info">
+                    ${tracks.length} tracks • ${tracksWithUris.length} full tracks • ${tracksWithPreviews.length} previews
+                </div>
+                <div style="overflow-y: auto; max-height: 180px;">
+            `;
+            
+            tracks.forEach((track, index) => {
+                const hasPreview = track.preview_url;
+                const hasUri = track.uri;
+                const playbackType = hasUri ? 'full' : (hasPreview ? 'preview' : 'none');
+                const isCurrentTrack = currentPlaylist.length > 0 && 
+                                      currentTrackIndex < currentPlaylist.length && 
+                                      currentPlaylist[currentTrackIndex].id === track.id;
+                
+                let playingClass = '';
+                if (isCurrentTrack) {
+                    if (isSpotifyPlayerReady && currentPlaybackState && !currentPlaybackState.paused) {
+                        playingClass = 'playing';
+                    } else if (currentPreviewAudio && !currentPreviewAudio.paused) {
+                        playingClass = 'playing';
+                    }
+                }
+                
+                const playableClass = (hasUri || hasPreview) ? 'playable' : '';
+                
+                const duration = track.duration_ms ? formatDuration(track.duration_ms) : '--:--';
+                
+                tracksHTML += `
+                    <div class="track-item ${playableClass} ${playingClass}" 
+                         ondblclick="playTrackFromList(${index})"
+                         onclick="selectTrack(${index})">
+                        <div class="track-number">${index + 1}</div>
+                        <div class="track-play-icon">
+                            ${playingClass ? '⏸️' : '▶️'}
+                        </div>
+                        <div class="track-info-container">
+                            <div class="track-title">${track.name}</div>
+                            <div class="track-artist">${track.artists.map(artist => artist.name).join(', ')}</div>
+                        </div>
+                        <div class="track-duration">${duration}</div>
+                        <div class="track-playback-indicator ${playbackType}"></div>
+                    </div>
+                `;
+            });
+            
+            tracksHTML += '</div>';
+            container.innerHTML = tracksHTML;
+        }
+
+        function formatDuration(ms) {
+            const minutes = Math.floor(ms / 60000);
+            const seconds = Math.floor((ms % 60000) / 1000);
+            return `${minutes}:${seconds.toString().padStart(2, '0')}`;
+        }
+
+        function showPlaylists() {
+            displayPlaylists(allPlaylists);
+            const container = document.getElementById('tracksContainer');
+            container.innerHTML = '<div class="loading">Select a playlist to view tracks</div>';
+        }
+
+        function refreshPlaylists() {
+            loadPlaylists();
+        }
+
+        function selectTrack(trackIndex) {
+            document.querySelectorAll('.track-item').forEach((item, index) => {
+                if (index === trackIndex) {
+                    item.style.background = 'linear-gradient(135deg, rgba(0, 212, 255, 0.25), rgba(243, 156, 18, 0.25))';
+                } else if (!item.classList.contains('playing')) {
+                    item.style.background = '';
+                }
+            });
+        }
+
+        function playTrackFromList(trackIndex) {
+            console.log(`🎵 Playing track from list: ${trackIndex}`);
+            
+            const allTracks = document.querySelectorAll('.track-item');
+            if (trackIndex >= 0 && trackIndex < allTracks.length) {
+                const trackElement = allTracks[trackIndex];
+                const trackTitle = trackElement.querySelector('.track-title').textContent;
+                
+                const playableTrackIndex = currentPlaylist.findIndex(track => track.name === trackTitle);
+                
+                if (playableTrackIndex !== -1) {
+                    playTrackFromPlaylist(playableTrackIndex);
+                    updateTrackListPlayingState(trackIndex);
+                } else {
+                    updateStatus('This track is not available for playback', 'error');
+                }
+            }
+        }
+
+        function updateTrackListPlayingState(playingIndex) {
+            document.querySelectorAll('.track-item').forEach((item, index) => {
+                const playIcon = item.querySelector('.track-play-icon');
+                
+                if (index === playingIndex) {
+                    item.classList.add('playing');
+                    playIcon.textContent = '⏸️';
+                } else {
+                    item.classList.remove('playing');
+                    playIcon.textContent = '▶️';
+                }
+            });
+        }
+
+        function loadPlaylistTracks(playlistId, playlistIndex, playlistName) {
+            console.log(`🎵 Loading tracks for playlist: ${playlistName}`);
+            
+            document.querySelectorAll('.playlist-item').forEach((item, index) => {
+                if (index === playlistIndex) {
+                    item.classList.add('active');
+                } else {
+                    item.classList.remove('active');
+                }
+            });
+
+            updateStatus(`Loading tracks from "${playlistName}"...`, 'info');
+
+            fetch(`/api/spotify/playlists/${playlistId}/tracks/`)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    if (data.error) {
+                        throw new Error(data.error);
+                    }
+                    
+                    const allTracks = data.tracks || [];
+                    
+                    currentPlaylist = allTracks.filter(track => track && (track.uri || track.preview_url)).map(track => ({
+                        id: track.id,
+                        name: track.name,
+                        artist: track.artists.map(artist => artist.name).join(', '),
+                        album: track.album?.name || 'Unknown Album',
+                        uri: track.uri,
+                        preview_url: track.preview_url,
+                        external_url: track.external_urls?.spotify,
+                        duration_ms: track.duration_ms,
+                        popularity: track.popularity,
+                        images: track.album?.images || []
+                    }));
+                    
+                    currentTrackIndex = 0;
+                    
+                    const fullTracks = currentPlaylist.filter(track => track.uri).length;
+                    const previewTracks = currentPlaylist.filter(track => track.preview_url && !track.uri).length;
+                    
+                    console.log(`✅ Loaded ${currentPlaylist.length} playable tracks: ${fullTracks} full, ${previewTracks} preview`);
+                    
+                    displayTrackList(allTracks, playlistName);
+                    
+                    if (currentPlaylist.length > 0) {
+                        if (isSpotifyPlayerReady && fullTracks > 0) {
+                            updateStatus(`${fullTracks} full tracks loaded • Double-click to play`, 'success');
+                        } else {
+                            updateStatus(`${previewTracks} preview tracks loaded • Connect Spotify Player for full tracks`, 'info');
+                        }
+                    } else {
+                        updateStatus(`No playable tracks found in "${playlistName}"`, 'error');
+                        currentPlaylist = [];
+                    }
+                })
+                .catch(error => {
+                    console.error('❌ Error loading tracks:', error);
+                    updateStatus(`Failed to load tracks: ${error.message}`, 'error');
+                    
+                    document.querySelectorAll('.playlist-item').forEach(item => {
+                        item.classList.remove('active');
+                    });
+                });
+        }
+
         function retrySpotifyConnection() {
             console.log('🔄 Retrying Spotify connection...');
             loadPlaylists();
         }
 
-        // Utility functions
         function updateStatus(message, type) {
             const statusDiv = document.getElementById('status');
             statusDiv.textContent = '▸ ' + message;
@@ -2255,32 +2207,39 @@
             console.log(`Status: ${message}`);
         }
 
-        // Error handling for the entire application
         window.addEventListener('error', function(event) {
             console.error('Global error:', event.error);
             updateStatus('An error occurred - check console for details', 'error');
         });
 
         // Initialize application
-        updateStatus('Ready - connect Spotify Player and load playlists to begin', 'info');
+        updateStatus('Ready to start - connect Spotify and load playlists', 'info');
         updateCurrentTrackDisplayEmpty();
         updatePlayerStatus('Disconnected', false);
         
-        console.log('🎮 Multi-Hand DJ Studio with Full Spotify Integration Ready');
+        // Auto-load playlists if user is already authenticated
+        setTimeout(() => {
+            fetch('/api/spotify/check-auth/')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.authenticated) {
+                        console.log('🎵 User already authenticated, auto-loading playlists...');
+                        loadPlaylists();
+                    }
+                })
+                .catch(error => {
+                    console.log('No existing Spotify authentication found');
+                });
+        }, 1000);
+        
+        console.log('🎮 HandMixed DJ Studio Ready');
         console.log('🎵 Features:');
+        console.log('  - YouDJ-inspired interface');
         console.log('  - Full Spotify track playback via Web Playback SDK');
         console.log('  - Multi-hand detection and visualization');
-        console.log('  - Hand masks and color-coded tracking');
-        console.log('  - Spotify playlist integration');
-        console.log('  - Premium account support for full tracks');
-        console.log('  - Fallback to 30-second previews for free accounts');
+        console.log('  - Auto-loading playlists after login');
         console.log('  - Hand gesture controls: ✋=play/pause, ☝️=next, ✌️=prev, ✊=stop');
-        console.log('💡 Steps: 1) Connect Spotify Player, 2) Load playlists, 3) Start hand tracking!');
-        console.log('🖐️ Now supports up to 4 hands with individual masks!');
-
-
-
-         
+        console.log('💡 Steps: 1) Connect Spotify Player, 2) Playlists auto-load, 3) Start hand tracking!');
     </script>
 </body>
 </html>
