@@ -808,6 +808,14 @@
                 🐛 TOGGLE DEBUG MODE
             </button>
 
+            <button class="control-btn" onclick="testPlayFirstTrack()" id="testPlayBtn" style="margin-top: 10px;">
+                🧪 TEST PLAY FIRST TRACK
+            </button>
+
+            <button class="control-btn" onclick="testPlayFirstTrack()" id="testPlayBtn" style="margin-top: 10px;">
+                🧪 TEST PLAY FIRST TRACK
+            </button>
+
             <div id="playlistsContainer">
                 <div class="loading">
                     ▸ Load your Spotify playlists to start mixing with full tracks
@@ -2201,6 +2209,39 @@
                 });
         }
 
+            // Add this function for testing Spotify playback
+        function testPlayFirstTrack() {
+            console.log('🧪 Testing first track playback...');
+            console.log('📊 Current state:');
+            console.log('  - Current playlist length:', currentPlaylist.length);
+            console.log('  - Spotify player ready:', isSpotifyPlayerReady);
+            console.log('  - Device ID:', spotifyDeviceId);
+            console.log('  - Access token available:', !!spotifyAccessToken);
+            console.log('  - Premium account:', isSpotifyPremium);
+            
+            if (currentPlaylist.length === 0) {
+                console.log('❌ No playlist loaded');
+                updateStatus('Load a playlist first!', 'error');
+                return;
+            }
+            
+            const firstTrack = currentPlaylist[0];
+            console.log('🎵 First track:', firstTrack);
+            
+            if (isSpotifyPlayerReady && firstTrack.uri) {
+                console.log('🚀 Attempting full track playback:', firstTrack.uri);
+                playSpotifyTrack(firstTrack.uri);
+                updateStatus(`Testing: ${firstTrack.name}`, 'info');
+            } else if (firstTrack.preview_url) {
+                console.log('🔄 Falling back to preview:', firstTrack.preview_url);
+                playPreviewTrack(firstTrack);
+                updateStatus(`Testing preview: ${firstTrack.name}`, 'info');
+            } else {
+                console.log('❌ No playback available for first track');
+                updateStatus('No playback available for this track', 'error');
+            }
+        }
+
         function retrySpotifyConnection() {
             console.log('🔄 Retrying Spotify connection...');
             loadPlaylists();
@@ -2236,6 +2277,10 @@
         console.log('  - Hand gesture controls: ✋=play/pause, ☝️=next, ✌️=prev, ✊=stop');
         console.log('💡 Steps: 1) Connect Spotify Player, 2) Load playlists, 3) Start hand tracking!');
         console.log('🖐️ Now supports up to 4 hands with individual masks!');
+
+
+
+         
     </script>
 </body>
 </html>
