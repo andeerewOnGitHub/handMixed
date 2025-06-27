@@ -540,3 +540,44 @@ get_playlists = get_user_playlists
 def error_view(request):
     """Generic error page"""
     return render(request, 'handmixed_auth/error.html')
+
+
+
+@login_required
+@csrf_exempt
+@require_http_methods(["POST"])
+def load_track_to_deck(request):
+    """Load a track to a specific deck"""
+    import json
+    
+    try:
+        data = json.loads(request.body)
+        track_id = data.get('track_id')
+        deck = data.get('deck')  # 'A' or 'B'
+        
+        if not track_id or not deck:
+            return JsonResponse({'error': 'Track ID and deck required'}, status=400)
+        
+        # Store deck assignments in session
+        if 'deck_assignments' not in request.session:
+            request.session['deck_assignments'] = {}
+        
+        request.session['deck_assignments'][deck] = track_id
+        request.session.modified = True
+        
+        return JsonResponse({
+            'success': True,
+            'message': f'Track loaded to Deck {deck}'
+        })
+        
+    except Exception as e:
+        logger.error(f"Load track to deck error: {e}")
+        return JsonResponse({'error': str(e)}, status=500)
+
+@login_required
+@csrf_exempt
+@require_http_methods(["GET"])
+def get_deck_status(request):
+    """Get current deck assignments"""
+    deck_assignments = request.session.get('deck_assignments', {})
+    return JsonResponse({'deck_assignments': deck_assignments})

@@ -25,4 +25,9 @@ urlpatterns = [
     path('api/spotify/transfer-playback/', views.transfer_playback, name='api_transfer_playback'),
     path('api/spotify/play/', views.play_track, name='api_play_track'),
     path('api/spotify/control/', views.control_playback, name='api_control_playback'),
+
+
+    # NEW: Deck Management API Endpoints (ADD THESE TWO LINES)
+    path('api/deck/load/', views.load_track_to_deck, name='api_load_track_to_deck'),
+    path('api/deck/status/', views.get_deck_status, name='api_deck_status'),
 ]

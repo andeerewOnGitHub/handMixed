@@ -116,15 +116,49 @@
             box-shadow: 0 8px 20px rgba(255, 107, 107, 0.3);
         }
 
+        /* Spotify Connection Status (Hidden but functional) */
+        .spotify-status {
+            position: fixed;
+            top: 80px;
+            right: 20px;
+            background: linear-gradient(135deg, rgba(30, 215, 96, 0.2), rgba(0, 0, 0, 0.3));
+            border: 2px solid #1ed760;
+            border-radius: 12px;
+            padding: 8px 12px;
+            font-size: 0.8rem;
+            font-family: 'Orbitron', monospace;
+            z-index: 100;
+            display: none; /* Hidden by default, shows on connection issues */
+        }
+
+        .spotify-status.error {
+            border-color: #ff6b6b;
+            background: linear-gradient(135deg, rgba(255, 107, 107, 0.2), rgba(0, 0, 0, 0.3));
+            color: #ff6b6b;
+            display: block;
+        }
+
+        .spotify-status.success {
+            color: #1ed760;
+            display: block;
+            animation: fadeOut 3s forwards;
+        }
+
+        @keyframes fadeOut {
+            0% { opacity: 1; }
+            70% { opacity: 1; }
+            100% { opacity: 0; display: none; }
+        }
+
         /* Main DJ Interface */
         .dj-interface {
             display: flex;
-            height: calc(100vh - 70px - 300px); /* Header height - bottom section height */
+            height: calc(100vh - 70px - 300px);
             padding: 20px;
             gap: 20px;
         }
 
-        /* Left Deck */
+        /* DJ Deck Styling */
         .deck {
             flex: 1;
             background: linear-gradient(135deg, rgba(45, 45, 48, 0.8), rgba(26, 26, 26, 0.8));
@@ -135,7 +169,6 @@
             box-shadow: 0 15px 50px rgba(0, 0, 0, 0.5);
             display: flex;
             flex-direction: column;
-            align-items: center;
             position: relative;
         }
 
@@ -146,21 +179,140 @@
             -webkit-text-fill-color: transparent;
             background-clip: text;
             margin-bottom: 20px;
-            font-size: 1.5rem;
+            font-size: 1.2rem;
             font-weight: 900;
             text-align: center;
             text-transform: uppercase;
             letter-spacing: 2px;
         }
 
-        /* Center Video Section */
+        /* Track Display for each deck */
+        .deck-track-display {
+            background: linear-gradient(135deg, rgba(30, 215, 96, 0.15), rgba(0, 212, 255, 0.15));
+            border: 2px solid rgba(30, 215, 96, 0.3);
+            border-radius: 15px;
+            padding: 15px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            min-height: 80px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .deck-track-display:hover {
+            border-color: #1ed760;
+            background: linear-gradient(135deg, rgba(30, 215, 96, 0.25), rgba(0, 212, 255, 0.25));
+            transform: translateY(-2px);
+        }
+
+        .deck-track-display.loaded {
+            border-color: #1ed760;
+            background: linear-gradient(135deg, rgba(30, 215, 96, 0.3), rgba(0, 212, 255, 0.3));
+        }
+
+        .deck-track-artwork {
+            width: 50px;
+            height: 50px;
+            border-radius: 8px;
+            background: linear-gradient(135deg, #1ed760, #00d4ff);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            color: white;
+            flex-shrink: 0;
+            overflow: hidden;
+        }
+
+        .deck-track-artwork img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 6px;
+        }
+
+        .deck-track-info {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            min-width: 0;
+        }
+
+        .deck-track-name {
+            font-size: 1rem;
+            font-weight: 700;
+            color: #1ed760;
+            margin-bottom: 3px;
+            font-family: 'Orbitron', monospace;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .deck-track-artist {
+            font-size: 0.85rem;
+            color: #e0e0e0;
+            opacity: 0.9;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .deck-track-status {
+            font-size: 0.75rem;
+            color: #00d4ff;
+            margin-top: 3px;
+        }
+
+        /* Deck Controls */
+        .deck-controls {
+            margin-top: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .deck-btn {
+            background: linear-gradient(135deg, #00d4ff, #f39c12);
+            border: none;
+            padding: 8px 16px;
+            border-radius: 20px;
+            color: #1a1a1a;
+            font-size: 0.8rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-family: 'Orbitron', monospace;
+        }
+
+        .deck-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(0, 212, 255, 0.3);
+        }
+
+        .deck-btn:disabled {
+            background: linear-gradient(135deg, #6c757d, #495057);
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+            opacity: 0.6;
+        }
+
+        /* Center Section */
         .center-section {
             flex: 1.5;
             display: flex;
             flex-direction: column;
             gap: 15px;
+            align-items: center;
         }
 
+        /* Video Container */
         .video-container {
             position: relative;
             width: 100%;
@@ -205,20 +357,18 @@
             font-weight: 600;
         }
 
-        .control-buttons {
-            display: flex;
-            gap: 10px;
-            justify-content: center;
-            flex-wrap: wrap;
+        /* Center Control Button */
+        .center-control {
+            margin: 10px 0;
         }
 
-        .control-btn {
+        .hand-dj-btn {
             background: linear-gradient(135deg, #00d4ff, #f39c12);
             border: none;
-            padding: 12px 20px;
+            padding: 15px 30px;
             border-radius: 25px;
             color: #1a1a1a;
-            font-size: 0.9rem;
+            font-size: 1.1rem;
             font-weight: 700;
             cursor: pointer;
             transition: all 0.4s ease;
@@ -226,16 +376,16 @@
             letter-spacing: 1px;
             font-family: 'Orbitron', monospace;
             box-shadow: 0 8px 25px rgba(0, 212, 255, 0.3);
-            min-width: 150px;
+            min-width: 200px;
         }
 
-        .control-btn:hover {
+        .hand-dj-btn:hover {
             transform: translateY(-3px) scale(1.02);
             box-shadow: 0 12px 35px rgba(0, 212, 255, 0.5);
             background: linear-gradient(135deg, #f39c12, #00d4ff);
         }
 
-        .control-btn:disabled {
+        .hand-dj-btn:disabled {
             background: linear-gradient(135deg, #6c757d, #495057);
             cursor: not-allowed;
             transform: none;
@@ -243,27 +393,46 @@
             opacity: 0.6;
         }
 
-        .control-btn.stop {
+        .hand-dj-btn.stop {
             background: linear-gradient(135deg, #ff6b6b, #e74c3c);
             box-shadow: 0 8px 25px rgba(255, 107, 107, 0.3);
         }
 
-        .control-btn.stop:hover {
+        .hand-dj-btn.stop:hover {
             background: linear-gradient(135deg, #e74c3c, #ff6b6b);
             box-shadow: 0 12px 35px rgba(255, 107, 107, 0.5);
+        }
+
+        /* Gesture Status */
+        .gesture-status {
+            background: linear-gradient(135deg, rgba(46, 204, 113, 0.2), rgba(0, 212, 255, 0.2));
+            border: 1px solid #2ecc71;
+            color: #2ecc71;
+            padding: 10px 15px;
+            border-radius: 12px;
+            text-align: center;
+            font-family: 'Orbitron', monospace;
+            font-weight: 600;
+            font-size: 0.9rem;
+            min-height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            max-width: 400px;
         }
 
         /* Status Messages */
         .status {
             background: linear-gradient(135deg, rgba(0, 212, 255, 0.1), rgba(243, 156, 18, 0.1));
             border-radius: 15px;
-            padding: 12px 20px;
-            margin: 10px 0;
-            font-size: 0.95rem;
+            padding: 8px 16px;
+            margin: 8px 0;
+            font-size: 0.85rem;
             border: 1px solid rgba(0, 212, 255, 0.3);
             text-align: center;
             font-weight: 400;
             backdrop-filter: blur(10px);
+            max-width: 400px;
         }
 
         .status.success {
@@ -284,150 +453,7 @@
             color: #00d4ff;
         }
 
-        .gesture-status {
-            background: linear-gradient(135deg, rgba(46, 204, 113, 0.2), rgba(0, 212, 255, 0.2));
-            border: 1px solid #2ecc71;
-            color: #2ecc71;
-            padding: 10px 15px;
-            border-radius: 12px;
-            text-align: center;
-            margin: 10px 0;
-            font-family: 'Orbitron', monospace;
-            font-weight: 600;
-            font-size: 0.9rem;
-            min-height: 50px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        /* Right Deck */
-        .right-deck {
-            flex: 1;
-        }
-
-        /* Current Track Display */
-        .current-track {
-            background: linear-gradient(135deg, rgba(30, 215, 96, 0.2), rgba(0, 212, 255, 0.2));
-            border: 2px solid #1ed760;
-            border-radius: 15px;
-            padding: 15px;
-            margin-bottom: 15px;
-            display: flex;
-            align-items: center;
-            gap: 15px;
-            min-height: 70px;
-        }
-
-        .track-artwork {
-            width: 50px;
-            height: 50px;
-            border-radius: 8px;
-            background: linear-gradient(135deg, #1ed760, #00d4ff);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 20px;
-            color: white;
-            flex-shrink: 0;
-            overflow: hidden;
-        }
-
-        .track-artwork img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            border-radius: 6px;
-        }
-
-        .track-info {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-        }
-
-        .track-name {
-            font-size: 1.1rem;
-            font-weight: 700;
-            color: #1ed760;
-            margin-bottom: 3px;
-            font-family: 'Orbitron', monospace;
-        }
-
-        .track-artist {
-            font-size: 0.9rem;
-            color: #e0e0e0;
-            opacity: 0.9;
-        }
-
-        .track-status {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            font-size: 0.8rem;
-            color: #1ed760;
-            margin-top: 5px;
-        }
-
-        .pulse-dot {
-            width: 6px;
-            height: 6px;
-            background: #1ed760;
-            border-radius: 50%;
-            animation: pulse 2s infinite;
-        }
-
-        @keyframes pulse {
-            0%, 100% { opacity: 1; transform: scale(1); }
-            50% { opacity: 0.5; transform: scale(1.2); }
-        }
-
-        /* Spotify Player Status */
-        .spotify-player-status {
-            background: linear-gradient(135deg, rgba(30, 215, 96, 0.2), rgba(0, 0, 0, 0.3));
-            border: 2px solid #1ed760;
-            border-radius: 12px;
-            padding: 12px;
-            margin-bottom: 15px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            flex-wrap: wrap;
-            gap: 8px;
-        }
-
-        .player-info {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .player-indicator {
-            width: 10px;
-            height: 10px;
-            border-radius: 50%;
-            background: #1ed760;
-            animation: pulse 2s infinite;
-        }
-
-        .player-indicator.disconnected {
-            background: #ff6b6b;
-            animation: none;
-        }
-
-        .player-text {
-            font-family: 'Orbitron', monospace;
-            font-weight: 600;
-            color: #1ed760;
-            font-size: 0.9rem;
-        }
-
-        .player-text.disconnected {
-            color: #ff6b6b;
-        }
-
-        /* Bottom Music Library Section */
+        /* Music Library Section */
         .music-library {
             height: 300px;
             background: linear-gradient(135deg, rgba(0, 0, 0, 0.9), rgba(26, 26, 26, 0.8));
@@ -721,12 +747,13 @@
             background: linear-gradient(135deg, rgba(243, 156, 18, 0.1), rgba(255, 107, 107, 0.1));
             border: 1px solid #f39c12;
             color: #f39c12;
-            padding: 10px;
+            padding: 8px;
             border-radius: 10px;
-            margin: 10px 0;
+            margin: 8px 0;
             font-family: 'Courier New', monospace;
-            font-size: 0.8rem;
+            font-size: 0.7rem;
             line-height: 1.3;
+            max-width: 400px;
         }
 
         /* Scrollbar Styling */
@@ -754,7 +781,7 @@
             
             .deck {
                 flex: none;
-                height: 200px;
+                height: 180px;
             }
             
             .music-library {
@@ -811,54 +838,39 @@
         </div>
     </div>
 
+    <!-- Spotify Status (Hidden, shows only on issues) -->
+    <div class="spotify-status" id="spotifyStatus">
+        Spotify Disconnected
+    </div>
+
     <!-- Main DJ Interface -->
     <div class="dj-interface">
-        <!-- Left Deck -->
+        <!-- Left Deck A -->
         <div class="deck">
-            <div class="deck-title">🎛️ Controls</div>
+            <div class="deck-title">🎚️ Deck A</div>
             
-            <!-- Spotify Player Status -->
-            <div class="spotify-player-status">
-                <div class="player-info">
-                    <div class="player-indicator disconnected" id="playerIndicator"></div>
-                    <div class="player-text disconnected" id="playerText">Disconnected</div>
-                </div>
-                <button class="library-btn" onclick="initializeSpotifyPlayer()" id="initPlayerBtn">
-                    Connect Spotify
-                </button>
-            </div>
-
-            <!-- Current Track Display -->
-            <div class="current-track">
-                <div class="track-artwork" id="trackArtwork">🎵</div>
-                <div class="track-info">
-                    <div class="track-name" id="currentTrackName">No track playing</div>
-                    <div class="track-artist" id="currentTrackArtist">Connect Spotify to begin</div>
-                    <div class="track-status" id="trackStatus" style="display: none;">
-                        <div class="pulse-dot"></div>
-                        <span>Now Playing</span>
-                    </div>
+            <!-- Track Display for Deck A -->
+            <div class="deck-track-display" id="deckATrackDisplay" onclick="loadTrackToDeck('A')">
+                <div class="deck-track-artwork" id="deckAArtwork">🎵</div>
+                <div class="deck-track-info">
+                    <div class="deck-track-name" id="deckATrackName">No track loaded</div>
+                    <div class="deck-track-artist" id="deckATrackArtist">Click to load from library</div>
+                    <div class="deck-track-status" id="deckATrackStatus">Ready</div>
                 </div>
             </div>
 
-            <!-- Control Buttons -->
-            <div class="control-buttons">
-                <button id="startBtn" class="control-btn" onclick="startHandTracking()">
-                    Start Hand DJ
-                </button>
-                <button id="stopBtn" class="control-btn stop" onclick="stopHandTracking()" style="display: none;">
-                    Stop Hand DJ
-                </button>
-            </div>
-
-            <!-- Status Display -->
-            <div id="status" class="status info">
-                Ready to start hand-controlled DJ session
+            <!-- Deck A Controls -->
+            <div class="deck-controls">
+                <button class="deck-btn" onclick="playDeck('A')" id="deckAPlayBtn">▶️ Play</button>
+                <button class="deck-btn" onclick="pauseDeck('A')" id="deckAPauseBtn">⏸️ Pause</button>
+                <button class="deck-btn" onclick="stopDeck('A')" id="deckAStopBtn">⏹️ Stop</button>
+                <button class="deck-btn" onclick="clearDeck('A')" id="deckAClearBtn">🗑️ Clear</button>
             </div>
         </div>
 
-        <!-- Center Video Section -->
+        <!-- Center Section -->
         <div class="center-section">
+            <!-- Video Container -->
             <div class="video-container">
                 <video id="video" autoplay muted playsinline></video>
                 <canvas id="canvas"></canvas>
@@ -868,9 +880,24 @@
                 </div>
             </div>
 
+            <!-- Center Hand DJ Control -->
+            <div class="center-control">
+                <button id="startBtn" class="hand-dj-btn" onclick="startHandTracking()">
+                    🖐️ Start Hand DJ
+                </button>
+                <button id="stopBtn" class="hand-dj-btn stop" onclick="stopHandTracking()" style="display: none;">
+                    ✋ Stop Hand DJ
+                </button>
+            </div>
+
             <!-- Gesture Status -->
             <div id="gestureStatus" class="gesture-status">
                 🖐️ Show your hands to control music
+            </div>
+
+            <!-- Status Display -->
+            <div id="status" class="status info">
+                Ready to start hand-controlled DJ session
             </div>
 
             <!-- Debug Info -->
@@ -880,35 +907,34 @@
             </div>
         </div>
 
-        <!-- Right Deck -->
-        <div class="deck right-deck">
-            <div class="deck-title">🎚️ Effects</div>
+        <!-- Right Deck B -->
+        <div class="deck">
+            <div class="deck-title">🎚️ Deck B</div>
             
-            <!-- Library Controls -->
-            <div class="control-buttons">
-                <button class="library-btn" onclick="toggleDebugInfo()">
-                    Toggle Debug
-                </button>
-                <button class="library-btn" onclick="testPlayFirstTrack()" id="testPlayBtn">
-                    Test Play Track
-                </button>
+            <!-- Track Display for Deck B -->
+            <div class="deck-track-display" id="deckBTrackDisplay" onclick="loadTrackToDeck('B')">
+                <div class="deck-track-artwork" id="deckBArtwork">🎵</div>
+                <div class="deck-track-info">
+                    <div class="deck-track-name" id="deckBTrackName">No track loaded</div>
+                    <div class="deck-track-artist" id="deckBTrackArtist">Click to load from library</div>
+                    <div class="deck-track-status" id="deckBTrackStatus">Ready</div>
+                </div>
             </div>
 
-            <!-- Debug Test Controls -->
-            <div id="debugControls" style="display: none; margin-top: 15px;">
-                <h4 style="color: #f39c12; margin-bottom: 10px; text-align: center; font-size: 0.9rem;">Gesture Tests</h4>
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
-                    <button class="library-btn" onclick="testGesture('open')" style="font-size: 0.7rem; padding: 6px 10px;">
-                        ✋ Open
+            <!-- Deck B Controls -->
+            <div class="deck-controls">
+                <button class="deck-btn" onclick="playDeck('B')" id="deckBPlayBtn">▶️ Play</button>
+                <button class="deck-btn" onclick="pauseDeck('B')" id="deckBPauseBtn">⏸️ Pause</button>
+                <button class="deck-btn" onclick="stopDeck('B')" id="deckBStopBtn">⏹️ Stop</button>
+                <button class="deck-btn" onclick="clearDeck('B')" id="deckBClearBtn">🗑️ Clear</button>
+                
+                <!-- Debug Controls (Hidden by default) -->
+                <div id="debugControls" style="display: none; margin-top: 10px;">
+                    <button class="deck-btn" onclick="toggleDebugInfo()" style="font-size: 0.7rem;">
+                        🐛 Debug
                     </button>
-                    <button class="library-btn" onclick="testGesture('one')" style="font-size: 0.7rem; padding: 6px 10px;">
-                        ☝️ One
-                    </button>
-                    <button class="library-btn" onclick="testGesture('peace')" style="font-size: 0.7rem; padding: 6px 10px;">
-                        ✌️ Peace
-                    </button>
-                    <button class="library-btn" onclick="testGesture('fist')" style="font-size: 0.7rem; padding: 6px 10px;">
-                        ✊ Fist
+                    <button class="deck-btn" onclick="testPlayFirstTrack()" style="font-size: 0.7rem;">
+                        🧪 Test
                     </button>
                 </div>
             </div>
@@ -926,6 +952,9 @@
                 <button class="library-btn" onclick="refreshPlaylists()" style="display: none;" id="refreshBtn">
                     Refresh
                 </button>
+                <button class="library-btn" onclick="toggleDebugMode()" id="debugToggleBtn">
+                    Debug
+                </button>
             </div>
         </div>
         
@@ -934,7 +963,7 @@
             <div class="playlists-sidebar">
                 <div id="playlistsContainer">
                     <div class="loading">
-                        Connect Spotify to load your playlists
+                        Loading your Spotify playlists...
                     </div>
                 </div>
             </div>
@@ -981,6 +1010,23 @@
         let isSpotifyConnected = false;
         let currentPlaybackState = null;
         
+        // DJ Deck Management
+        let deckA = {
+            track: null,
+            isPlaying: false,
+            isPaused: false,
+            audio: null
+        };
+        
+        let deckB = {
+            track: null,
+            isPlaying: false,
+            isPaused: false,
+            audio: null
+        };
+        
+        let selectedDeck = null; // Which deck to load tracks into
+        
         // Performance tracking
         let frameCount = 0;
         let lastFpsUpdate = Date.now();
@@ -1000,6 +1046,223 @@
             { main: '#1abc9c', accent: '#e67e22', name: 'Quaternary' }
         ];
 
+        // ========== SPOTIFY AUTO-INITIALIZATION ==========
+        
+        // Auto-initialize Spotify when page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('🎵 Auto-initializing Spotify connection...');
+            autoInitializeSpotify();
+        });
+
+        async function autoInitializeSpotify() {
+            try {
+                // Check if user is authenticated
+                const authResponse = await fetch('/api/spotify/check-auth/');
+                const authData = await authResponse.json();
+                
+                if (authData.authenticated) {
+                    console.log('✅ User authenticated, initializing Spotify Player...');
+                    showSpotifyStatus('Spotify Connected ✅', 'success');
+                    isSpotifyPremium = authData.premium;
+                    
+                    if (isSpotifyPremium) {
+                        await initializeSpotifyPlayer();
+                    } else {
+                        showSpotifyStatus('Spotify Premium Required', 'error');
+                        updateStatus('Spotify Premium required for full playback', 'error');
+                    }
+                    
+                    // Auto-load playlists
+                    setTimeout(() => {
+                        loadPlaylists();
+                    }, 1000);
+                } else {
+                    // Redirect to authentication
+                    console.log('❌ User not authenticated, redirecting...');
+                    window.location.href = '/api/spotify/auth/';
+                }
+            } catch (error) {
+                console.error('❌ Auto-initialization failed:', error);
+                showSpotifyStatus('Spotify Connection Failed', 'error');
+                updateStatus('Failed to connect to Spotify', 'error');
+            }
+        }
+
+        function showSpotifyStatus(message, type) {
+            const statusElement = document.getElementById('spotifyStatus');
+            statusElement.textContent = message;
+            statusElement.className = `spotify-status ${type}`;
+        }
+
+        // ========== DECK MANAGEMENT FUNCTIONS ==========
+
+        function loadTrackToDeck(deckLetter) {
+            console.log(`🎵 Loading track to Deck ${deckLetter}`);
+            selectedDeck = deckLetter;
+            updateStatus(`Click on a track to load it into Deck ${deckLetter}`, 'info');
+            
+            // Highlight the selected deck
+            const deckDisplay = document.getElementById(`deck${deckLetter}TrackDisplay`);
+            deckDisplay.style.borderColor = '#f39c12';
+            deckDisplay.style.background = 'linear-gradient(135deg, rgba(243, 156, 18, 0.3), rgba(0, 212, 255, 0.3))';
+            
+            // Remove highlight from other deck
+            const otherDeck = deckLetter === 'A' ? 'B' : 'A';
+            const otherDisplay = document.getElementById(`deck${otherDeck}TrackDisplay`);
+            otherDisplay.style.borderColor = '';
+            otherDisplay.style.background = '';
+            
+            setTimeout(() => {
+                if (selectedDeck === deckLetter) {
+                    deckDisplay.style.borderColor = '';
+                    deckDisplay.style.background = '';
+                    selectedDeck = null;
+                    updateStatus('Track loading cancelled', 'info');
+                }
+            }, 10000); // Auto-cancel after 10 seconds
+        }
+
+        function playDeck(deckLetter) {
+            const deck = deckLetter === 'A' ? deckA : deckB;
+            
+            if (!deck.track) {
+                updateStatus(`No track loaded in Deck ${deckLetter}`, 'error');
+                return;
+            }
+
+            if (isSpotifyPlayerReady && deck.track.uri) {
+                playSpotifyTrack(deck.track.uri);
+                deck.isPlaying = true;
+                deck.isPaused = false;
+                updateDeckStatus(deckLetter, 'Playing');
+                console.log(`▶️ Playing Deck ${deckLetter}: ${deck.track.name}`);
+            } else if (deck.track.preview_url) {
+                playDeckPreview(deckLetter);
+            } else {
+                updateStatus(`No playback available for track in Deck ${deckLetter}`, 'error');
+            }
+        }
+
+        function pauseDeck(deckLetter) {
+            const deck = deckLetter === 'A' ? deckA : deckB;
+            
+            if (deck.isPlaying) {
+                if (isSpotifyPlayerReady) {
+                    controlSpotifyPlayback('pause');
+                } else if (deck.audio) {
+                    deck.audio.pause();
+                }
+                
+                deck.isPlaying = false;
+                deck.isPaused = true;
+                updateDeckStatus(deckLetter, 'Paused');
+                console.log(`⏸️ Paused Deck ${deckLetter}`);
+            }
+        }
+
+        function stopDeck(deckLetter) {
+            const deck = deckLetter === 'A' ? deckA : deckB;
+            
+            if (deck.isPlaying || deck.isPaused) {
+                if (isSpotifyPlayerReady) {
+                    controlSpotifyPlayback('pause');
+                } else if (deck.audio) {
+                    deck.audio.pause();
+                    deck.audio.currentTime = 0;
+                }
+                
+                deck.isPlaying = false;
+                deck.isPaused = false;
+                updateDeckStatus(deckLetter, 'Stopped');
+                console.log(`⏹️ Stopped Deck ${deckLetter}`);
+            }
+        }
+
+        function clearDeck(deckLetter) {
+            const deck = deckLetter === 'A' ? deckA : deckB;
+            
+            // Stop if playing
+            if (deck.isPlaying || deck.isPaused) {
+                stopDeck(deckLetter);
+            }
+            
+            // Clear audio
+            if (deck.audio) {
+                deck.audio.pause();
+                deck.audio = null;
+            }
+            
+            // Clear deck data
+            deck.track = null;
+            deck.isPlaying = false;
+            deck.isPaused = false;
+            
+            // Update UI
+            updateDeckDisplay(deckLetter, null);
+            console.log(`🗑️ Cleared Deck ${deckLetter}`);
+        }
+
+        function updateDeckDisplay(deckLetter, track) {
+            const nameElement = document.getElementById(`deck${deckLetter}TrackName`);
+            const artistElement = document.getElementById(`deck${deckLetter}TrackArtist`);
+            const statusElement = document.getElementById(`deck${deckLetter}TrackStatus`);
+            const artworkElement = document.getElementById(`deck${deckLetter}Artwork`);
+            const displayElement = document.getElementById(`deck${deckLetter}TrackDisplay`);
+            
+            if (track) {
+                nameElement.textContent = track.name;
+                artistElement.textContent = track.artist;
+                statusElement.textContent = 'Ready';
+                
+                if (track.images && track.images.length > 0) {
+                    artworkElement.innerHTML = `<img src="${track.images[0].url}" alt="${track.name}">`;
+                } else {
+                    artworkElement.textContent = '🎵';
+                }
+                
+                displayElement.classList.add('loaded');
+            } else {
+                nameElement.textContent = 'No track loaded';
+                artistElement.textContent = 'Click to load from library';
+                statusElement.textContent = 'Ready';
+                artworkElement.textContent = '🎵';
+                displayElement.classList.remove('loaded');
+            }
+        }
+
+        function updateDeckStatus(deckLetter, status) {
+            const statusElement = document.getElementById(`deck${deckLetter}TrackStatus`);
+            statusElement.textContent = status;
+        }
+
+        function playDeckPreview(deckLetter) {
+            const deck = deckLetter === 'A' ? deckA : deckB;
+            
+            if (deck.audio) {
+                deck.audio.pause();
+            }
+            
+            deck.audio = new Audio(deck.track.preview_url);
+            deck.audio.volume = 0.7;
+            
+            deck.audio.play()
+                .then(() => {
+                    deck.isPlaying = true;
+                    deck.isPaused = false;
+                    updateDeckStatus(deckLetter, 'Playing (Preview)');
+                    console.log(`✅ Preview playing in Deck ${deckLetter}:`, deck.track.name);
+                })
+                .catch(e => {
+                    console.log(`❌ Preview play failed in Deck ${deckLetter}:`, e);
+                    updateStatus(`Preview playback failed in Deck ${deckLetter}`, 'error');
+                });
+            
+            deck.audio.addEventListener('ended', () => {
+                deck.isPlaying = false;
+                updateDeckStatus(deckLetter, 'Finished');
+            });
+        }
+
         // ========== SPOTIFY WEB PLAYBACK SDK FUNCTIONS ==========
 
         window.onSpotifyWebPlaybackSDKReady = () => {
@@ -1017,7 +1280,7 @@
                 if (!tokenResponse.ok) {
                     if (tokenData.premium_required) {
                         updateStatus('Spotify Premium required for full track playback', 'error');
-                        updatePlayerStatus('Premium Required', false);
+                        showSpotifyStatus('Premium Required', 'error');
                         return;
                     }
                     throw new Error(tokenData.error || 'Failed to get access token');
@@ -1028,7 +1291,7 @@
                 
                 if (!isSpotifyPremium) {
                     updateStatus('Spotify Premium required for full track playback', 'error');
-                    updatePlayerStatus('Premium Required', false);
+                    showSpotifyStatus('Premium Required', 'error');
                     return;
                 }
                 
@@ -1042,19 +1305,19 @@
                 spotifyPlayer.addListener('initialization_error', ({ message }) => {
                     console.error('🚫 Spotify Player initialization error:', message);
                     updateStatus('Spotify Player initialization failed', 'error');
-                    updatePlayerStatus('Initialization Failed', false);
+                    showSpotifyStatus('Initialization Failed', 'error');
                 });
 
                 spotifyPlayer.addListener('authentication_error', ({ message }) => {
                     console.error('🚫 Spotify Player authentication error:', message);
                     updateStatus('Spotify authentication failed', 'error');
-                    updatePlayerStatus('Authentication Failed', false);
+                    showSpotifyStatus('Authentication Failed', 'error');
                 });
 
                 spotifyPlayer.addListener('account_error', ({ message }) => {
                     console.error('🚫 Spotify Account error:', message);
                     updateStatus('Spotify Premium account required', 'error');
-                    updatePlayerStatus('Premium Required', false);
+                    showSpotifyStatus('Premium Required', 'error');
                 });
 
                 spotifyPlayer.addListener('playback_error', ({ message }) => {
@@ -1070,7 +1333,7 @@
                         const track = state.track_window.current_track;
                         const isPlaying = !state.paused;
                         
-                        updateCurrentTrackDisplayFull(track, isPlaying, state);
+                        // Update track lists
                         updateTrackListPlayingStateFull(track, isPlaying);
                     }
                 });
@@ -1079,22 +1342,17 @@
                     console.log('✅ Spotify Player ready with Device ID:', device_id);
                     spotifyDeviceId = device_id;
                     isSpotifyPlayerReady = true;
-                    updatePlayerStatus('Connected', true);
-                    updateStatus('Spotify Player connected! Loading playlists...', 'success');
+                    showSpotifyStatus('Spotify Player Ready ✅', 'success');
+                    updateStatus('Spotify Player connected successfully!', 'success');
                     
                     transferPlaybackToDevice(device_id);
-                    
-                    // Auto-load playlists after connection
-                    setTimeout(() => {
-                        loadPlaylists();
-                    }, 1000);
                 });
 
                 spotifyPlayer.addListener('not_ready', ({ device_id }) => {
                     console.log('🚫 Spotify Player not ready:', device_id);
                     spotifyDeviceId = null;
                     isSpotifyPlayerReady = false;
-                    updatePlayerStatus('Disconnected', false);
+                    showSpotifyStatus('Spotify Disconnected', 'error');
                 });
 
                 const success = await spotifyPlayer.connect();
@@ -1109,7 +1367,7 @@
             } catch (error) {
                 console.error('❌ Spotify Player initialization error:', error);
                 updateStatus(`Spotify connection failed: ${error.message}`, 'error');
-                updatePlayerStatus('Connection Failed', false);
+                showSpotifyStatus('Connection Failed', 'error');
             }
         }
 
@@ -1128,24 +1386,6 @@
                 }
             } catch (error) {
                 console.warn('⚠️ Playback transfer error:', error);
-            }
-        }
-
-        function updatePlayerStatus(status, isConnected) {
-            const indicator = document.getElementById('playerIndicator');
-            const text = document.getElementById('playerText');
-            const initBtn = document.getElementById('initPlayerBtn');
-            
-            if (isConnected) {
-                indicator.classList.remove('disconnected');
-                text.classList.remove('disconnected');
-                text.textContent = status;
-                initBtn.style.display = 'none';
-            } else {
-                indicator.classList.add('disconnected');
-                text.classList.add('disconnected');
-                text.textContent = status;
-                initBtn.style.display = 'block';
             }
         }
 
@@ -1214,224 +1454,6 @@
                 console.error(`❌ ${action} error:`, error);
                 updateStatus(`Network error: ${action}`, 'error');
                 return false;
-            }
-        }
-
-        // ========== MUSIC CONTROL FUNCTIONS ==========
-
-        function toggleMusic() {
-            if (isSpotifyPlayerReady && currentPlaybackState) {
-                const action = currentPlaybackState.paused ? 'play' : 'pause';
-                controlSpotifyPlayback(action);
-                console.log(`🎵 ${action} via gesture`);
-            } else if (currentPlaylist.length > 0) {
-                playTrackFromPlaylist(currentTrackIndex);
-            } else {
-                updateStatus('Load a playlist first', 'error');
-            }
-        }
-
-        function stopMusic() {
-            if (isSpotifyPlayerReady) {
-                controlSpotifyPlayback('pause');
-                console.log('⏹️ Music stopped via gesture');
-            }
-        }
-
-        function nextTrack() {
-            if (isSpotifyPlayerReady) {
-                controlSpotifyPlayback('next');
-                console.log('⏭️ Next track via gesture');
-            } else if (currentPlaylist.length > 0) {
-                currentTrackIndex = (currentTrackIndex + 1) % currentPlaylist.length;
-                playTrackFromPlaylist(currentTrackIndex);
-            }
-        }
-
-        function prevTrack() {
-            if (isSpotifyPlayerReady) {
-                controlSpotifyPlayback('previous');
-                console.log('⏮️ Previous track via gesture');
-            } else if (currentPlaylist.length > 0) {
-                currentTrackIndex = (currentTrackIndex - 1 + currentPlaylist.length) % currentPlaylist.length;
-                playTrackFromPlaylist(currentTrackIndex);
-            }
-        }
-
-        function playTrackFromPlaylist(trackIndex) {
-            if (currentPlaylist.length === 0) {
-                updateStatus('No playlist loaded', 'error');
-                return;
-            }
-            
-            const track = currentPlaylist[trackIndex];
-            if (!track) {
-                updateStatus('Track not found', 'error');
-                return;
-            }
-            
-            currentTrackIndex = trackIndex;
-            
-            if (isSpotifyPlayerReady && track.uri) {
-                playSpotifyTrack(track.uri);
-                updateStatus(`Playing: ${track.name}`, 'success');
-            } else if (track.preview_url) {
-                playPreviewTrack(track);
-                updateStatus(`Playing preview: ${track.name}`, 'info');
-            } else {
-                updateStatus(`No playback available for: ${track.name}`, 'error');
-                setTimeout(() => nextTrack(), 1000);
-            }
-        }
-
-        let currentPreviewAudio = null;
-
-        function playPreviewTrack(track) {
-            if (currentPreviewAudio) {
-                currentPreviewAudio.pause();
-                currentPreviewAudio = null;
-            }
-            
-            if (track.preview_url) {
-                currentPreviewAudio = new Audio(track.preview_url);
-                currentPreviewAudio.volume = 0.7;
-                
-                currentPreviewAudio.play()
-                    .then(() => {
-                        updateCurrentTrackDisplayPreview(track, true);
-                        console.log('✅ Preview playing:', track.name);
-                    })
-                    .catch(e => {
-                        console.log('❌ Preview play failed:', e);
-                        updateStatus('Preview playback failed', 'error');
-                    });
-                
-                currentPreviewAudio.addEventListener('ended', () => {
-                    setTimeout(nextTrack, 500);
-                });
-            }
-        }
-
-        function updateCurrentTrackDisplayFull(track, isPlaying, playbackState) {
-            const trackName = document.getElementById('currentTrackName');
-            const trackArtist = document.getElementById('currentTrackArtist');
-            const trackStatus = document.getElementById('trackStatus');
-            const trackArtwork = document.getElementById('trackArtwork');
-
-            if (track) {
-                trackName.textContent = track.name;
-                trackArtist.textContent = track.artists.map(artist => artist.name).join(', ') + 
-                                        (track.album ? ` • ${track.album.name}` : '');
-                
-                if (track.album && track.album.images && track.album.images.length > 0) {
-                    trackArtwork.innerHTML = `<img src="${track.album.images[0].url}" alt="${track.name}">`;
-                } else {
-                    trackArtwork.textContent = '🎵';
-                }
-                
-                if (isPlaying) {
-                    trackStatus.style.display = 'flex';
-                    trackStatus.innerHTML = '<div class="pulse-dot"></div><span>Now Playing</span>';
-                } else {
-                    trackStatus.style.display = 'flex';
-                    trackStatus.innerHTML = '<span>⏸️ Paused</span>';
-                }
-            } else {
-                updateCurrentTrackDisplayEmpty();
-            }
-        }
-
-        function updateCurrentTrackDisplayPreview(track, isPlaying) {
-            const trackName = document.getElementById('currentTrackName');
-            const trackArtist = document.getElementById('currentTrackArtist');
-            const trackStatus = document.getElementById('trackStatus');
-            const trackArtwork = document.getElementById('trackArtwork');
-
-            if (track) {
-                trackName.textContent = track.name;
-                trackArtist.textContent = track.artist + (track.album ? ` • ${track.album}` : '');
-                trackArtwork.textContent = '🎵';
-                
-                if (isPlaying) {
-                    trackStatus.style.display = 'flex';
-                    trackStatus.innerHTML = '<div class="pulse-dot"></div><span>Preview (30s)</span>';
-                } else {
-                    trackStatus.style.display = 'flex';
-                    trackStatus.innerHTML = '<span>⏸️ Preview Paused</span>';
-                }
-            } else {
-                updateCurrentTrackDisplayEmpty();
-            }
-        }
-
-        function updateCurrentTrackDisplayEmpty() {
-            const trackName = document.getElementById('currentTrackName');
-            const trackArtist = document.getElementById('currentTrackArtist');
-            const trackStatus = document.getElementById('trackStatus');
-            const trackArtwork = document.getElementById('trackArtwork');
-
-            trackName.textContent = 'No track playing';
-            const playlistStatus = currentPlaylist.length > 0 
-                ? `${currentPlaylist.length} tracks loaded`
-                : 'Connect Spotify to begin';
-            trackArtist.textContent = playlistStatus;
-            trackStatus.style.display = 'none';
-            trackArtwork.textContent = '🎵';
-        }
-
-        function updateTrackListPlayingStateFull(currentTrack, isPlaying) {
-            if (!currentTrack) return;
-            
-            document.querySelectorAll('.track-item').forEach((item, index) => {
-                const playIcon = item.querySelector('.track-play-icon');
-                const trackTitle = item.querySelector('.track-title');
-                
-                if (trackTitle && trackTitle.textContent === currentTrack.name) {
-                    if (isPlaying) {
-                        item.classList.add('playing');
-                        playIcon.textContent = '⏸️';
-                    } else {
-                        item.classList.remove('playing');
-                        playIcon.textContent = '▶️';
-                    }
-                } else {
-                    item.classList.remove('playing');
-                    playIcon.textContent = '▶️';
-                }
-            });
-        }
-
-        // ========== TEST FUNCTION ==========
-
-        function testPlayFirstTrack() {
-            console.log('🧪 Testing first track playback...');
-            console.log('📊 Current state:');
-            console.log('  - Current playlist length:', currentPlaylist.length);
-            console.log('  - Spotify player ready:', isSpotifyPlayerReady);
-            console.log('  - Device ID:', spotifyDeviceId);
-            console.log('  - Access token available:', !!spotifyAccessToken);
-            console.log('  - Premium account:', isSpotifyPremium);
-            
-            if (currentPlaylist.length === 0) {
-                console.log('❌ No playlist loaded');
-                updateStatus('Load a playlist first!', 'error');
-                return;
-            }
-            
-            const firstTrack = currentPlaylist[0];
-            console.log('🎵 First track:', firstTrack);
-            
-            if (isSpotifyPlayerReady && firstTrack.uri) {
-                console.log('🚀 Attempting full track playback:', firstTrack.uri);
-                playSpotifyTrack(firstTrack.uri);
-                updateStatus(`Testing: ${firstTrack.name}`, 'info');
-            } else if (firstTrack.preview_url) {
-                console.log('🔄 Falling back to preview:', firstTrack.preview_url);
-                playPreviewTrack(firstTrack);
-                updateStatus(`Testing preview: ${firstTrack.name}`, 'info');
-            } else {
-                console.log('❌ No playback available for first track');
-                updateStatus('No playback available for this track', 'error');
             }
         }
 
@@ -1683,16 +1705,33 @@
             
             switch(gesture) {
                 case 'open':
-                    toggleMusic();
+                    // Play/pause active deck
+                    if (deckA.isPlaying) {
+                        pauseDeck('A');
+                    } else if (deckB.isPlaying) {
+                        pauseDeck('B');
+                    } else if (deckA.track) {
+                        playDeck('A');
+                    } else if (deckB.track) {
+                        playDeck('B');
+                    }
                     break;
                 case 'one':
-                    nextTrack();
+                    // Play Deck A
+                    if (deckA.track) {
+                        playDeck('A');
+                    }
                     break;
                 case 'peace':
-                    prevTrack();
+                    // Play Deck B
+                    if (deckB.track) {
+                        playDeck('B');
+                    }
                     break;
                 case 'fist':
-                    stopMusic();
+                    // Stop all decks
+                    stopDeck('A');
+                    stopDeck('B');
                     break;
                 default:
                     console.log(`No action defined for gesture: ${gesture}`);
@@ -1783,10 +1822,11 @@
                 camera.start()
                     .then(() => {
                         console.log('✅ Camera started successfully');
-                        updateStatus('🚀 Hand tracking active! Use gestures to control music', 'success');
+                        updateStatus('🚀 Hand tracking active! Use gestures to control decks', 'success');
                         
-                        document.getElementById('debugInfo').style.display = 'block';
-                        debugMode = true;
+                        if (debugMode) {
+                            document.getElementById('debugInfo').style.display = 'block';
+                        }
                     })
                     .catch(error => {
                         console.error('❌ Camera start error:', error);
@@ -1857,35 +1897,12 @@
             console.log('✅ Hand tracking stopped and cleaned up');
         }
 
-        function toggleDebugInfo() {
-            const debugInfo = document.getElementById('debugInfo');
-            const debugControls = document.getElementById('debugControls');
-            debugMode = !debugMode;
-            
-            debugInfo.style.display = debugMode ? 'block' : 'none';
-            debugControls.style.display = debugMode ? 'block' : 'none';
-            
-            console.log(`Debug mode: ${debugMode ? 'ON' : 'OFF'}`);
-        }
-
-        function testGesture(gesture) {
-            console.log(`🧪 Testing gesture: ${gesture}`);
-            updateMultiHandGestureStatus({ 0: gesture });
-            handleGestureAction(gesture);
-            
-            setTimeout(() => {
-                if (!isTracking) {
-                    document.getElementById('gestureStatus').innerHTML = '🖐️ Show your hands to control music';
-                }
-            }, 2000);
-        }
-
         // ========== SPOTIFY PLAYLIST FUNCTIONS ==========
 
         function loadPlaylists() {
             console.log('🎵 Loading Spotify playlists...');
             const container = document.getElementById('playlistsContainer');
-            container.innerHTML = '<div class="loading">◈ Connecting to Spotify...</div>';
+            container.innerHTML = '<div class="loading">◈ Loading your playlists...</div>';
 
             fetch('/api/spotify/check-auth/')
                 .then(response => response.json())
@@ -2019,6 +2036,7 @@
                 </div>
                 <div class="tracks-info">
                     ${tracks.length} tracks • ${tracksWithUris.length} full tracks • ${tracksWithPreviews.length} previews
+                    ${selectedDeck ? ` • Click track to load into Deck ${selectedDeck}` : ' • Click deck first, then track to load'}
                 </div>
                 <div style="overflow-y: auto; max-height: 180px;">
             `;
@@ -2027,30 +2045,19 @@
                 const hasPreview = track.preview_url;
                 const hasUri = track.uri;
                 const playbackType = hasUri ? 'full' : (hasPreview ? 'preview' : 'none');
-                const isCurrentTrack = currentPlaylist.length > 0 && 
-                                      currentTrackIndex < currentPlaylist.length && 
-                                      currentPlaylist[currentTrackIndex].id === track.id;
-                
-                let playingClass = '';
-                if (isCurrentTrack) {
-                    if (isSpotifyPlayerReady && currentPlaybackState && !currentPlaybackState.paused) {
-                        playingClass = 'playing';
-                    } else if (currentPreviewAudio && !currentPreviewAudio.paused) {
-                        playingClass = 'playing';
-                    }
-                }
                 
                 const playableClass = (hasUri || hasPreview) ? 'playable' : '';
+                const loadableClass = selectedDeck ? 'deck-loadable' : '';
                 
                 const duration = track.duration_ms ? formatDuration(track.duration_ms) : '--:--';
                 
                 tracksHTML += `
-                    <div class="track-item ${playableClass} ${playingClass}" 
-                         ondblclick="playTrackFromList(${index})"
-                         onclick="selectTrack(${index})">
+                    <div class="track-item ${playableClass} ${loadableClass}" 
+                         onclick="loadTrackToDeckFromList(${index})"
+                         onmouseover="this.style.cursor = '${selectedDeck ? 'pointer' : 'default'}'">
                         <div class="track-number">${index + 1}</div>
                         <div class="track-play-icon">
-                            ${playingClass ? '⏸️' : '▶️'}
+                            ${selectedDeck ? '📂' : '▶️'}
                         </div>
                         <div class="track-info-container">
                             <div class="track-title">${track.name}</div>
@@ -2064,6 +2071,43 @@
             
             tracksHTML += '</div>';
             container.innerHTML = tracksHTML;
+        }
+
+        function loadTrackToDeckFromList(trackIndex) {
+            if (!selectedDeck) {
+                updateStatus('Select a deck first by clicking on a deck display', 'error');
+                return;
+            }
+
+            const allTracks = document.querySelectorAll('.track-item');
+            if (trackIndex >= 0 && trackIndex < allTracks.length) {
+                const trackElement = allTracks[trackIndex];
+                const trackTitle = trackElement.querySelector('.track-title').textContent;
+                
+                const playableTrackIndex = currentPlaylist.findIndex(track => track.name === trackTitle);
+                
+                if (playableTrackIndex !== -1) {
+                    const track = currentPlaylist[playableTrackIndex];
+                    const deck = selectedDeck === 'A' ? deckA : deckB;
+                    
+                    // Load track into deck
+                    deck.track = track;
+                    
+                    // Update deck display
+                    updateDeckDisplay(selectedDeck, track);
+                    
+                    // Clear selection
+                    const deckDisplay = document.getElementById(`deck${selectedDeck}TrackDisplay`);
+                    deckDisplay.style.borderColor = '';
+                    deckDisplay.style.background = '';
+                    selectedDeck = null;
+                    
+                    updateStatus(`Track "${track.name}" loaded into Deck ${selectedDeck || 'A'}`, 'success');
+                    console.log(`🎵 Loaded track into deck:`, track);
+                } else {
+                    updateStatus('This track is not available for loading', 'error');
+                }
+            }
         }
 
         function formatDuration(ms) {
@@ -2080,49 +2124,6 @@
 
         function refreshPlaylists() {
             loadPlaylists();
-        }
-
-        function selectTrack(trackIndex) {
-            document.querySelectorAll('.track-item').forEach((item, index) => {
-                if (index === trackIndex) {
-                    item.style.background = 'linear-gradient(135deg, rgba(0, 212, 255, 0.25), rgba(243, 156, 18, 0.25))';
-                } else if (!item.classList.contains('playing')) {
-                    item.style.background = '';
-                }
-            });
-        }
-
-        function playTrackFromList(trackIndex) {
-            console.log(`🎵 Playing track from list: ${trackIndex}`);
-            
-            const allTracks = document.querySelectorAll('.track-item');
-            if (trackIndex >= 0 && trackIndex < allTracks.length) {
-                const trackElement = allTracks[trackIndex];
-                const trackTitle = trackElement.querySelector('.track-title').textContent;
-                
-                const playableTrackIndex = currentPlaylist.findIndex(track => track.name === trackTitle);
-                
-                if (playableTrackIndex !== -1) {
-                    playTrackFromPlaylist(playableTrackIndex);
-                    updateTrackListPlayingState(trackIndex);
-                } else {
-                    updateStatus('This track is not available for playback', 'error');
-                }
-            }
-        }
-
-        function updateTrackListPlayingState(playingIndex) {
-            document.querySelectorAll('.track-item').forEach((item, index) => {
-                const playIcon = item.querySelector('.track-play-icon');
-                
-                if (index === playingIndex) {
-                    item.classList.add('playing');
-                    playIcon.textContent = '⏸️';
-                } else {
-                    item.classList.remove('playing');
-                    playIcon.textContent = '▶️';
-                }
-            });
         }
 
         function loadPlaylistTracks(playlistId, playlistIndex, playlistName) {
@@ -2176,9 +2177,9 @@
                     
                     if (currentPlaylist.length > 0) {
                         if (isSpotifyPlayerReady && fullTracks > 0) {
-                            updateStatus(`${fullTracks} full tracks loaded • Double-click to play`, 'success');
+                            updateStatus(`${fullTracks} full tracks loaded • Click deck then track to load`, 'success');
                         } else {
-                            updateStatus(`${previewTracks} preview tracks loaded • Connect Spotify Player for full tracks`, 'info');
+                            updateStatus(`${previewTracks} preview tracks loaded • Click deck then track to load`, 'info');
                         }
                     } else {
                         updateStatus(`No playable tracks found in "${playlistName}"`, 'error');
@@ -2195,9 +2196,88 @@
                 });
         }
 
+        function updateTrackListPlayingStateFull(currentTrack, isPlaying) {
+            if (!currentTrack) return;
+            
+            document.querySelectorAll('.track-item').forEach((item, index) => {
+                const playIcon = item.querySelector('.track-play-icon');
+                const trackTitle = item.querySelector('.track-title');
+                
+                if (trackTitle && trackTitle.textContent === currentTrack.name) {
+                    if (isPlaying) {
+                        item.classList.add('playing');
+                        if (!selectedDeck) playIcon.textContent = '⏸️';
+                    } else {
+                        item.classList.remove('playing');
+                        if (!selectedDeck) playIcon.textContent = '▶️';
+                    }
+                } else {
+                    item.classList.remove('playing');
+                    if (!selectedDeck) playIcon.textContent = '▶️';
+                }
+            });
+        }
+
+        // ========== UTILITY FUNCTIONS ==========
+
+        function toggleDebugMode() {
+            debugMode = !debugMode;
+            const debugInfo = document.getElementById('debugInfo');
+            const debugControls = document.getElementById('debugControls');
+            
+            debugInfo.style.display = debugMode ? 'block' : 'none';
+            debugControls.style.display = debugMode ? 'block' : 'none';
+            
+            const debugBtn = document.getElementById('debugToggleBtn');
+            debugBtn.textContent = debugMode ? 'Hide Debug' : 'Debug';
+            
+            console.log(`Debug mode: ${debugMode ? 'ON' : 'OFF'}`);
+        }
+
+        function toggleDebugInfo() {
+            toggleDebugMode();
+        }
+
+        function testPlayFirstTrack() {
+            console.log('🧪 Testing first track playback...');
+            console.log('📊 Current state:');
+            console.log('  - Current playlist length:', currentPlaylist.length);
+            console.log('  - Spotify player ready:', isSpotifyPlayerReady);
+            console.log('  - Device ID:', spotifyDeviceId);
+            console.log('  - Access token available:', !!spotifyAccessToken);
+            console.log('  - Premium account:', isSpotifyPremium);
+            
+            if (currentPlaylist.length === 0) {
+                console.log('❌ No playlist loaded');
+                updateStatus('Load a playlist first!', 'error');
+                return;
+            }
+            
+            const firstTrack = currentPlaylist[0];
+            console.log('🎵 First track:', firstTrack);
+            
+            // Load into Deck A for testing
+            deckA.track = firstTrack;
+            updateDeckDisplay('A', firstTrack);
+            
+            // Try to play
+            if (isSpotifyPlayerReady && firstTrack.uri) {
+                console.log('🚀 Attempting full track playback:', firstTrack.uri);
+                playDeck('A');
+                updateStatus(`Testing: ${firstTrack.name}`, 'info');
+            } else if (firstTrack.preview_url) {
+                console.log('🔄 Falling back to preview:', firstTrack.preview_url);
+                playDeck('A');
+                updateStatus(`Testing preview: ${firstTrack.name}`, 'info');
+            } else {
+                console.log('❌ No playback available for first track');
+                updateStatus('No playback available for this track', 'error');
+            }
+        }
+
         function retrySpotifyConnection() {
             console.log('🔄 Retrying Spotify connection...');
-            loadPlaylists();
+            autoInitializeSpotify();
         }
 
         function updateStatus(message, type) {
@@ -2205,41 +2285,37 @@
             statusDiv.textContent = '▸ ' + message;
             statusDiv.className = 'status ' + type;
             console.log(`Status: ${message}`);
+            
+            // Auto-hide success messages after 5 seconds
+            if (type === 'success') {
+                setTimeout(() => {
+                    if (statusDiv.textContent === '▸ ' + message) {
+                        statusDiv.textContent = '▸ Ready for DJ session';
+                        statusDiv.className = 'status info';
+                    }
+                }, 5000);
+            }
         }
+
+        // ========== ERROR HANDLING ==========
 
         window.addEventListener('error', function(event) {
             console.error('Global error:', event.error);
             updateStatus('An error occurred - check console for details', 'error');
         });
 
+        // ========== INITIALIZATION ==========
+
         // Initialize application
-        updateStatus('Ready to start - connect Spotify and load playlists', 'info');
-        updateCurrentTrackDisplayEmpty();
-        updatePlayerStatus('Disconnected', false);
-        
-        // Auto-load playlists if user is already authenticated
-        setTimeout(() => {
-            fetch('/api/spotify/check-auth/')
-                .then(response => response.json())
-                .then(data => {
-                    if (data.authenticated) {
-                        console.log('🎵 User already authenticated, auto-loading playlists...');
-                        loadPlaylists();
-                    }
-                })
-                .catch(error => {
-                    console.log('No existing Spotify authentication found');
-                });
-        }, 1000);
+        updateStatus('Initializing HandMixed DJ Studio...', 'info');
         
         console.log('🎮 HandMixed DJ Studio Ready');
         console.log('🎵 Features:');
-        console.log('  - YouDJ-inspired interface');
-        console.log('  - Full Spotify track playback via Web Playback SDK');
-        console.log('  - Multi-hand detection and visualization');
-        console.log('  - Auto-loading playlists after login');
-        console.log('  - Hand gesture controls: ✋=play/pause, ☝️=next, ✌️=prev, ✊=stop');
-        console.log('💡 Steps: 1) Connect Spotify Player, 2) Playlists auto-load, 3) Start hand tracking!');
+        console.log('  - Dual deck DJ interface');
+        console.log('  - Auto Spotify connection');
+        console.log('  - Hand gesture controls: ✋=play/pause, ☝️=deck A, ✌️=deck B, ✊=stop all');
+        console.log('  - Click deck first, then track to load');
+        console.log('💡 Steps: 1) Playlists auto-load, 2) Load tracks to decks, 3) Start hand tracking!');
     </script>
 </body>
 </html>
