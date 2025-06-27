@@ -38,7 +38,7 @@
             background-repeat: repeat;
             background-size: 200px 100px;
             animation: stars 50s linear infinite;
-            opacity: 0.3;
+            opacity: 0.2;
             z-index: -1;
         }
 
@@ -52,55 +52,65 @@
             to { transform: translateY(-100px); }
         }
 
-        /* Header Section */
+        /* Main Container - Full Screen */
+        .main-container {
+            position: relative;
+            width: 100vw;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Top Header - Minimal */
         .header {
-            background: linear-gradient(135deg, rgba(0, 0, 0, 0.9), rgba(26, 26, 26, 0.8));
-            backdrop-filter: blur(20px);
-            padding: 15px 30px;
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            background: linear-gradient(135deg, rgba(0, 0, 0, 0.8), rgba(26, 26, 26, 0.6));
+            backdrop-filter: blur(15px);
+            padding: 10px 20px;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            border-bottom: 2px solid;
-            border-image: linear-gradient(45deg, #00d4ff, #ff6b6b, #f39c12) 1;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
-            height: 70px;
-            z-index: 100;
-            position: relative;
+            border-bottom: 1px solid rgba(0, 212, 255, 0.3);
+            z-index: 1000;
+            height: 50px;
         }
 
         .logo {
             font-family: 'Orbitron', monospace;
-            font-size: 2.5rem;
+            font-size: 1.5rem;
             font-weight: 900;
             background: linear-gradient(45deg, #00d4ff, #ff6b6b);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
             text-transform: uppercase;
-            letter-spacing: 3px;
+            letter-spacing: 2px;
         }
 
         .user-info {
             display: flex;
             align-items: center;
-            gap: 20px;
+            gap: 15px;
+            font-size: 0.9rem;
         }
 
         .username {
             font-family: 'Orbitron', monospace;
-            font-size: 1.2rem;
             font-weight: 600;
             color: #00d4ff;
         }
 
         .logout-btn {
-            background: linear-gradient(135deg, rgba(255, 107, 107, 0.2), rgba(0, 212, 255, 0.2));
-            border: 1px solid rgba(255, 107, 107, 0.5);
+            background: linear-gradient(135deg, rgba(255, 107, 107, 0.3), rgba(0, 212, 255, 0.3));
+            border: 1px solid rgba(255, 107, 107, 0.6);
             color: #ff6b6b;
-            padding: 10px 20px;
-            border-radius: 25px;
+            padding: 6px 12px;
+            border-radius: 15px;
             cursor: pointer;
-            font-size: 0.9rem;
+            font-size: 0.8rem;
             font-weight: 600;
             transition: all 0.3s ease;
             text-decoration: none;
@@ -110,219 +120,30 @@
         }
 
         .logout-btn:hover {
-            background: linear-gradient(135deg, rgba(255, 107, 107, 0.4), rgba(0, 212, 255, 0.4));
-            border-color: #ff6b6b;
-            transform: translateY(-2px);
-            box-shadow: 0 8px 20px rgba(255, 107, 107, 0.3);
+            background: linear-gradient(135deg, rgba(255, 107, 107, 0.5), rgba(0, 212, 255, 0.5));
+            transform: translateY(-1px);
         }
 
-        /* Spotify Connection Status (Hidden but functional) */
-        .spotify-status {
-            position: fixed;
-            top: 80px;
-            right: 20px;
-            background: linear-gradient(135deg, rgba(30, 215, 96, 0.2), rgba(0, 0, 0, 0.3));
-            border: 2px solid #1ed760;
-            border-radius: 12px;
-            padding: 8px 12px;
-            font-size: 0.8rem;
-            font-family: 'Orbitron', monospace;
-            z-index: 100;
-            display: none; /* Hidden by default, shows on connection issues */
-        }
-
-        .spotify-status.error {
-            border-color: #ff6b6b;
-            background: linear-gradient(135deg, rgba(255, 107, 107, 0.2), rgba(0, 0, 0, 0.3));
-            color: #ff6b6b;
-            display: block;
-        }
-
-        .spotify-status.success {
-            color: #1ed760;
-            display: block;
-            animation: fadeOut 3s forwards;
-        }
-
-        @keyframes fadeOut {
-            0% { opacity: 1; }
-            70% { opacity: 1; }
-            100% { opacity: 0; display: none; }
-        }
-
-        /* Main DJ Interface */
-        .dj-interface {
-            display: flex;
-            height: calc(100vh - 70px - 300px);
-            padding: 20px;
-            gap: 20px;
-        }
-
-        /* DJ Deck Styling */
-        .deck {
-            flex: 1;
-            background: linear-gradient(135deg, rgba(45, 45, 48, 0.8), rgba(26, 26, 26, 0.8));
-            backdrop-filter: blur(25px);
-            border-radius: 20px;
-            padding: 20px;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            box-shadow: 0 15px 50px rgba(0, 0, 0, 0.5);
-            display: flex;
-            flex-direction: column;
+        /* Main Video Area - Takes most of the screen */
+        .video-main-area {
             position: relative;
-        }
-
-        .deck-title {
-            font-family: 'Orbitron', monospace;
-            background: linear-gradient(45deg, #00d4ff, #f39c12);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-            margin-bottom: 20px;
-            font-size: 1.2rem;
-            font-weight: 900;
-            text-align: center;
-            text-transform: uppercase;
-            letter-spacing: 2px;
-        }
-
-        /* Track Display for each deck */
-        .deck-track-display {
-            background: linear-gradient(135deg, rgba(30, 215, 96, 0.15), rgba(0, 212, 255, 0.15));
-            border: 2px solid rgba(30, 215, 96, 0.3);
-            border-radius: 15px;
-            padding: 15px;
-            margin-bottom: 20px;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            min-height: 80px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-
-        .deck-track-display:hover {
-            border-color: #1ed760;
-            background: linear-gradient(135deg, rgba(30, 215, 96, 0.25), rgba(0, 212, 255, 0.25));
-            transform: translateY(-2px);
-        }
-
-        .deck-track-display.loaded {
-            border-color: #1ed760;
-            background: linear-gradient(135deg, rgba(30, 215, 96, 0.3), rgba(0, 212, 255, 0.3));
-        }
-
-        .deck-track-artwork {
-            width: 50px;
-            height: 50px;
-            border-radius: 8px;
-            background: linear-gradient(135deg, #1ed760, #00d4ff);
+            width: 100vw;
+            height: 100vh;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 20px;
-            color: white;
-            flex-shrink: 0;
-            overflow: hidden;
         }
 
-        .deck-track-artwork img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            border-radius: 6px;
-        }
-
-        .deck-track-info {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            min-width: 0;
-        }
-
-        .deck-track-name {
-            font-size: 1rem;
-            font-weight: 700;
-            color: #1ed760;
-            margin-bottom: 3px;
-            font-family: 'Orbitron', monospace;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-
-        .deck-track-artist {
-            font-size: 0.85rem;
-            color: #e0e0e0;
-            opacity: 0.9;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-
-        .deck-track-status {
-            font-size: 0.75rem;
-            color: #00d4ff;
-            margin-top: 3px;
-        }
-
-        /* Deck Controls */
-        .deck-controls {
-            margin-top: auto;
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-        }
-
-        .deck-btn {
-            background: linear-gradient(135deg, #00d4ff, #f39c12);
-            border: none;
-            padding: 8px 16px;
-            border-radius: 20px;
-            color: #1a1a1a;
-            font-size: 0.8rem;
-            font-weight: 700;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            font-family: 'Orbitron', monospace;
-        }
-
-        .deck-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 20px rgba(0, 212, 255, 0.3);
-        }
-
-        .deck-btn:disabled {
-            background: linear-gradient(135deg, #6c757d, #495057);
-            cursor: not-allowed;
-            transform: none;
-            box-shadow: none;
-            opacity: 0.6;
-        }
-
-        /* Center Section */
-        .center-section {
-            flex: 1.5;
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-            align-items: center;
-        }
-
-        /* Video Container */
         .video-container {
             position: relative;
-            width: 100%;
-            aspect-ratio: 16/9;
+            width: 95vw;
+            height: 85vh;
             background: #000;
-            border-radius: 20px;
-            border: 4px solid #00d4ff;
+            border-radius: 15px;
+            border: 3px solid #00d4ff;
             overflow: hidden;
             box-shadow: 
-                0 0 30px rgba(0, 212, 255, 0.3),
+                0 0 30px rgba(0, 212, 255, 0.4),
                 inset 0 0 20px rgba(0, 0, 0, 0.5);
         }
 
@@ -330,7 +151,7 @@
             width: 100%;
             height: 100%;
             object-fit: cover;
-            border-radius: 16px;
+            border-radius: 12px;
             display: none;
         }
 
@@ -340,7 +161,7 @@
             left: 0;
             width: 100%;
             height: 100%;
-            border-radius: 16px;
+            border-radius: 12px;
             pointer-events: none;
             z-index: 10;
         }
@@ -353,39 +174,151 @@
             text-align: center;
             color: #00d4ff;
             font-family: 'Orbitron', monospace;
-            font-size: 1.2rem;
+            font-size: 2rem;
             font-weight: 600;
+            z-index: 5;
         }
 
-        /* Center Control Button */
-        .center-control {
-            margin: 10px 0;
+        /* Floating Deck Controls - Left and Right */
+        .deck-overlay {
+            position: absolute;
+            top: 60px;
+            width: 200px;
+            background: linear-gradient(135deg, rgba(0, 0, 0, 0.85), rgba(26, 26, 26, 0.85));
+            backdrop-filter: blur(20px);
+            border-radius: 12px;
+            padding: 15px;
+            border: 1px solid rgba(0, 212, 255, 0.3);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.7);
+            z-index: 100;
         }
 
-        .hand-dj-btn {
-            background: linear-gradient(135deg, #00d4ff, #f39c12);
-            border: none;
-            padding: 15px 30px;
-            border-radius: 25px;
-            color: #1a1a1a;
-            font-size: 1.1rem;
+        .deck-overlay.left {
+            left: 20px;
+        }
+
+        .deck-overlay.right {
+            right: 20px;
+        }
+
+        .deck-title {
+            font-family: 'Orbitron', monospace;
+            background: linear-gradient(45deg, #00d4ff, #f39c12);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            font-size: 1rem;
             font-weight: 700;
-            cursor: pointer;
-            transition: all 0.4s ease;
+            text-align: center;
+            margin-bottom: 10px;
             text-transform: uppercase;
             letter-spacing: 1px;
+        }
+
+        .deck-track-display {
+            background: linear-gradient(135deg, rgba(30, 215, 96, 0.15), rgba(0, 212, 255, 0.15));
+            border: 2px solid rgba(30, 215, 96, 0.4);
+            border-radius: 8px;
+            padding: 8px;
+            margin-bottom: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            min-height: 60px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .deck-track-display:hover {
+            border-color: #1ed760;
+            background: linear-gradient(135deg, rgba(30, 215, 96, 0.25), rgba(0, 212, 255, 0.25));
+            transform: translateY(-1px);
+        }
+
+        .deck-track-display.loaded {
+            border-color: #1ed760;
+            background: linear-gradient(135deg, rgba(30, 215, 96, 0.3), rgba(0, 212, 255, 0.3));
+        }
+
+        .deck-track-artwork {
+            width: 35px;
+            height: 35px;
+            border-radius: 6px;
+            background: linear-gradient(135deg, #1ed760, #00d4ff);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            color: white;
+            flex-shrink: 0;
+            overflow: hidden;
+        }
+
+        .deck-track-artwork img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 4px;
+        }
+
+        .deck-track-info {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .deck-track-name {
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: #1ed760;
+            margin-bottom: 2px;
             font-family: 'Orbitron', monospace;
-            box-shadow: 0 8px 25px rgba(0, 212, 255, 0.3);
-            min-width: 200px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
 
-        .hand-dj-btn:hover {
-            transform: translateY(-3px) scale(1.02);
-            box-shadow: 0 12px 35px rgba(0, 212, 255, 0.5);
-            background: linear-gradient(135deg, #f39c12, #00d4ff);
+        .deck-track-artist {
+            font-size: 0.7rem;
+            color: #e0e0e0;
+            opacity: 0.8;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
 
-        .hand-dj-btn:disabled {
+        .deck-track-status {
+            font-size: 0.6rem;
+            color: #00d4ff;
+            margin-top: 2px;
+        }
+
+        .deck-controls {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 6px;
+        }
+
+        .deck-btn {
+            background: linear-gradient(135deg, #00d4ff, #f39c12);
+            border: none;
+            padding: 6px 8px;
+            border-radius: 12px;
+            color: #1a1a1a;
+            font-size: 0.7rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-family: 'Orbitron', monospace;
+        }
+
+        .deck-btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(0, 212, 255, 0.4);
+        }
+
+        .deck-btn:disabled {
             background: linear-gradient(135deg, #6c757d, #495057);
             cursor: not-allowed;
             transform: none;
@@ -393,45 +326,66 @@
             opacity: 0.6;
         }
 
+        /* Center Hand DJ Control - Floating */
+        .hand-control-overlay {
+            position: absolute;
+            bottom: 180px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 200;
+        }
+
+        .hand-dj-btn {
+            background: linear-gradient(135deg, #00d4ff, #f39c12);
+            border: none;
+            padding: 12px 24px;
+            border-radius: 20px;
+            color: #1a1a1a;
+            font-size: 1rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.4s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-family: 'Orbitron', monospace;
+            box-shadow: 0 8px 25px rgba(0, 212, 255, 0.4);
+            min-width: 180px;
+        }
+
+        .hand-dj-btn:hover {
+            transform: translateY(-3px) scale(1.05);
+            box-shadow: 0 12px 35px rgba(0, 212, 255, 0.6);
+            background: linear-gradient(135deg, #f39c12, #00d4ff);
+        }
+
         .hand-dj-btn.stop {
             background: linear-gradient(135deg, #ff6b6b, #e74c3c);
-            box-shadow: 0 8px 25px rgba(255, 107, 107, 0.3);
+            box-shadow: 0 8px 25px rgba(255, 107, 107, 0.4);
         }
 
         .hand-dj-btn.stop:hover {
             background: linear-gradient(135deg, #e74c3c, #ff6b6b);
-            box-shadow: 0 12px 35px rgba(255, 107, 107, 0.5);
+            box-shadow: 0 12px 35px rgba(255, 107, 107, 0.6);
         }
 
-        /* Gesture Status */
-        .gesture-status {
-            background: linear-gradient(135deg, rgba(46, 204, 113, 0.2), rgba(0, 212, 255, 0.2));
-            border: 1px solid #2ecc71;
-            color: #2ecc71;
-            padding: 10px 15px;
-            border-radius: 12px;
-            text-align: center;
-            font-family: 'Orbitron', monospace;
-            font-weight: 600;
-            font-size: 0.9rem;
-            min-height: 50px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            max-width: 400px;
+        /* Status Messages - Floating */
+        .status-overlay {
+            position: absolute;
+            bottom: 130px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 150;
         }
 
-        /* Status Messages */
         .status {
-            background: linear-gradient(135deg, rgba(0, 212, 255, 0.1), rgba(243, 156, 18, 0.1));
-            border-radius: 15px;
-            padding: 8px 16px;
-            margin: 8px 0;
-            font-size: 0.85rem;
-            border: 1px solid rgba(0, 212, 255, 0.3);
-            text-align: center;
-            font-weight: 400;
+            background: linear-gradient(135deg, rgba(0, 212, 255, 0.15), rgba(243, 156, 18, 0.15));
             backdrop-filter: blur(10px);
+            border-radius: 12px;
+            padding: 8px 16px;
+            font-size: 0.9rem;
+            border: 1px solid rgba(0, 212, 255, 0.4);
+            text-align: center;
+            font-weight: 500;
             max-width: 400px;
         }
 
@@ -453,383 +407,392 @@
             color: #00d4ff;
         }
 
-        /* Music Library Section */
-        .music-library {
-            height: 300px;
-            background: linear-gradient(135deg, rgba(0, 0, 0, 0.9), rgba(26, 26, 26, 0.8));
-            backdrop-filter: blur(20px);
-            border-top: 2px solid;
-            border-image: linear-gradient(45deg, #00d4ff, #ff6b6b, #f39c12) 1;
-            display: flex;
-            flex-direction: column;
+        /* Gesture Status - Floating */
+        .gesture-overlay {
+            position: absolute;
+            top: 80px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 150;
         }
 
-        .library-header {
-            padding: 15px 30px;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        .gesture-status {
+            background: linear-gradient(135deg, rgba(46, 204, 113, 0.2), rgba(0, 212, 255, 0.2));
+            backdrop-filter: blur(10px);
+            border: 1px solid #2ecc71;
+            color: #2ecc71;
+            padding: 8px 16px;
+            border-radius: 12px;
+            text-align: center;
+            font-family: 'Orbitron', monospace;
+            font-weight: 600;
+            font-size: 0.9rem;
+            min-height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            max-width: 350px;
+        }
+
+        /* Bottom Music Hub - Like Game HUD */
+        .music-hub {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 140px;
+            background: linear-gradient(135deg, rgba(0, 0, 0, 0.9), rgba(26, 26, 26, 0.85));
+            backdrop-filter: blur(20px);
+            border-top: 2px solid rgba(0, 212, 255, 0.4);
+            display: flex;
+            z-index: 500;
+        }
+
+        .hub-playlists {
+            width: 220px;
+            background: rgba(0, 0, 0, 0.6);
+            border-right: 1px solid rgba(255, 255, 255, 0.1);
+            overflow-y: auto;
+            padding: 8px;
+        }
+
+        .hub-header {
+            padding: 8px 12px;
+            border-bottom: 1px solid rgba(0, 212, 255, 0.3);
             display: flex;
             justify-content: space-between;
             align-items: center;
+            font-size: 0.9rem;
         }
 
-        .library-title {
+        .hub-title {
             font-family: 'Orbitron', monospace;
-            font-size: 1.3rem;
             font-weight: 700;
             color: #00d4ff;
             text-transform: uppercase;
-            letter-spacing: 2px;
+            letter-spacing: 1px;
+            font-size: 0.8rem;
         }
 
-        .library-controls {
-            display: flex;
-            gap: 10px;
-        }
-
-        .library-btn {
+        .hub-btn {
             background: linear-gradient(135deg, #00d4ff, #f39c12);
             border: none;
-            padding: 8px 16px;
-            border-radius: 20px;
+            padding: 4px 8px;
+            border-radius: 8px;
             color: #1a1a1a;
-            font-size: 0.8rem;
+            font-size: 0.7rem;
             font-weight: 700;
             cursor: pointer;
             transition: all 0.3s ease;
             text-transform: uppercase;
-            letter-spacing: 1px;
+            letter-spacing: 0.5px;
             font-family: 'Orbitron', monospace;
         }
 
-        .library-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 20px rgba(0, 212, 255, 0.3);
+        .hub-btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(0, 212, 255, 0.3);
         }
 
-        .library-content {
-            flex: 1;
-            display: flex;
-            overflow: hidden;
-        }
-
-        .playlists-sidebar {
-            width: 250px;
-            background: rgba(0, 0, 0, 0.5);
-            border-right: 1px solid rgba(255, 255, 255, 0.1);
-            overflow-y: auto;
-            padding: 15px;
-        }
-
-        .playlist-item {
+        .playlist-item-small {
             background: linear-gradient(135deg, rgba(45, 45, 48, 0.6), rgba(26, 26, 26, 0.6));
-            border-radius: 12px;
-            padding: 12px;
-            margin: 8px 0;
+            border-radius: 8px;
+            padding: 6px;
+            margin: 4px 0;
             border: 1px solid rgba(0, 212, 255, 0.2);
             cursor: pointer;
             transition: all 0.3s ease;
             display: flex;
             align-items: center;
-            gap: 12px;
+            gap: 8px;
         }
 
-        .playlist-item:hover {
+        .playlist-item-small:hover {
             background: linear-gradient(135deg, rgba(0, 212, 255, 0.2), rgba(243, 156, 18, 0.2));
             border-color: #00d4ff;
             transform: translateY(-1px);
         }
 
-        .playlist-item.active {
+        .playlist-item-small.active {
             background: linear-gradient(135deg, rgba(46, 204, 113, 0.3), rgba(0, 212, 255, 0.3));
             border-color: #2ecc71;
-            box-shadow: 0 0 15px rgba(46, 204, 113, 0.4);
+            box-shadow: 0 0 10px rgba(46, 204, 113, 0.4);
         }
 
-        .playlist-image {
-            width: 40px;
-            height: 40px;
-            border-radius: 8px;
+        .playlist-image-small {
+            width: 24px;
+            height: 24px;
+            border-radius: 4px;
             object-fit: cover;
-            border: 2px solid rgba(0, 212, 255, 0.5);
+            border: 1px solid rgba(0, 212, 255, 0.5);
         }
 
-        .playlist-info {
+        .playlist-info-small {
             flex: 1;
             min-width: 0;
         }
 
-        .playlist-name {
+        .playlist-name-small {
             font-family: 'Orbitron', monospace;
             font-weight: 600;
-            font-size: 0.9rem;
-            margin-bottom: 2px;
+            font-size: 0.7rem;
             color: #e0e0e0;
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
         }
 
-        .playlist-details {
-            font-size: 0.7rem;
+        .playlist-details-small {
+            font-size: 0.6rem;
             opacity: 0.7;
             color: #00d4ff;
         }
 
-        .tracks-section {
+        .hub-tracks {
             flex: 1;
             overflow-y: auto;
-            padding: 15px;
+            padding: 8px 12px;
         }
 
-        .tracks-header {
+        .tracks-header-small {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 15px;
-            padding-bottom: 10px;
+            margin-bottom: 8px;
+            padding-bottom: 6px;
             border-bottom: 1px solid rgba(0, 212, 255, 0.3);
         }
 
-        .tracks-title {
+        .tracks-title-small {
             font-family: 'Orbitron', monospace;
-            font-size: 1.1rem;
+            font-size: 0.8rem;
             font-weight: 600;
             color: #00d4ff;
         }
 
-        .tracks-info {
-            font-size: 0.8rem;
+        .tracks-info-small {
+            font-size: 0.7rem;
             color: #f39c12;
         }
 
-        .track-item {
+        .track-item-small {
             background: linear-gradient(135deg, rgba(26, 26, 26, 0.6), rgba(45, 45, 48, 0.6));
-            border-radius: 10px;
-            padding: 10px 12px;
-            margin: 6px 0;
+            border-radius: 6px;
+            padding: 6px 8px;
+            margin: 3px 0;
             border: 1px solid rgba(255, 255, 255, 0.1);
             cursor: pointer;
             transition: all 0.3s ease;
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 8px;
         }
 
-        .track-item:hover {
+        .track-item-small:hover {
             background: linear-gradient(135deg, rgba(0, 212, 255, 0.15), rgba(243, 156, 18, 0.15));
             border-color: rgba(0, 212, 255, 0.4);
             transform: translateY(-1px);
         }
 
-        .track-item.playing {
+        .track-item-small.playing {
             background: linear-gradient(135deg, rgba(30, 215, 96, 0.2), rgba(0, 212, 255, 0.2));
             border-color: #1ed760;
-            box-shadow: 0 0 15px rgba(30, 215, 96, 0.3);
+            box-shadow: 0 0 10px rgba(30, 215, 96, 0.3);
         }
 
-        .track-item.playable {
-            border-left: 3px solid #1ed760;
+        .track-item-small.playable {
+            border-left: 2px solid #1ed760;
         }
 
-        .track-number {
+        .track-number-small {
             font-family: 'Orbitron', monospace;
-            font-size: 0.8rem;
+            font-size: 0.7rem;
             font-weight: 600;
             color: #f39c12;
-            min-width: 20px;
+            min-width: 15px;
             text-align: center;
         }
 
-        .track-play-icon {
-            width: 20px;
-            height: 20px;
+        .track-play-icon-small {
+            width: 16px;
+            height: 16px;
             display: flex;
             align-items: center;
             justify-content: center;
             background: linear-gradient(135deg, #00d4ff, #f39c12);
             border-radius: 50%;
             color: #1a1a1a;
-            font-size: 10px;
+            font-size: 8px;
             font-weight: bold;
             opacity: 0;
             transition: opacity 0.3s ease;
         }
 
-        .track-item:hover .track-play-icon {
+        .track-item-small:hover .track-play-icon-small {
             opacity: 1;
         }
 
-        .track-item.playing .track-play-icon {
+        .track-item-small.playing .track-play-icon-small {
             opacity: 1;
             background: linear-gradient(135deg, #1ed760, #00d4ff);
         }
 
-        .track-info-container {
+        .track-info-container-small {
             flex: 1;
             min-width: 0;
         }
 
-        .track-title {
-            font-size: 0.9rem;
+        .track-title-small {
+            font-size: 0.75rem;
             font-weight: 600;
             color: #e0e0e0;
-            margin-bottom: 2px;
+            margin-bottom: 1px;
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
         }
 
-        .track-artist {
-            font-size: 0.75rem;
+        .track-artist-small {
+            font-size: 0.65rem;
             color: #b0b0b0;
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
         }
 
-        .track-duration {
-            font-size: 0.7rem;
+        .track-duration-small {
+            font-size: 0.6rem;
             color: #888;
             font-family: 'Orbitron', monospace;
         }
 
-        .track-playback-indicator {
-            width: 6px;
-            height: 6px;
+        .track-playback-indicator-small {
+            width: 4px;
+            height: 4px;
             border-radius: 50%;
-            margin-left: 6px;
+            margin-left: 4px;
         }
 
-        .track-playback-indicator.full {
+        .track-playback-indicator-small.full {
             background: #1ed760;
         }
 
-        .track-playback-indicator.preview {
+        .track-playback-indicator-small.preview {
             background: #f39c12;
         }
 
-        .track-playback-indicator.none {
+        .track-playback-indicator-small.none {
             background: #666;
         }
 
-        .loading {
+        .loading-small {
             text-align: center;
-            padding: 40px;
-            font-size: 1.1rem;
+            padding: 20px;
+            font-size: 0.9rem;
             opacity: 0.8;
             color: #00d4ff;
             font-family: 'Orbitron', monospace;
         }
 
-        .back-to-playlists {
+        .back-to-playlists-small {
             background: linear-gradient(135deg, rgba(255, 107, 107, 0.2), rgba(0, 212, 255, 0.2));
             border: 1px solid rgba(255, 107, 107, 0.5);
             color: #ff6b6b;
-            padding: 6px 12px;
-            border-radius: 15px;
+            padding: 4px 8px;
+            border-radius: 8px;
             cursor: pointer;
-            font-size: 0.8rem;
+            font-size: 0.7rem;
             font-weight: 600;
             transition: all 0.3s ease;
             font-family: 'Orbitron', monospace;
             text-transform: uppercase;
-            letter-spacing: 1px;
+            letter-spacing: 0.5px;
         }
 
-        .back-to-playlists:hover {
+        .back-to-playlists-small:hover {
             background: linear-gradient(135deg, rgba(255, 107, 107, 0.4), rgba(0, 212, 255, 0.4));
             border-color: #ff6b6b;
             transform: translateY(-1px);
         }
 
-        /* Debug Info */
+        /* Debug Info - Hidden by default */
         .debug-info {
+            position: absolute;
+            top: 140px;
+            right: 20px;
             background: linear-gradient(135deg, rgba(243, 156, 18, 0.1), rgba(255, 107, 107, 0.1));
             border: 1px solid #f39c12;
             color: #f39c12;
             padding: 8px;
-            border-radius: 10px;
-            margin: 8px 0;
+            border-radius: 8px;
             font-family: 'Courier New', monospace;
             font-size: 0.7rem;
             line-height: 1.3;
-            max-width: 400px;
+            max-width: 250px;
+            backdrop-filter: blur(10px);
+            z-index: 200;
         }
 
         /* Scrollbar Styling */
         ::-webkit-scrollbar {
-            width: 6px;
+            width: 4px;
         }
 
         ::-webkit-scrollbar-track {
             background: rgba(26, 26, 26, 0.5);
-            border-radius: 5px;
+            border-radius: 3px;
         }
 
         ::-webkit-scrollbar-thumb {
             background: linear-gradient(135deg, #00d4ff, #f39c12);
-            border-radius: 5px;
+            border-radius: 3px;
         }
 
         /* Mobile Responsive */
-        @media (max-width: 1200px) {
-            .dj-interface {
-                flex-direction: column;
-                height: auto;
-                max-height: calc(100vh - 70px - 350px);
+        @media (max-width: 768px) {
+            .deck-overlay {
+                width: 160px;
+                padding: 10px;
             }
             
-            .deck {
-                flex: none;
-                height: 180px;
+            .deck-overlay.left {
+                left: 10px;
             }
             
-            .music-library {
-                height: 350px;
+            .deck-overlay.right {
+                right: 10px;
+            }
+            
+            .video-container {
+                width: 98vw;
+                height: 80vh;
+            }
+            
+            .music-hub {
+                height: 120px;
+            }
+            
+            .hub-playlists {
+                width: 180px;
             }
         }
 
-        @media (max-width: 768px) {
-            .header {
-                flex-direction: column;
-                height: auto;
-                padding: 15px;
-                gap: 10px;
+        /* Hide elements on very small screens */
+        @media (max-width: 480px) {
+            .deck-overlay {
+                display: none;
             }
             
-            .logo {
-                font-size: 2rem;
-            }
-            
-            .dj-interface {
-                padding: 10px;
-                gap: 10px;
-            }
-            
-            .library-content {
-                flex-direction: column;
-            }
-            
-            .playlists-sidebar {
-                width: 100%;
-                height: 120px;
-                border-right: none;
-                border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-                display: flex;
-                overflow-x: auto;
-                overflow-y: hidden;
-                padding: 10px;
-            }
-            
-            .playlist-item {
-                min-width: 200px;
-                margin: 0 5px;
+            .video-container {
+                width: 100vw;
+                height: 75vh;
+                border-radius: 0;
             }
         }
     </style>
 </head>
 <body>
-    <!-- Header -->
+    <!-- Top Header - Minimal -->
     <div class="header">
         <div class="logo">HandMixed</div>
         <div class="user-info">
@@ -838,28 +801,31 @@
         </div>
     </div>
 
-    <!-- Spotify Status (Hidden, shows only on issues) -->
-    <div class="spotify-status" id="spotifyStatus">
-        Spotify Disconnected
-    </div>
+    <!-- Main Container -->
+    <div class="main-container">
+        <!-- Main Video Area - Full Screen Focus -->
+        <div class="video-main-area">
+            <div class="video-container">
+                <video id="video" autoplay muted playsinline></video>
+                <canvas id="canvas"></canvas>
+                <div class="video-placeholder" id="videoPlaceholder">
+                    🎥 Show Your Hands<br>
+                    <small style="font-size: 1rem; margin-top: 10px; display: block;">Start Hand DJ Mode to Begin</small>
+                </div>
+            </div>
+        </div>
 
-    <!-- Main DJ Interface -->
-    <div class="dj-interface">
-        <!-- Left Deck A -->
-        <div class="deck">
+        <!-- Left Deck Overlay -->
+        <div class="deck-overlay left">
             <div class="deck-title">🎚️ Deck A</div>
-            
-            <!-- Track Display for Deck A -->
             <div class="deck-track-display" id="deckATrackDisplay" onclick="loadTrackToDeck('A')">
                 <div class="deck-track-artwork" id="deckAArtwork">🎵</div>
                 <div class="deck-track-info">
                     <div class="deck-track-name" id="deckATrackName">No track loaded</div>
-                    <div class="deck-track-artist" id="deckATrackArtist">Click to load from library</div>
+                    <div class="deck-track-artist" id="deckATrackArtist">Click to load</div>
                     <div class="deck-track-status" id="deckATrackStatus">Ready</div>
                 </div>
             </div>
-
-            <!-- Deck A Controls -->
             <div class="deck-controls">
                 <button class="deck-btn" onclick="playDeck('A')" id="deckAPlayBtn">▶️ Play</button>
                 <button class="deck-btn" onclick="pauseDeck('A')" id="deckAPauseBtn">⏸️ Pause</button>
@@ -868,112 +834,89 @@
             </div>
         </div>
 
-        <!-- Center Section -->
-        <div class="center-section">
-            <!-- Video Container -->
-            <div class="video-container">
-                <video id="video" autoplay muted playsinline></video>
-                <canvas id="canvas"></canvas>
-                <div class="video-placeholder" id="videoPlaceholder">
-                    🎥 Camera Feed<br>
-                    <small>Start Hand DJ Mode to activate</small>
-                </div>
-            </div>
-
-            <!-- Center Hand DJ Control -->
-            <div class="center-control">
-                <button id="startBtn" class="hand-dj-btn" onclick="startHandTracking()">
-                    🖐️ Start Hand DJ
-                </button>
-                <button id="stopBtn" class="hand-dj-btn stop" onclick="stopHandTracking()" style="display: none;">
-                    ✋ Stop Hand DJ
-                </button>
-            </div>
-
-            <!-- Gesture Status -->
-            <div id="gestureStatus" class="gesture-status">
-                🖐️ Show your hands to control music
-            </div>
-
-            <!-- Status Display -->
-            <div id="status" class="status info">
-                Ready to start hand-controlled DJ session
-            </div>
-
-            <!-- Debug Info -->
-            <div id="debugInfo" class="debug-info" style="display: none;">
-                <div><strong>Debug Information:</strong></div>
-                <div id="debugText">Hand tracking inactive</div>
-            </div>
-        </div>
-
-        <!-- Right Deck B -->
-        <div class="deck">
+        <!-- Right Deck Overlay -->
+        <div class="deck-overlay right">
             <div class="deck-title">🎚️ Deck B</div>
-            
-            <!-- Track Display for Deck B -->
             <div class="deck-track-display" id="deckBTrackDisplay" onclick="loadTrackToDeck('B')">
                 <div class="deck-track-artwork" id="deckBArtwork">🎵</div>
                 <div class="deck-track-info">
                     <div class="deck-track-name" id="deckBTrackName">No track loaded</div>
-                    <div class="deck-track-artist" id="deckBTrackArtist">Click to load from library</div>
+                    <div class="deck-track-artist" id="deckBTrackArtist">Click to load</div>
                     <div class="deck-track-status" id="deckBTrackStatus">Ready</div>
                 </div>
             </div>
-
-            <!-- Deck B Controls -->
             <div class="deck-controls">
                 <button class="deck-btn" onclick="playDeck('B')" id="deckBPlayBtn">▶️ Play</button>
                 <button class="deck-btn" onclick="pauseDeck('B')" id="deckBPauseBtn">⏸️ Pause</button>
                 <button class="deck-btn" onclick="stopDeck('B')" id="deckBStopBtn">⏹️ Stop</button>
                 <button class="deck-btn" onclick="clearDeck('B')" id="deckBClearBtn">🗑️ Clear</button>
-                
-                <!-- Debug Controls (Hidden by default) -->
-                <div id="debugControls" style="display: none; margin-top: 10px;">
-                    <button class="deck-btn" onclick="toggleDebugInfo()" style="font-size: 0.7rem;">
-                        🐛 Debug
-                    </button>
-                    <button class="deck-btn" onclick="testPlayFirstTrack()" style="font-size: 0.7rem;">
-                        🧪 Test
-                    </button>
-                </div>
             </div>
+        </div>
+
+        <!-- Center Hand DJ Control - Floating -->
+        <div class="hand-control-overlay">
+            <button id="startBtn" class="hand-dj-btn" onclick="startHandTracking()">
+                🖐️ Start Hand DJ
+            </button>
+            <button id="stopBtn" class="hand-dj-btn stop" onclick="stopHandTracking()" style="display: none;">
+                ✋ Stop Hand DJ
+            </button>
+        </div>
+
+        <!-- Status Display - Floating -->
+        <div class="status-overlay">
+            <div id="status" class="status info">
+                Ready to start hand-controlled DJ session
+            </div>
+        </div>
+
+        <!-- Gesture Status - Floating -->
+        <div class="gesture-overlay">
+            <div id="gestureStatus" class="gesture-status">
+                🖐️ Show your hands to control music
+            </div>
+        </div>
+
+        <!-- Debug Info - Hidden by default -->
+        <div id="debugInfo" class="debug-info" style="display: none;">
+            <div><strong>Debug Information:</strong></div>
+            <div id="debugText">Hand tracking inactive</div>
         </div>
     </div>
 
-    <!-- Bottom Music Library Section -->
-    <div class="music-library">
-        <div class="library-header">
-            <div class="library-title">🎵 Music Library</div>
-            <div class="library-controls">
-                <button class="library-btn" onclick="loadPlaylists()" id="loadPlaylistsBtn">
-                    Load Playlists
-                </button>
-                <button class="library-btn" onclick="refreshPlaylists()" style="display: none;" id="refreshBtn">
-                    Refresh
-                </button>
-                <button class="library-btn" onclick="toggleDebugMode()" id="debugToggleBtn">
-                    Debug
-                </button>
+    <!-- Bottom Music Hub - Like Game HUD -->
+    <div class="music-hub">
+        <!-- Playlists Sidebar -->
+        <div class="hub-playlists">
+            <div class="hub-header">
+                <div class="hub-title">🎵 Playlists</div>
+                <button class="hub-btn" onclick="loadPlaylists()" id="loadPlaylistsBtn">Load</button>
+                <button class="hub-btn" onclick="refreshPlaylists()" style="display: none;" id="refreshBtn">Refresh</button>
+            </div>
+            <div id="playlistsContainer">
+                <div class="loading-small">
+                    Loading your Spotify playlists...
+                </div>
             </div>
         </div>
         
-        <div class="library-content">
-            <!-- Left Sidebar - Playlists -->
-            <div class="playlists-sidebar">
-                <div id="playlistsContainer">
-                    <div class="loading">
-                        Loading your Spotify playlists...
-                    </div>
+        <!-- Tracks Section -->
+        <div class="hub-tracks">
+            <div class="tracks-header-small">
+                <div class="tracks-title-small">🎵 Tracks</div>
+                <div style="display: flex; gap: 8px; align-items: center;">
+                    <button class="back-to-playlists-small" onclick="showPlaylists()" style="display: none;" id="backToPlaylistsBtn">
+                        ← Playlists
+                    </button>
+                    <button class="hub-btn" onclick="toggleDebugMode()" id="debugToggleBtn">Debug</button>
                 </div>
             </div>
-            
-            <!-- Right Section - Tracks -->
-            <div class="tracks-section">
-                <div id="tracksContainer">
-                    <div class="loading">
-                        Select a playlist to view tracks
-                    </div>
+            <div class="tracks-info-small" id="tracksInfo" style="margin-bottom: 8px;">
+                Select a playlist to view tracks • Click deck first, then track to load
+            </div>
+            <div id="tracksContainer">
+                <div class="loading-small">
+                    Select a playlist to view tracks
                 </div>
             </div>
         </div>
@@ -989,7 +932,7 @@
     <script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js"></script>
 
     <script>
-        console.log('🎛️ HandMixed DJ Studio Ready');
+        console.log('🎛️ HandMixed DJ Studio Ready - Webcam Focused Interface');
         
         // Global variables
         let stream = null;
@@ -1062,13 +1005,11 @@
                 
                 if (authData.authenticated) {
                     console.log('✅ User authenticated, initializing Spotify Player...');
-                    showSpotifyStatus('Spotify Connected ✅', 'success');
                     isSpotifyPremium = authData.premium;
                     
                     if (isSpotifyPremium) {
                         await initializeSpotifyPlayer();
                     } else {
-                        showSpotifyStatus('Spotify Premium Required', 'error');
                         updateStatus('Spotify Premium required for full playback', 'error');
                     }
                     
@@ -1083,15 +1024,8 @@
                 }
             } catch (error) {
                 console.error('❌ Auto-initialization failed:', error);
-                showSpotifyStatus('Spotify Connection Failed', 'error');
                 updateStatus('Failed to connect to Spotify', 'error');
             }
-        }
-
-        function showSpotifyStatus(message, type) {
-            const statusElement = document.getElementById('spotifyStatus');
-            statusElement.textContent = message;
-            statusElement.className = `spotify-status ${type}`;
         }
 
         // ========== DECK MANAGEMENT FUNCTIONS ==========
@@ -1104,7 +1038,7 @@
             // Highlight the selected deck
             const deckDisplay = document.getElementById(`deck${deckLetter}TrackDisplay`);
             deckDisplay.style.borderColor = '#f39c12';
-            deckDisplay.style.background = 'linear-gradient(135deg, rgba(243, 156, 18, 0.3), rgba(0, 212, 255, 0.3))';
+            deckDisplay.style.background = 'linear-gradient(135deg, rgba(243, 156, 18, 0.4), rgba(0, 212, 255, 0.4))';
             
             // Remove highlight from other deck
             const otherDeck = deckLetter === 'A' ? 'B' : 'A';
@@ -1112,12 +1046,17 @@
             otherDisplay.style.borderColor = '';
             otherDisplay.style.background = '';
             
+            // Update tracks info
+            const tracksInfo = document.getElementById('tracksInfo');
+            tracksInfo.textContent = `Click track to load into Deck ${deckLetter} • Selection auto-cancels in 10s`;
+            
             setTimeout(() => {
                 if (selectedDeck === deckLetter) {
                     deckDisplay.style.borderColor = '';
                     deckDisplay.style.background = '';
                     selectedDeck = null;
                     updateStatus('Track loading cancelled', 'info');
+                    tracksInfo.textContent = 'Select a playlist to view tracks • Click deck first, then track to load';
                 }
             }, 10000); // Auto-cancel after 10 seconds
         }
@@ -1223,7 +1162,7 @@
                 displayElement.classList.add('loaded');
             } else {
                 nameElement.textContent = 'No track loaded';
-                artistElement.textContent = 'Click to load from library';
+                artistElement.textContent = 'Click to load';
                 statusElement.textContent = 'Ready';
                 artworkElement.textContent = '🎵';
                 displayElement.classList.remove('loaded');
@@ -1280,7 +1219,6 @@
                 if (!tokenResponse.ok) {
                     if (tokenData.premium_required) {
                         updateStatus('Spotify Premium required for full track playback', 'error');
-                        showSpotifyStatus('Premium Required', 'error');
                         return;
                     }
                     throw new Error(tokenData.error || 'Failed to get access token');
@@ -1291,7 +1229,6 @@
                 
                 if (!isSpotifyPremium) {
                     updateStatus('Spotify Premium required for full track playback', 'error');
-                    showSpotifyStatus('Premium Required', 'error');
                     return;
                 }
                 
@@ -1305,19 +1242,16 @@
                 spotifyPlayer.addListener('initialization_error', ({ message }) => {
                     console.error('🚫 Spotify Player initialization error:', message);
                     updateStatus('Spotify Player initialization failed', 'error');
-                    showSpotifyStatus('Initialization Failed', 'error');
                 });
 
                 spotifyPlayer.addListener('authentication_error', ({ message }) => {
                     console.error('🚫 Spotify Player authentication error:', message);
                     updateStatus('Spotify authentication failed', 'error');
-                    showSpotifyStatus('Authentication Failed', 'error');
                 });
 
                 spotifyPlayer.addListener('account_error', ({ message }) => {
                     console.error('🚫 Spotify Account error:', message);
                     updateStatus('Spotify Premium account required', 'error');
-                    showSpotifyStatus('Premium Required', 'error');
                 });
 
                 spotifyPlayer.addListener('playback_error', ({ message }) => {
@@ -1342,7 +1276,6 @@
                     console.log('✅ Spotify Player ready with Device ID:', device_id);
                     spotifyDeviceId = device_id;
                     isSpotifyPlayerReady = true;
-                    showSpotifyStatus('Spotify Player Ready ✅', 'success');
                     updateStatus('Spotify Player connected successfully!', 'success');
                     
                     transferPlaybackToDevice(device_id);
@@ -1352,7 +1285,6 @@
                     console.log('🚫 Spotify Player not ready:', device_id);
                     spotifyDeviceId = null;
                     isSpotifyPlayerReady = false;
-                    showSpotifyStatus('Spotify Disconnected', 'error');
                 });
 
                 const success = await spotifyPlayer.connect();
@@ -1367,7 +1299,6 @@
             } catch (error) {
                 console.error('❌ Spotify Player initialization error:', error);
                 updateStatus(`Spotify connection failed: ${error.message}`, 'error');
-                showSpotifyStatus('Connection Failed', 'error');
             }
         }
 
@@ -1484,11 +1415,11 @@
                 canvasCtx.save();
                 
                 canvasCtx.fillStyle = '#ffffff';
-                canvasCtx.font = 'bold 16px Arial';
+                canvasCtx.font = 'bold 20px Arial';
                 canvasCtx.shadowColor = '#000000';
-                canvasCtx.shadowBlur = 3;
+                canvasCtx.shadowBlur = 4;
                 
-                canvasCtx.fillText(`FPS: ${currentFps}`, 10, 25);
+                canvasCtx.fillText(`FPS: ${currentFps}`, 15, 30);
                 
                 let debugText = `FPS: ${currentFps} | Processing: ${results.multiHandLandmarks ? results.multiHandLandmarks.length : 0} hands\n`;
                 
@@ -1502,9 +1433,9 @@
                         handGestures[handIndex] = detectedGesture;
                         
                         canvasCtx.fillStyle = handColor.main;
-                        canvasCtx.font = 'bold 18px Arial';
-                        const yOffset = 50 + (handIndex * 25);
-                        canvasCtx.fillText(`Hand ${handIndex + 1}: ${detectedGesture ? detectedGesture.toUpperCase() : 'Unknown'}`, 10, yOffset);
+                        canvasCtx.font = 'bold 24px Arial';
+                        const yOffset = 65 + (handIndex * 35);
+                        canvasCtx.fillText(`Hand ${handIndex + 1}: ${detectedGesture ? detectedGesture.toUpperCase() : 'Unknown'}`, 15, yOffset);
                         
                         debugText += `Hand ${handIndex + 1}: ${detectedGesture || 'Unknown'}\n`;
                         
@@ -1520,7 +1451,7 @@
                     
                 } else {
                     canvasCtx.fillStyle = '#ff6b6b';
-                    canvasCtx.fillText('No hands detected', 10, 50);
+                    canvasCtx.fillText('No hands detected', 15, 65);
                     debugText += 'No hands detected';
                     
                     handGestures = {};
@@ -1545,7 +1476,7 @@
                 const y = landmark.y * ctx.canvas.height;
                 
                 const isKeyPoint = [0, 4, 8, 12, 16, 20].includes(index);
-                const radius = isKeyPoint ? 6 : 3;
+                const radius = isKeyPoint ? 8 : 4;
                 
                 ctx.beginPath();
                 ctx.arc(x, y, radius, 0, 2 * Math.PI);
@@ -1553,11 +1484,11 @@
                 
                 if (isKeyPoint) {
                     ctx.fillStyle = '#ffffff';
-                    ctx.font = 'bold 10px Arial';
+                    ctx.font = 'bold 12px Arial';
                     ctx.strokeStyle = '#000000';
                     ctx.lineWidth = 2;
-                    ctx.strokeText(`H${handIndex + 1}:${index}`, x + 8, y - 8);
-                    ctx.fillText(`H${handIndex + 1}:${index}`, x + 8, y - 8);
+                    ctx.strokeText(`H${handIndex + 1}:${index}`, x + 10, y - 10);
+                    ctx.fillText(`H${handIndex + 1}:${index}`, x + 10, y - 10);
                     ctx.fillStyle = main;
                 }
             });
@@ -1572,7 +1503,7 @@
             ];
             
             ctx.strokeStyle = accent;
-            ctx.lineWidth = 2;
+            ctx.lineWidth = 3;
             ctx.beginPath();
             
             connections.forEach(([start, end]) => {
@@ -1751,8 +1682,8 @@
 
             navigator.mediaDevices.getUserMedia({
                 video: { 
-                    width: { ideal: 640, max: 1280 }, 
-                    height: { ideal: 480, max: 720 },
+                    width: { ideal: 1280, max: 1920 }, 
+                    height: { ideal: 720, max: 1080 },
                     frameRate: { ideal: 30, max: 30 },
                     facingMode: 'user'
                 }
@@ -1815,8 +1746,8 @@
                             }
                         }
                     },
-                    width: 640,
-                    height: 480
+                    width: 1280,
+                    height: 720
                 });
                 
                 camera.start()
@@ -1902,7 +1833,7 @@
         function loadPlaylists() {
             console.log('🎵 Loading Spotify playlists...');
             const container = document.getElementById('playlistsContainer');
-            container.innerHTML = '<div class="loading">◈ Loading your playlists...</div>';
+            container.innerHTML = '<div class="loading-small">◈ Loading playlists...</div>';
 
             fetch('/api/spotify/check-auth/')
                 .then(response => response.json())
@@ -1913,11 +1844,10 @@
                         
                         if (!isSpotifyPremium) {
                             container.innerHTML = `
-                                <div class="status error">
-                                    ⚠️ Spotify Premium Required<br>
-                                    Full track playback requires Spotify Premium. You can still use 30-second previews.<br>
-                                    <button class="library-btn" onclick="fetchPlaylists()" style="margin-top: 10px;">
-                                        🎵 Load Playlists (Preview Mode)
+                                <div style="padding: 10px; font-size: 0.7rem; color: #ff6b6b; text-align: center;">
+                                    ⚠️ Premium Required<br>
+                                    <button class="hub-btn" onclick="fetchPlaylists()" style="margin-top: 5px; font-size: 0.6rem;">
+                                        Load Preview Mode
                                     </button>
                                 </div>
                             `;
@@ -1932,10 +1862,10 @@
                 .catch(error => {
                     console.error('❌ Auth check error:', error);
                     container.innerHTML = `
-                        <div class="loading">
-                            ❌ Spotify connection failed<br>
-                            <button class="library-btn" onclick="retrySpotifyConnection()" style="margin-top: 10px;">
-                                🔄 Retry Connection
+                        <div style="padding: 10px; font-size: 0.7rem; color: #ff6b6b; text-align: center;">
+                            ❌ Connection failed<br>
+                            <button class="hub-btn" onclick="retrySpotifyConnection()" style="margin-top: 5px; font-size: 0.6rem;">
+                                Retry
                             </button>
                         </div>
                     `;
@@ -1944,7 +1874,7 @@
 
         function fetchPlaylists() {
             const container = document.getElementById('playlistsContainer');
-            container.innerHTML = '<div class="loading">◈ Loading your playlists...</div>';
+            container.innerHTML = '<div class="loading-small">◈ Loading playlists...</div>';
 
             return fetch('/api/spotify/playlists/')
                 .then(response => {
@@ -1969,10 +1899,10 @@
                 .catch(error => {
                     console.error('❌ Error loading playlists:', error);
                     container.innerHTML = `
-                        <div class="loading">
-                            ❌ Failed to load playlists: ${error.message}<br>
-                            <button class="library-btn" onclick="loadPlaylists()" style="margin-top: 10px;">
-                                🔄 Try Again
+                        <div style="padding: 10px; font-size: 0.7rem; color: #ff6b6b; text-align: center;">
+                            ❌ Failed: ${error.message}<br>
+                            <button class="hub-btn" onclick="loadPlaylists()" style="margin-top: 5px; font-size: 0.6rem;">
+                                Try Again
                             </button>
                         </div>
                     `;
@@ -1984,10 +1914,10 @@
             
             if (!playlists || playlists.length === 0) {
                 container.innerHTML = `
-                    <div class="loading">
+                    <div class="loading-small">
                         No playlists found<br>
-                        <button class="library-btn" onclick="loadPlaylists()" style="margin-top: 10px;">
-                            🔄 Refresh
+                        <button class="hub-btn" onclick="loadPlaylists()" style="margin-top: 5px; font-size: 0.6rem;">
+                            Refresh
                         </button>
                     </div>
                 `;
@@ -2002,16 +1932,15 @@
                     : null;
                 
                 playlistsHTML += `
-                    <div class="playlist-item" onclick="loadPlaylistTracks('${playlist.id}', ${index}, '${playlist.name.replace(/'/g, "\\'")}')">
+                    <div class="playlist-item-small" onclick="loadPlaylistTracks('${playlist.id}', ${index}, '${playlist.name.replace(/'/g, "\\'")}')">
                         ${imageUrl ? 
-                            `<img src="${imageUrl}" alt="${playlist.name}" class="playlist-image" loading="lazy">` :
-                            '<div class="playlist-image" style="background: linear-gradient(135deg, #00d4ff, #f39c12); display: flex; align-items: center; justify-content: center; color: white; font-weight: bold;">🎵</div>'
+                            `<img src="${imageUrl}" alt="${playlist.name}" class="playlist-image-small" loading="lazy">` :
+                            '<div class="playlist-image-small" style="background: linear-gradient(135deg, #00d4ff, #f39c12); display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; font-size: 0.6rem;">🎵</div>'
                         }
-                        <div class="playlist-info">
-                            <div class="playlist-name">${playlist.name}</div>
-                            <div class="playlist-details">
+                        <div class="playlist-info-small">
+                            <div class="playlist-name-small">${playlist.name}</div>
+                            <div class="playlist-details-small">
                                 ${playlist.tracks?.total || 0} tracks
-                                ${playlist.owner?.display_name ? ` • by ${playlist.owner.display_name}` : ''}
                             </div>
                         </div>
                     </div>
@@ -2023,23 +1952,14 @@
 
         function displayTrackList(tracks, playlistName) {
             const container = document.getElementById('tracksContainer');
+            const tracksInfo = document.getElementById('tracksInfo');
             
             const tracksWithPreviews = tracks.filter(track => track.preview_url);
             const tracksWithUris = tracks.filter(track => track.uri);
             
-            let tracksHTML = `
-                <div class="tracks-header">
-                    <div class="tracks-title">🎵 ${playlistName}</div>
-                    <button class="back-to-playlists" onclick="showPlaylists()">
-                        ← Back to Playlists
-                    </button>
-                </div>
-                <div class="tracks-info">
-                    ${tracks.length} tracks • ${tracksWithUris.length} full tracks • ${tracksWithPreviews.length} previews
-                    ${selectedDeck ? ` • Click track to load into Deck ${selectedDeck}` : ' • Click deck first, then track to load'}
-                </div>
-                <div style="overflow-y: auto; max-height: 180px;">
-            `;
+            tracksInfo.innerHTML = `${tracks.length} tracks • ${tracksWithUris.length} full • ${tracksWithPreviews.length} previews${selectedDeck ? ` • Click track to load into Deck ${selectedDeck}` : ' • Click deck first, then track to load'}`;
+            
+            let tracksHTML = '';
             
             tracks.forEach((track, index) => {
                 const hasPreview = track.preview_url;
@@ -2047,30 +1967,31 @@
                 const playbackType = hasUri ? 'full' : (hasPreview ? 'preview' : 'none');
                 
                 const playableClass = (hasUri || hasPreview) ? 'playable' : '';
-                const loadableClass = selectedDeck ? 'deck-loadable' : '';
                 
                 const duration = track.duration_ms ? formatDuration(track.duration_ms) : '--:--';
                 
                 tracksHTML += `
-                    <div class="track-item ${playableClass} ${loadableClass}" 
+                    <div class="track-item-small ${playableClass}" 
                          onclick="loadTrackToDeckFromList(${index})"
                          onmouseover="this.style.cursor = '${selectedDeck ? 'pointer' : 'default'}'">
-                        <div class="track-number">${index + 1}</div>
-                        <div class="track-play-icon">
+                        <div class="track-number-small">${index + 1}</div>
+                        <div class="track-play-icon-small">
                             ${selectedDeck ? '📂' : '▶️'}
                         </div>
-                        <div class="track-info-container">
-                            <div class="track-title">${track.name}</div>
-                            <div class="track-artist">${track.artists.map(artist => artist.name).join(', ')}</div>
+                        <div class="track-info-container-small">
+                            <div class="track-title-small">${track.name}</div>
+                            <div class="track-artist-small">${track.artists.map(artist => artist.name).join(', ')}</div>
                         </div>
-                        <div class="track-duration">${duration}</div>
-                        <div class="track-playback-indicator ${playbackType}"></div>
+                        <div class="track-duration-small">${duration}</div>
+                        <div class="track-playback-indicator-small ${playbackType}"></div>
                     </div>
                 `;
             });
             
-            tracksHTML += '</div>';
             container.innerHTML = tracksHTML;
+            
+            // Show back button
+            document.getElementById('backToPlaylistsBtn').style.display = 'block';
         }
 
         function loadTrackToDeckFromList(trackIndex) {
@@ -2079,10 +2000,10 @@
                 return;
             }
 
-            const allTracks = document.querySelectorAll('.track-item');
+            const allTracks = document.querySelectorAll('.track-item-small');
             if (trackIndex >= 0 && trackIndex < allTracks.length) {
                 const trackElement = allTracks[trackIndex];
-                const trackTitle = trackElement.querySelector('.track-title').textContent;
+                const trackTitle = trackElement.querySelector('.track-title-small').textContent;
                 
                 const playableTrackIndex = currentPlaylist.findIndex(track => track.name === trackTitle);
                 
@@ -2100,9 +2021,14 @@
                     const deckDisplay = document.getElementById(`deck${selectedDeck}TrackDisplay`);
                     deckDisplay.style.borderColor = '';
                     deckDisplay.style.background = '';
-                    selectedDeck = null;
                     
-                    updateStatus(`Track "${track.name}" loaded into Deck ${selectedDeck || 'A'}`, 'success');
+                    updateStatus(`Track "${track.name}" loaded into Deck ${selectedDeck}`, 'success');
+                    
+                    // Reset tracks info
+                    const tracksInfo = document.getElementById('tracksInfo');
+                    tracksInfo.textContent = 'Select a playlist to view tracks • Click deck first, then track to load';
+                    
+                    selectedDeck = null;
                     console.log(`🎵 Loaded track into deck:`, track);
                 } else {
                     updateStatus('This track is not available for loading', 'error');
@@ -2119,7 +2045,10 @@
         function showPlaylists() {
             displayPlaylists(allPlaylists);
             const container = document.getElementById('tracksContainer');
-            container.innerHTML = '<div class="loading">Select a playlist to view tracks</div>';
+            const tracksInfo = document.getElementById('tracksInfo');
+            container.innerHTML = '<div class="loading-small">Select a playlist to view tracks</div>';
+            tracksInfo.textContent = 'Select a playlist to view tracks • Click deck first, then track to load';
+            document.getElementById('backToPlaylistsBtn').style.display = 'none';
         }
 
         function refreshPlaylists() {
@@ -2129,7 +2058,7 @@
         function loadPlaylistTracks(playlistId, playlistIndex, playlistName) {
             console.log(`🎵 Loading tracks for playlist: ${playlistName}`);
             
-            document.querySelectorAll('.playlist-item').forEach((item, index) => {
+            document.querySelectorAll('.playlist-item-small').forEach((item, index) => {
                 if (index === playlistIndex) {
                     item.classList.add('active');
                 } else {
@@ -2190,7 +2119,7 @@
                     console.error('❌ Error loading tracks:', error);
                     updateStatus(`Failed to load tracks: ${error.message}`, 'error');
                     
-                    document.querySelectorAll('.playlist-item').forEach(item => {
+                    document.querySelectorAll('.playlist-item-small').forEach(item => {
                         item.classList.remove('active');
                     });
                 });
@@ -2199,9 +2128,9 @@
         function updateTrackListPlayingStateFull(currentTrack, isPlaying) {
             if (!currentTrack) return;
             
-            document.querySelectorAll('.track-item').forEach((item, index) => {
-                const playIcon = item.querySelector('.track-play-icon');
-                const trackTitle = item.querySelector('.track-title');
+            document.querySelectorAll('.track-item-small').forEach((item, index) => {
+                const playIcon = item.querySelector('.track-play-icon-small');
+                const trackTitle = item.querySelector('.track-title-small');
                 
                 if (trackTitle && trackTitle.textContent === currentTrack.name) {
                     if (isPlaying) {
@@ -2223,56 +2152,13 @@
         function toggleDebugMode() {
             debugMode = !debugMode;
             const debugInfo = document.getElementById('debugInfo');
-            const debugControls = document.getElementById('debugControls');
             
             debugInfo.style.display = debugMode ? 'block' : 'none';
-            debugControls.style.display = debugMode ? 'block' : 'none';
             
             const debugBtn = document.getElementById('debugToggleBtn');
             debugBtn.textContent = debugMode ? 'Hide Debug' : 'Debug';
             
             console.log(`Debug mode: ${debugMode ? 'ON' : 'OFF'}`);
-        }
-
-        function toggleDebugInfo() {
-            toggleDebugMode();
-        }
-
-        function testPlayFirstTrack() {
-            console.log('🧪 Testing first track playback...');
-            console.log('📊 Current state:');
-            console.log('  - Current playlist length:', currentPlaylist.length);
-            console.log('  - Spotify player ready:', isSpotifyPlayerReady);
-            console.log('  - Device ID:', spotifyDeviceId);
-            console.log('  - Access token available:', !!spotifyAccessToken);
-            console.log('  - Premium account:', isSpotifyPremium);
-            
-            if (currentPlaylist.length === 0) {
-                console.log('❌ No playlist loaded');
-                updateStatus('Load a playlist first!', 'error');
-                return;
-            }
-            
-            const firstTrack = currentPlaylist[0];
-            console.log('🎵 First track:', firstTrack);
-            
-            // Load into Deck A for testing
-            deckA.track = firstTrack;
-            updateDeckDisplay('A', firstTrack);
-            
-            // Try to play
-            if (isSpotifyPlayerReady && firstTrack.uri) {
-                console.log('🚀 Attempting full track playback:', firstTrack.uri);
-                playDeck('A');
-                updateStatus(`Testing: ${firstTrack.name}`, 'info');
-            } else if (firstTrack.preview_url) {
-                console.log('🔄 Falling back to preview:', firstTrack.preview_url);
-                playDeck('A');
-                updateStatus(`Testing preview: ${firstTrack.name}`, 'info');
-            } else {
-                console.log('❌ No playback available for first track');
-                updateStatus('No playback available for this track', 'error');
-            }
         }
 
         function retrySpotifyConnection() {
@@ -2309,12 +2195,12 @@
         // Initialize application
         updateStatus('Initializing HandMixed DJ Studio...', 'info');
         
-        console.log('🎮 HandMixed DJ Studio Ready');
+        console.log('🎮 HandMixed DJ Studio Ready - Webcam Focused');
         console.log('🎵 Features:');
-        console.log('  - Dual deck DJ interface');
-        console.log('  - Auto Spotify connection');
+        console.log('  - Full-screen webcam interface');
+        console.log('  - Floating deck controls');
+        console.log('  - Compact music hub');
         console.log('  - Hand gesture controls: ✋=play/pause, ☝️=deck A, ✌️=deck B, ✊=stop all');
-        console.log('  - Click deck first, then track to load');
         console.log('💡 Steps: 1) Playlists auto-load, 2) Load tracks to decks, 3) Start hand tracking!');
     </script>
 </body>
