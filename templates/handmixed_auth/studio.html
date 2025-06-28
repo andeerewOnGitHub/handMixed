@@ -180,6 +180,50 @@
             z-index: 5;
         }
 
+                /* Hand Detection Indicators - MEDIAPIPE ADDITION */
+        .hand-indicators {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            z-index: 100;
+            display: flex;
+            gap: 10px;
+        }
+
+        .hand-indicator {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            background: rgba(0, 0, 0, 0.7);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .hand-indicator.detected {
+            background: linear-gradient(135deg, #2ecc71, #00d4ff);
+            border-color: #2ecc71;
+            box-shadow: 0 0 10px rgba(46, 204, 113, 0.5);
+        }
+
+        /* FPS Counter - MEDIAPIPE ADDITION */
+        .fps-counter {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            background: rgba(0, 0, 0, 0.7);
+            padding: 5px 10px;
+            border-radius: 8px;
+            font-family: 'Orbitron', monospace;
+            font-size: 0.8rem;
+            color: #00d4ff;
+            z-index: 100;
+        }
+
         /* Professional DJ Deck Overlays */
         .deck-overlay {
             position: absolute;
@@ -1175,6 +1219,15 @@
             <div class="video-container">
                 <video id="video" autoplay muted playsinline></video>
                 <canvas id="canvas"></canvas>
+                <div class="hand-indicators">
+                    <div class="hand-indicator" id="leftHandIndicator">L</div>
+                    <div class="hand-indicator" id="rightHandIndicator">R</div>
+                </div>
+
+                <!-- FPS Counter -->
+                <div class="fps-counter" id="fpsCounter">FPS: 0</div>
+
+                <div class="video-placeholder" id="videoPlaceholder">
                 <div class="video-placeholder" id="videoPlaceholder">
                     🎥 Show Your Hands<br>
                     <small style="font-size: 1rem; margin-top: 10px; display: block;">Professional DJ Controls Ready</small>
@@ -1498,6 +1551,10 @@
     <script src="https://cdn.jsdelivr.net/npm/@mediapipe/drawing_utils/drawing_utils.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js"></script>
     <script src="https://unpkg.com/wavesurfer.js@7"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/control_utils/control_utils.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/drawing_utils/drawing_utils.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js"></script>
 
     <script>
         console.log('🎛️ Professional HandMixed DJ Studio Ready');
@@ -2651,20 +2708,27 @@
 
         async function autoInitializeSpotify() {
             try {
+                // Check if user is authenticated
                 const authResponse = await fetch('/api/spotify/check-auth/');
                 const authData = await authResponse.json();
                 
                 if (authData.authenticated) {
+                    console.log('✅ User authenticated, initializing Spotify Player...');
                     isSpotifyPremium = authData.premium;
                     
                     if (isSpotifyPremium) {
                         await initializeSpotifyPlayer();
+                    } else {
+                        updateStatus('Spotify Premium required for full playback', 'error');
                     }
                     
+                    // Auto-load playlists
                     setTimeout(() => {
                         loadPlaylists();
                     }, 1000);
                 } else {
+                    // Redirect to authentication
+                    console.log('❌ User not authenticated, redirecting...');
                     window.location.href = '/api/spotify/auth/';
                 }
             } catch (error) {
@@ -2673,29 +2737,262 @@
             }
         }
 
-        async function initializeSpotifyPlayer() {
-            // Placeholder - use your existing Spotify player initialization
-            console.log('🎵 Spotify Player initialization placeholder');
-            updateStatus('Spotify Player connected', 'success');
-            isSpotifyPlayerReady = true;
+        window.onSpotifyWebPlaybackSDKReady = () => {
+    console.log('🎵 Spotify Web Playback SDK is ready');
+};
+
+        async function autoInitializeSpotify() {
+            try {
+                console.log('🎵 Checking Spotify authentication...');
+                
+                const authResponse = await fetch('/api/spotify/check-auth/', {
+                    method: 'GET',
+                    credentials: 'same-origin'
+                });
+                
+                if (!authResponse.ok) {
+                    throw new Error(`Auth check failed: ${authResponse.status}`);
+                }
+                
+                const authData = await authResponse.json();
+                console.log('🎵 Auth response:', authData);
+                
+                if (authData.authenticated) {
+                    isSpotifyConnected = true;
+                    isSpotifyPremium = authData.premium || false;
+                    
+                    updateStatus(`Spotify connected ${isSpotifyPremium ? '(Premium)' : '(Free)'}`, 'success');
+                    
+                    // Initialize Spotify Web Playback SDK if Premium
+                    if (isSpotifyPremium) {
+                        await initializeSpotifyPlayer();
+                    }
+                    
+                    // Auto-load playlists after a short delay
+                    setTimeout(() => {
+                        loadPlaylists();
+                    }, 1000);
+                    
+                } else {
+                    console.log('❌ Not authenticated with Spotify, redirecting...');
+                    window.location.href = '/api/spotify/auth/';
+                }
+                
+            } catch (error) {
+                console.error('❌ Spotify auto-initialization failed:', error);
+                updateStatus(`Spotify connection failed: ${error.message}`, 'error');
+                
+                // Retry after delay
+                setTimeout(() => {
+                    window.location.href = '/spotify/auth/';
+                }, 3000);
+            }
+        }
+
+        async function transferPlaybackToDevice(deviceId) {
+            try {
+                const response = await fetch('/api/spotify/transfer-playback/', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ device_id: deviceId })
+                });
+                
+                if (response.ok) {
+                    console.log('✅ Playback transferred to HandMixed device');
+                } else {
+                    console.warn('⚠️ Playback transfer failed, but player is ready');
+                }
+            } catch (error) {
+                console.warn('⚠️ Playback transfer error:', error);
+            }
         }
 
         async function playSpotifyTrack(trackUri) {
-            // Placeholder - use your existing Spotify play function
-            console.log('🎵 Playing Spotify track:', trackUri);
-            return true;
+            if (!spotifyDeviceId) {
+                updateStatus('Spotify Player not connected', 'error');
+                return false;
+            }
+            
+            try {
+                const response = await fetch('/api/spotify/play/', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        track_uri: trackUri,
+                        device_id: spotifyDeviceId
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    console.log('✅ Track playing via Spotify Web API');
+                    return true;
+                } else {
+                    console.error('❌ Play track failed:', data.error);
+                    updateStatus(`Play failed: ${data.error}`, 'error');
+                    return false;
+                }
+                
+            } catch (error) {
+                console.error('❌ Play track error:', error);
+                updateStatus('Network error playing track', 'error');
+                return false;
+            }
         }
 
         async function controlSpotifyPlayback(action) {
-            // Placeholder - use your existing Spotify control function
-            console.log('🎵 Spotify control:', action);
-            return true;
+            if (!spotifyDeviceId) {
+                updateStatus('Spotify Player not connected', 'error');
+                return false;
+            }
+            
+            try {
+                const response = await fetch('/api/spotify/control/', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        action: action,
+                        device_id: spotifyDeviceId
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    console.log(`✅ ${action} command sent successfully`);
+                    return true;
+                } else {
+                    console.error(`❌ ${action} failed:`, data.error);
+                    updateStatus(`${action} failed: ${data.error}`, 'error');
+                    return false;
+                }
+                
+            } catch (error) {
+                console.error(`❌ ${action} error:`, error);
+                updateStatus(`Network error: ${action}`, 'error');
+                return false;
+            }
         }
 
         function loadPlaylists() {
-            // Placeholder - use your existing playlist loading
-            console.log('🎵 Loading playlists placeholder');
-            updateStatus('Playlists loaded', 'success');
+            console.log('🎵 Loading Spotify playlists...');
+            const container = document.getElementById('playlistsContainer');
+            container.innerHTML = '<div class="loading-small">◈ Loading playlists...</div>';
+
+            fetch('/api/spotify/check-auth/')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.authenticated) {
+                        isSpotifyConnected = true;
+                        isSpotifyPremium = data.premium;
+                        
+                        if (!isSpotifyPremium) {
+                            container.innerHTML = `
+                                <div style="padding: 10px; font-size: 0.7rem; color: #ff6b6b; text-align: center;">
+                                    ⚠️ Premium Required<br>
+                                    <button class="hub-btn" onclick="fetchPlaylists()" style="margin-top: 5px; font-size: 0.6rem;">
+                                        Load Preview Mode
+                                    </button>
+                                </div>
+                            `;
+                            return;
+                        }
+                        
+                        return fetchPlaylists();
+                    } else {
+                        window.location.href = '/api/spotify/auth/';
+                    }
+                })
+                .catch(error => {
+                    console.error('❌ Auth check error:', error);
+                    container.innerHTML = `
+                        <div style="padding: 10px; font-size: 0.7rem; color: #ff6b6b; text-align: center;">
+                            ❌ Connection failed<br>
+                            <button class="hub-btn" onclick="retrySpotifyConnection()" style="margin-top: 5px; font-size: 0.6rem;">
+                                Retry
+                            </button>
+                        </div>
+                    `;
+                });
+        }
+
+        function fetchPlaylists() {
+            const container = document.getElementById('playlistsContainer');
+            container.innerHTML = '<div class="loading-small">◈ Loading playlists...</div>';
+
+            return fetch('/api/spotify/playlists/')
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    if (data.error) {
+                        throw new Error(data.error);
+                    }
+                    
+                    allPlaylists = data.playlists || [];
+                    displayPlaylists(allPlaylists);
+                    console.log(`✅ Loaded ${allPlaylists.length} playlists`);
+                    
+                    // Show refresh button
+                    document.getElementById('loadPlaylistsBtn').style.display = 'none';
+                    document.getElementById('refreshBtn').style.display = 'block';
+                })
+                .catch(error => {
+                    console.error('❌ Error loading playlists:', error);
+                    container.innerHTML = `
+                        <div style="padding: 10px; font-size: 0.7rem; color: #ff6b6b; text-align: center;">
+                            ❌ Failed: ${error.message}<br>
+                            <button class="hub-btn" onclick="loadPlaylists()" style="margin-top: 5px; font-size: 0.6rem;">
+                                Try Again
+                            </button>
+                        </div>
+                    `;
+                });
+        }
+
+        function displayPlaylists(playlists) {
+            const container = document.getElementById('playlistsContainer');
+            
+            if (!playlists || playlists.length === 0) {
+                container.innerHTML = `
+                    <div class="loading-small">
+                        No playlists found<br>
+                        <button class="hub-btn" onclick="loadPlaylists()" style="margin-top: 5px; font-size: 0.6rem;">
+                            Refresh
+                        </button>
+                    </div>
+                `;
+                return;
+            }
+
+            let playlistsHTML = '';
+            
+            playlists.forEach((playlist, index) => {
+                const imageUrl = playlist.images && playlist.images.length > 0 
+                    ? playlist.images[0].url 
+                    : null;
+                
+                playlistsHTML += `
+                    <div class="playlist-item-small" onclick="loadPlaylistTracks('${playlist.id}', ${index}, '${playlist.name.replace(/'/g, "\\'")}')">
+                        ${imageUrl ? 
+                            `<img src="${imageUrl}" alt="${playlist.name}" class="playlist-image-small" loading="lazy">` :
+                            '<div class="playlist-image-small" style="background: linear-gradient(135deg, #00d4ff, #f39c12); display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; font-size: 0.6rem;">🎵</div>'
+                        }
+                        <div class="playlist-info-small">
+                            <div class="playlist-name-small">${playlist.name}</div>
+                            <div class="playlist-details-small">
+                                ${playlist.tracks?.total || 0} tracks
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            container.innerHTML = playlistsHTML;
         }
 
         function refreshPlaylists() {
@@ -2721,14 +3018,544 @@
         // (These would use your existing MediaPipe hand tracking code)
 
         function startHandTracking() {
-            console.log('🖐️ Starting hand tracking placeholder');
-            updateStatus('Hand tracking started - use gestures to control professional decks', 'success');
+            console.log('🚀 Starting Hand Tracking...');
+            updateStatus('Starting camera...', 'info');
+            
+            const startBtn = document.getElementById('startBtn');
+            const stopBtn = document.getElementById('stopBtn');
+            const video = document.getElementById('video');
+            const placeholder = document.getElementById('videoPlaceholder');
+            
+            startBtn.disabled = true;
+
+            navigator.mediaDevices.getUserMedia({
+                video: { 
+                    width: { ideal: 1280, max: 1920 }, 
+                    height: { ideal: 720, max: 1080 },
+                    frameRate: { ideal: 30, max: 30 },
+                    facingMode: 'user'
+                }
+            })
+            .then(function(mediaStream) {
+                console.log('✅ Camera stream obtained');
+                stream = mediaStream;
+                video.srcObject = stream;
+                video.style.display = 'block';
+                placeholder.style.display = 'none';
+                isTracking = true;
+                
+                video.addEventListener('loadedmetadata', () => {
+                    console.log('📹 Video metadata loaded, initializing MediaPipe...');
+                    setTimeout(() => {
+                        initializeHandTracking();
+                    }, 1000);
+                }, { once: true });
+                
+                updateStatus('Camera ready - initializing hand tracking...', 'info');
+                startBtn.style.display = 'none';
+                stopBtn.style.display = 'block';
+                
+            })
+            .catch(function(error) {
+                console.error('❌ Camera error:', error);
+                updateStatus(`Camera failed: ${error.message}`, 'error');
+                startBtn.disabled = false;
+            });
+        }
+
+        function initializeHandTracking() {
+            try {
+                console.log('🔧 Initializing MediaPipe Hands...');
+                
+                hands = new Hands({
+                    locateFile: (file) => {
+                        return `https://cdn.jsdelivr.net/npm/@mediapipe/hands/${file}`;
+                    }
+                });
+                
+                hands.setOptions({
+                    maxNumHands: 2,
+                    modelComplexity: 1,
+                    minDetectionConfidence: 0.7,
+                    minTrackingConfidence: 0.5
+                });
+                
+                hands.onResults(onResults);
+                
+                const video = document.getElementById('video');
+                
+                async function processFrame() {
+                    if (isTracking && video.readyState >= 2) {
+                        try {
+                            await hands.send({image: video});
+                        } catch (e) {
+                            console.warn('Frame processing error:', e);
+                        }
+                    }
+                    
+                    if (isTracking) {
+                        requestAnimationFrame(processFrame);
+                    }
+                }
+                
+                processFrame();
+                
+                console.log('✅ MediaPipe Hands initialized and processing started');
+                updateStatus('🚀 Hand tracking active! Use gestures to control professional decks', 'success');
+                
+                if (debugMode) {
+                    const debugElement = document.getElementById('debugInfo');
+                    if (debugElement) {
+                        debugElement.style.display = 'block';
+                    }
+                }
+                
+            } catch (error) {
+                console.error('❌ MediaPipe initialization error:', error);
+                updateStatus('Hand tracking initialization failed', 'error');
+            }
         }
 
         function stopHandTracking() {
-            console.log('✋ Stopping hand tracking placeholder');
+            console.log('🛑 Stopping Hand Tracking...');
+            
+            isTracking = false;
+            
+            if (camera) {
+                try {
+                    camera.stop();
+                } catch (e) {
+                    console.warn('Camera stop error:', e);
+                }
+                camera = null;
+            }
+            
+            if (hands) {
+                try {
+                    hands.close();
+                } catch (e) {
+                    console.warn('Hands close error:', e);
+                }
+                hands = null;
+            }
+            
+            if (stream) {
+                stream.getTracks().forEach(track => {
+                    track.stop();
+                    console.log(`Stopped track: ${track.kind}`);
+                });
+                stream = null;
+            }
+            
+            const video = document.getElementById('video');
+            const canvas = document.getElementById('canvas');
+            const startBtn = document.getElementById('startBtn');
+            const stopBtn = document.getElementById('stopBtn');
+            const placeholder = document.getElementById('videoPlaceholder');
+            
+            video.srcObject = null;
+            video.style.display = 'none';
+            placeholder.style.display = 'block';
+            
+            const ctx = canvas.getContext('2d');
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
             updateStatus('Hand tracking stopped', 'info');
+            document.getElementById('gestureStatus').innerHTML = '🖐️ Show hands to control professional decks';
+            
+            startBtn.style.display = 'block';
+            startBtn.disabled = false;
+            stopBtn.style.display = 'none';
+            
+            handGestures = {};
+            gestureStabilityCount = 0;
+            gestureHistory = [];
+            
+            console.log('✅ Hand tracking stopped and cleaned up');
         }
+
+        // ===== ADDITIONAL INTEGRATION FUNCTIONS =====
+        // Add all the additional functions from the integration guide here
+
+        // Add your existing hand tracking result processing function
+        function onResults(results) {
+            if (!isTracking) return;
+            
+            frameCount++;
+            const now = Date.now();
+            if (now - lastFpsUpdate > 1000) {
+                currentFps = Math.round(frameCount * 1000 / (now - lastFpsUpdate));
+                frameCount = 0;
+                lastFpsUpdate = now;
+            }
+
+            const canvasElement = document.getElementById('canvas');
+            const canvasCtx = canvasElement.getContext('2d');
+            const videoElement = document.getElementById('video');
+            
+            if (videoElement.videoWidth && videoElement.videoHeight) {
+                // COPY YOUR EXISTING onResults FUNCTION CONTENT HERE
+                // (from your original studio.html)
+            }
+        }
+
+        // Add your existing gesture detection function
+        function detectGestureImproved(landmarks) {
+            try {
+                const tips = [4, 8, 12, 16, 20];
+                const mcp = [3, 6, 10, 14, 18];
+                
+                let extendedFingers = 0;
+                let fingerStates = [];
+                
+                // COPY YOUR EXISTING detectGestureImproved FUNCTION CONTENT HERE
+                // (from your original studio.html)
+                
+                // Enhanced gesture classification
+                if (extendedFingers === 0) {
+                    return 'fist';
+                } else if (extendedFingers === 1 && fingerStates.includes('index')) {
+                    return 'one';
+                } else if (extendedFingers === 2 && fingerStates.includes('index') && fingerStates.includes('middle')) {
+                    return 'peace';
+                } else if (extendedFingers === 3) {
+                    return 'three';
+                } else if (extendedFingers === 4) {
+                    return 'four';
+                } else if (extendedFingers === 5) {
+                    return 'open';
+                } else {
+                    return `fingers_${extendedFingers}`;
+                }
+            } catch (error) {
+                console.error('Gesture detection error:', error);
+                return null;
+            }
+        }
+
+        // Add playlist track loading function
+        function loadPlaylistTracks(playlistId, playlistIndex, playlistName) {
+            console.log(`🎵 Loading tracks for playlist: ${playlistName}`);
+            
+            // Update UI to show selected playlist
+            document.querySelectorAll('.playlist-item-small').forEach((item, index) => {
+                if (index === playlistIndex) {
+                    item.classList.add('active');
+                } else {
+                    item.classList.remove('active');
+                }
+            });
+
+            updateStatus(`Loading tracks from "${playlistName}"...`, 'info');
+            
+            // Clear any existing deck selection state
+            selectedDeck = null;
+            clearDeckSelection();
+
+            fetch(`/api/spotify/playlists/${playlistId}/tracks/`)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    if (data.error) {
+                        throw new Error(data.error);
+                    }
+                    
+                    const allTracks = data.tracks || [];
+                    
+                    // Filter playable tracks
+                    currentPlaylist = allTracks.filter(track => track && (track.uri || track.preview_url)).map(track => ({
+                        id: track.id,
+                        name: track.name,
+                        artist: track.artists.map(artist => artist.name).join(', '),
+                        album: track.album?.name || 'Unknown Album',
+                        uri: track.uri,
+                        preview_url: track.preview_url,
+                        external_url: track.external_urls?.spotify,
+                        duration_ms: track.duration_ms,
+                        popularity: track.popularity,
+                        images: track.album?.images || []
+                    }));
+                    
+                    currentTrackIndex = 0;
+                    
+                    console.log(`✅ Loaded ${currentPlaylist.length} playable tracks from "${playlistName}"`);
+                    
+                    // Display track list
+                    displayTrackList(allTracks, playlistName);
+                    
+                    if (currentPlaylist.length > 0) {
+                        // Start progressive deck loading
+                        progressivelyLoadDecks(playlistName);
+                    } else {
+                        updateStatus(`No playable tracks found in "${playlistName}"`, 'error');
+                        currentPlaylist = [];
+                    }
+                })
+                .catch(error => {
+                    console.error('❌ Error loading tracks:', error);
+                    updateStatus(`Failed to load tracks: ${error.message}`, 'error');
+                    
+                    document.querySelectorAll('.playlist-item-small').forEach(item => {
+                        item.classList.remove('active');
+                    });
+                });
+        }
+
+        // Add track display function
+        function displayTrackList(tracks, playlistName) {
+            const container = document.getElementById('tracksContainer');
+            const tracksInfo = document.getElementById('tracksInfo');
+            
+            document.getElementById('progressiveReloadBtn').style.display = 'block';
+
+            const tracksWithPreviews = tracks.filter(track => track.preview_url);
+            const tracksWithUris = tracks.filter(track => track.uri);
+            
+            tracksInfo.innerHTML = `${tracks.length} tracks • ${tracksWithUris.length} full • ${tracksWithPreviews.length} previews • Click deck first, then track to load`;
+            
+            let tracksHTML = '';
+            
+            tracks.forEach((track, index) => {
+                const hasPreview = track.preview_url;
+                const hasUri = track.uri;
+                const playbackType = hasUri ? 'full' : (hasPreview ? 'preview' : 'none');
+                
+                const playableClass = (hasUri || hasPreview) ? 'playable' : '';
+                const duration = track.duration_ms ? formatDuration(track.duration_ms) : '--:--';
+                
+                tracksHTML += `
+                    <div class="track-item-small ${playableClass}" 
+                        onclick="loadTrackToDeckFromList(${index})"
+                        style="padding: 8px; margin: 4px 0; background: rgba(26,26,26,0.6); border-radius: 6px; cursor: pointer; display: flex; align-items: center; gap: 12px; border: 1px solid rgba(255,255,255,0.1); transition: all 0.3s ease;">
+                        <div style="font-family: Orbitron; font-size: 0.7rem; color: #f39c12; min-width: 20px; text-align: center;">${index + 1}</div>
+                        <div style="flex: 1; min-width: 0;">
+                            <div style="font-size: 0.8rem; font-weight: 600; color: #e0e0e0; margin-bottom: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${track.name}</div>
+                            <div style="font-size: 0.7rem; color: #b0b0b0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${track.artists.map(artist => artist.name).join(', ')}</div>
+                        </div>
+                        <div style="font-size: 0.6rem; color: #888; font-family: Orbitron; min-width: 40px; text-align: right;">${duration}</div>
+                        <div style="width: 6px; height: 6px; border-radius: 50%; background: ${playbackType === 'full' ? '#1ed760' : playbackType === 'preview' ? '#f39c12' : '#666'}; margin-left: 8px;"></div>
+                    </div>
+                `;
+            });
+            
+            container.innerHTML = tracksHTML;
+            document.getElementById('backToPlaylistsBtn').style.display = 'block';
+        }
+
+        function formatDuration(ms) {
+            const minutes = Math.floor(ms / 60000);
+            const seconds = Math.floor((ms % 60000) / 1000);
+            return `${minutes}:${seconds.toString().padStart(2, '0')}`;
+        }
+
+        function showPlaylists() {
+            displayPlaylists(allPlaylists);
+            const container = document.getElementById('tracksContainer');
+            const tracksInfo = document.getElementById('tracksInfo');
+            container.innerHTML = '<div class="loading-small">Select a playlist to view tracks</div>';
+            tracksInfo.textContent = 'Professional DJ Studio Ready • Load playlists to start mixing';
+            document.getElementById('backToPlaylistsBtn').style.display = 'none';
+            document.getElementById('progressiveReloadBtn').style.display = 'none';
+        }
+
+        function refreshPlaylists() {
+            loadPlaylists();
+        }
+
+        function retrySpotifyConnection() {
+            console.log('🔄 Retrying Spotify connection...');
+            autoInitializeSpotify();
+        }
+
+        function updateTrackListPlayingStateFull(currentTrack, isPlaying) {
+            if (!currentTrack) return;
+            
+            document.querySelectorAll('.track-item-small').forEach((item, index) => {
+                const trackTitle = item.querySelector('div:nth-child(2) div:first-child');
+                
+                if (trackTitle && trackTitle.textContent === currentTrack.name) {
+                    if (isPlaying) {
+                        item.style.background = 'linear-gradient(135deg, rgba(30, 215, 96, 0.2), rgba(0, 212, 255, 0.2))';
+                        item.style.borderLeft = '3px solid #1ed760';
+                    } else {
+                        item.style.background = 'rgba(26,26,26,0.6)';
+                        item.style.borderLeft = 'none';
+                    }
+                } else {
+                    item.style.background = 'rgba(26,26,26,0.6)';
+                    item.style.borderLeft = 'none';
+                }
+            });
+        }
+
+        // Add missing gesture and hand tracking functions
+        function updateMultiHandGestureStatus(handGestures) {
+            const gestureStatus = document.getElementById('gestureStatus');
+            
+            const handCount = Object.keys(handGestures).length;
+            
+            if (handCount === 0) {
+                gestureStatus.innerHTML = '🖐️ Show hands to control professional decks';
+            } else if (handCount === 1) {
+                const gesture = handGestures[0];
+                gestureStatus.innerHTML = `
+                    <div style="display: flex; align-items: center; justify-content: center; gap: 10px;">
+                        <span style="font-size: 1.5em;">${getGestureEmoji(gesture)}</span>
+                        <span>Hand 1: ${gesture ? gesture.toUpperCase() : 'Unknown'}</span>
+                    </div>
+                `;
+            } else {
+                let gestureHTML = '<div style="display: flex; flex-direction: column; gap: 5px;">';
+                gestureHTML += `<div style="font-size: 0.9em; opacity: 0.8;">Detecting ${handCount} hands:</div>`;
+                
+                Object.keys(handGestures).forEach(handIndex => {
+                    const gesture = handGestures[handIndex];
+                    const colorIndex = parseInt(handIndex);
+                    const handColor = handColors[colorIndex % handColors.length];
+                    
+                    gestureHTML += `
+                        <div style="display: flex; align-items: center; justify-content: center; gap: 8px;">
+                            <span style="color: ${handColor.main}; font-weight: bold;">Hand ${parseInt(handIndex) + 1}:</span>
+                            <span style="font-size: 1.2em;">${getGestureEmoji(gesture)}</span>
+                            <span>${gesture ? gesture.toUpperCase() : 'Unknown'}</span>
+                        </div>
+                    `;
+                });
+                
+                gestureHTML += '</div>';
+                gestureStatus.innerHTML = gestureHTML;
+            }
+        }
+
+        function getGestureEmoji(gesture) {
+            const emojiMap = {
+                'fist': '✊',
+                'one': '☝️',
+                'peace': '✌️',
+                'open': '✋',
+                'three': '🤟',
+                'four': '🖖',
+                'fingers_3': '🤟',
+                'fingers_4': '🖖'
+            };
+            return emojiMap[gesture] || '👋';
+        }
+
+        function handleGestureStability(gesture) {
+            gestureHistory.push(gesture);
+            if (gestureHistory.length > 5) {
+                gestureHistory.shift();
+            }
+            
+            const currentGesture = gestureHistory[gestureHistory.length - 1];
+            const previousGesture = gestureHistory[gestureHistory.length - 2];
+            
+            if (currentGesture === previousGesture) {
+                gestureStabilityCount++;
+            } else {
+                gestureStabilityCount = 1;
+            }
+            
+            if (gestureStabilityCount >= GESTURE_STABILITY_THRESHOLD) {
+                handleGestureAction(currentGesture);
+                gestureStabilityCount = 0;
+            }
+        }
+
+        function swapHandLabel(originalLabel) {
+            if (originalLabel === 'Left') {
+                return 'Right Hand';
+            } else if (originalLabel === 'Right') {
+                return 'Left Hand';
+            } else {
+                return originalLabel;
+            }
+        }
+
+        function drawEnhancedHand(ctx, landmarks, handIndex, handColor, handLabel) {
+            const { main, accent } = handColor;
+            
+            // Draw hand connections first (skeleton)
+            drawHandConnections(ctx, landmarks, accent);
+            
+            // Draw landmarks on top
+            drawHandLandmarks(ctx, landmarks, main, handIndex, handLabel);
+        }
+
+        function drawHandConnections(ctx, landmarks, color) {
+            const connections = [
+                // Thumb
+                [0, 1], [1, 2], [2, 3], [3, 4],
+                // Index finger
+                [0, 5], [5, 6], [6, 7], [7, 8],
+                // Middle finger
+                [0, 9], [9, 10], [10, 11], [11, 12],
+                // Ring finger
+                [0, 13], [13, 14], [14, 15], [15, 16],
+                // Pinky
+                [0, 17], [17, 18], [18, 19], [19, 20],
+                // Hand palm
+                [0, 5], [5, 9], [9, 13], [13, 17]
+            ];
+
+            ctx.strokeStyle = color;
+            ctx.lineWidth = 3;
+            ctx.lineCap = 'round';
+
+            connections.forEach(([start, end]) => {
+                const startPoint = landmarks[start];
+                const endPoint = landmarks[end];
+                
+                ctx.beginPath();
+                ctx.moveTo(startPoint.x * ctx.canvas.width, startPoint.y * ctx.canvas.height);
+                ctx.lineTo(endPoint.x * ctx.canvas.width, endPoint.y * ctx.canvas.height);
+                ctx.stroke();
+            });
+        }
+
+        function drawHandLandmarks(ctx, landmarks, color, handIndex, handLabel) {
+            const keyPoints = [0, 4, 8, 12, 16, 20]; // Wrist and fingertips
+            
+            landmarks.forEach((landmark, index) => {
+                const x = landmark.x * ctx.canvas.width;
+                const y = landmark.y * ctx.canvas.height;
+                const isKeyPoint = keyPoints.includes(index);
+                
+                // Draw landmark circle
+                ctx.fillStyle = color;
+                ctx.beginPath();
+                ctx.arc(x, y, isKeyPoint ? 8 : 4, 0, 2 * Math.PI);
+                ctx.fill();
+                
+                // Add white border for key points
+                if (isKeyPoint) {
+                    ctx.strokeStyle = '#ffffff';
+                    ctx.lineWidth = 2;
+                    ctx.stroke();
+                }
+            });
+
+            // Add hand label
+            if (landmarks[0]) {
+                const wrist = landmarks[0];
+                const x = wrist.x * ctx.canvas.width;
+                const y = wrist.y * ctx.canvas.height;
+                
+                ctx.fillStyle = color;
+                ctx.font = 'bold 16px Arial';
+                ctx.strokeStyle = '#000000';
+                ctx.lineWidth = 3;
+                const labelText = handLabel || `Hand ${handIndex + 1}`;
+                ctx.strokeText(labelText, x, y - 25);
+                ctx.fillText(labelText, x, y - 25);
+            }
+        }
+
+
 
         // ===== KEYBOARD SHORTCUTS =====
 
