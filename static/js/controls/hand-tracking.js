@@ -102,7 +102,7 @@ function onHandResults(results) {
             
             // Determine if it's left or right hand
             const isRightHand = handedness.label === 'Right';
-            const handSide = isRightHand ? 'rightHand' : 'leftHand';
+            const handSide = isRightHand ? 'leftHand' : 'rightHand'; // Swapped to fix the mapping!
             
             // Update hand state
             handState[handSide].detected = true;
@@ -240,9 +240,9 @@ function drawHandMask(landmarks, isRightHand) {
     
     // Draw the text (now it will appear correctly oriented and crisp)
     canvasCtx.fillText(
-        isRightHand ? 'DECK A' : 'DECK B',
-        0, // x is 0 because we translated to the text position
-        0  // y is 0 because we translated to the text position
+        isRightHand ? 'DECK B' : 'DECK A',  // Swapped to match the corrected hand mapping
+        0,
+        0
     );
     
     // Restore transform state
