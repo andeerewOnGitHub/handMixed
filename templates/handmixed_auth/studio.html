@@ -2783,32 +2783,43 @@
                 return;
             }
 
+            console.log(`▶️ Playing Deck ${deckLetter}: ${deck.track.name}`);
+
             // Resume audio context if suspended
             if (mixingState.masterAudioContext && mixingState.masterAudioContext.state === 'suspended') {
-                mixingState.masterAudioContext.resume();
+                mixingState.masterAudioContext.resume().then(() => {
+                    console.log('🎛️ Audio context resumed');
+                });
             }
 
-            if (spotifyState.isPlayerReady && deck.track.uri) {
-                // Use Spotify Web Playback SDK for full tracks
-                playSpotifyTrack(deck.track.uri);
-                deck.isPlaying = true;
-                deck.isPaused = false;
-            } else if (deck.track.preview_url) {
-                // Use HTML5 Audio for previews
+            // Handle Spotify Premium playback
+            if (spotifyState.isPlayerReady && deck.track.uri && deck.audioType === 'spotify') {
+                playSpotifyTrack(deck.track.uri, deckLetter);
+            }
+            // Handle preview audio playback
+            else if (deck.audio && deck.audioType === 'preview') {
                 playDeckAudio(deckLetter);
-            } else {
+            }
+            // No playback available
+            else {
                 updateStatus(`No playback available for track in Deck ${deckLetter}`, 'error');
                 return;
             }
             
+            // Update deck state
+            deck.isPlaying = true;
+            deck.isPaused = false;
+            deck.isFinished = false;
+            
+            // Update UI
             updateDeckStatus(deckLetter, 'Playing');
             updateDeckUI(deckLetter);
+            
+            // Start progress tracking
             startProgressTracking(deckLetter);
             
-            console.log(`▶️ Playing Professional Deck ${deckLetter}: ${deck.track.name}`);
             updateStatus(`Playing: ${deck.track.name} on Deck ${deckLetter}`, 'success');
         }
-
         /**
          * Pause selected deck
          */
@@ -3454,13 +3465,76 @@
         }
 
         // ========================================== 
-        // PLACEHOLDER FUNCTIONS
+        // Audio playback FUNCTIONS
         // ==========================================
         // These functions provide basic implementations
         // and should be expanded based on requirements
 
         function initializeDeckAudio(deckLetter) {
-            console.log(`🎛️ Initializing audio for Deck ${deckLetter}`);
+            const deck = deckState[deckLetter];
+            
+            if (!deck.track) return;
+            
+            console.log(`🎛️ Initializing audio for Deck ${deckLetter}:`, deck.track.name);
+            
+            // Clean up existing audio
+            if (deck.audio) {
+                deck.audio.pause();
+                deck.audio.src = '';
+                deck.audio = null;
+            }
+            
+            // For Spotify Premium users with full tracks
+            if (spotifyState.isPlayerReady && deck.track.uri) {
+                console.log(`🎵 Using Spotify Web Playback SDK for ${deck.track.name}`);
+                deck.audioType = 'spotify';
+                return;
+            }
+            
+            // For preview tracks or non-premium users
+            if (deck.track.preview_url) {
+                console.log(`🔊 Using preview audio for ${deck.track.name}`);
+                deck.audio = new Audio(deck.track.preview_url);
+                deck.audio.crossOrigin = 'anonymous';
+                deck.audio.preload = 'metadata';
+                deck.audioType = 'preview';
+                
+                // Set up audio event listeners
+                deck.audio.addEventListener('loadedmetadata', () => {
+                    deck.duration = deck.audio.duration;
+                    document.getElementById(`deck${deckLetter}Duration`).textContent = formatTime(deck.duration);
+                    console.log(`📊 Audio metadata loaded for Deck ${deckLetter}: ${formatTime(deck.duration)}`);
+                });
+                
+                deck.audio.addEventListener('ended', () => {
+                    console.log(`🏁 Audio ended for Deck ${deckLetter}`);
+                    handleTrackEnd(deckLetter);
+                });
+                
+                deck.audio.addEventListener('error', (e) => {
+                    console.error(`❌ Audio error for Deck ${deckLetter}:`, e);
+                    updateStatus(`Audio error for Deck ${deckLetter}`, 'error');
+                });
+                
+                // Set up Web Audio context if available
+                if (mixingState.masterAudioContext) {
+                    try {
+                        const source = mixingState.masterAudioContext.createMediaElementSource(deck.audio);
+                        deck.gainNode = mixingState.masterAudioContext.createGain();
+                        deck.gainNode.gain.value = deck.volume;
+                        
+                        source.connect(deck.gainNode);
+                        deck.gainNode.connect(mixingState.masterGainNode);
+                        
+                        console.log(`🎛️ Web Audio context connected for Deck ${deckLetter}`);
+                    } catch (error) {
+                        console.warn(`⚠️ Web Audio setup failed for Deck ${deckLetter}:`, error);
+                    }
+                }
+            } else {
+                console.warn(`⚠️ No playable audio source for Deck ${deckLetter}`);
+                updateStatus(`No audio available for this track`, 'error');
+            }
         }
 
         function initializeWaveformCanvas(deckLetter) {
@@ -3472,11 +3546,92 @@
         }
 
         function playDeckAudio(deckLetter) {
-            console.log(`▶️ Playing audio for Deck ${deckLetter}`);
+            const deck = deckState[deckLetter];
+            
+            if (!deck.audio) {
+                console.error(`❌ No audio element for Deck ${deckLetter}`);
+                return;
+            }
+            
+            console.log(`🔊 Starting audio playback for Deck ${deckLetter}`);
+            
+            // Apply current volume and tempo
+            deck.audio.volume = deck.volume;
+            deck.audio.playbackRate = deck.tempo / 100;
+            
+            // Apply crossfader volume
+            const crossfaderEffect = deckLetter === 'A' ? 
+                Math.max(0, (100 - mixingState.crossfaderValue) / 50) :
+                Math.max(0, mixingState.crossfaderValue / 50);
+            
+            if (deck.gainNode) {
+                deck.gainNode.gain.value = deck.volume * crossfaderEffect;
+            } else {
+                deck.audio.volume = deck.volume * crossfaderEffect;
+            }
+            
+            // Play the audio
+            const playPromise = deck.audio.play();
+            
+            if (playPromise !== undefined) {
+                playPromise.then(() => {
+                    console.log(`✅ Audio playing successfully for Deck ${deckLetter}`);
+                }).catch(error => {
+                    console.error(`❌ Audio play failed for Deck ${deckLetter}:`, error);
+                    updateStatus(`Playback failed for Deck ${deckLetter}: ${error.message}`, 'error');
+                    
+                    // Reset deck state on error
+                    deck.isPlaying = false;
+                    deck.isPaused = false;
+                    updateDeckUI(deckLetter);
+                });
+            }
         }
 
-        function playSpotifyTrack(uri) {
-            console.log(`🎵 Playing Spotify track: ${uri}`);
+        async function playSpotifyTrack(uri, deckLetter) {
+            if (!spotifyState.isPlayerReady || !spotifyState.player) {
+                console.error('❌ Spotify player not ready');
+                updateStatus('Spotify player not available', 'error');
+                return;
+            }
+            
+            console.log(`🎵 Playing Spotify track on Deck ${deckLetter}: ${uri}`);
+            
+            try {
+                // Start playback using Spotify Web API
+                const response = await fetch('/api/spotify/play/', {
+                    method: 'POST',
+                    headers: { 
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': getCsrfToken()
+                    },
+                    credentials: 'same-origin',
+                    body: JSON.stringify({ 
+                        uris: [uri],
+                        device_id: spotifyState.deviceId 
+                    })
+                });
+                
+                if (response.ok) {
+                    console.log(`✅ Spotify playback started for Deck ${deckLetter}`);
+                } else {
+                    const errorData = await response.json();
+                    throw new Error(errorData.error || 'Spotify playback failed');
+                }
+                
+            } catch (error) {
+                console.error(`❌ Spotify playback error for Deck ${deckLetter}:`, error);
+                updateStatus(`Spotify playback failed: ${error.message}`, 'error');
+                
+                // Fallback to preview if available
+                const deck = deckState[deckLetter];
+                if (deck.track.preview_url) {
+                    console.log(`🔄 Falling back to preview for Deck ${deckLetter}`);
+                    deck.audioType = 'preview';
+                    initializeDeckAudio(deckLetter);
+                    setTimeout(() => playDeckAudio(deckLetter), 500);
+                }
+            }
         }
 
         function controlSpotifyPlayback(action) {
@@ -3484,19 +3639,69 @@
         }
 
         function updateProgressDisplay(deckLetter) {
-            console.log(`📊 Updating progress for Deck ${deckLetter}`);
+            const deck = deckState[deckLetter];
+            
+            const currentTimeElement = document.getElementById(`deck${deckLetter}CurrentTime`);
+            const progressFillElement = document.getElementById(`deck${deckLetter}ProgressFill`);
+            
+            if (currentTimeElement) {
+                currentTimeElement.textContent = formatTime(deck.currentTime);
+            }
+            
+            if (progressFillElement && deck.duration > 0) {
+                const progressPercent = (deck.currentTime / deck.duration) * 100;
+                progressFillElement.style.width = `${Math.min(100, progressPercent)}%`;
+            }
         }
 
         function updatePlayhead(deckLetter) {
-            console.log(`📍 Updating playhead for Deck ${deckLetter}`);
+            const deck = deckState[deckLetter];
+            const playheadElement = document.getElementById(`deck${deckLetter}Playhead`);
+            
+            if (playheadElement && deck.duration > 0) {
+                const position = (deck.currentTime / deck.duration) * 100;
+                playheadElement.style.left = `${Math.min(100, position)}%`;
+            }
         }
 
         function startProgressTracking(deckLetter) {
+            const deck = deckState[deckLetter];
+            
+            // Clear any existing interval
+            if (deck.progressInterval) {
+                clearInterval(deck.progressInterval);
+            }
+            
             console.log(`⏱️ Starting progress tracking for Deck ${deckLetter}`);
+            
+            deck.progressInterval = setInterval(() => {
+                if (!deck.isPlaying) {
+                    stopProgressTracking(deckLetter);
+                    return;
+                }
+                
+                // Update current time
+                if (deck.audioType === 'preview' && deck.audio) {
+                    deck.currentTime = deck.audio.currentTime;
+                } else if (deck.audioType === 'spotify' && spotifyState.currentPlaybackState) {
+                    deck.currentTime = spotifyState.currentPlaybackState.position / 1000;
+                }
+                
+                // Update UI
+                updateProgressDisplay(deckLetter);
+                updatePlayhead(deckLetter);
+                
+            }, 100); // Update every 100ms for smooth progress
         }
 
         function stopProgressTracking(deckLetter) {
-            console.log(`⏹️ Stopping progress tracking for Deck ${deckLetter}`);
+            const deck = deckState[deckLetter];
+            
+            if (deck.progressInterval) {
+                clearInterval(deck.progressInterval);
+                deck.progressInterval = null;
+                console.log(`⏹️ Progress tracking stopped for Deck ${deckLetter}`);
+            }
         }
 
         function progressivelyLoadDecks(playlistName) {

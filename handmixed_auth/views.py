@@ -321,14 +321,15 @@ def play_track(request):
     
     try:
         data = json.loads(request.body)
-        track_uri = data.get('track_uri')
+        # Frontend sends 'uris' (plural) not 'track_uri'
+        uris = data.get('uris')
         device_id = data.get('device_id')
         
-        if not track_uri:
-            return JsonResponse({'error': 'Track URI required'}, status=400)
+        if not uris:
+            return JsonResponse({'error': 'Track URIs required'}, status=400)
         
         headers = {'Authorization': f'Bearer {access_token}'}
-        play_data = {'uris': [track_uri]}
+        play_data = {'uris': uris}  # Use the uris directly
         
         url = 'https://api.spotify.com/v1/me/player/play'
         if device_id:
@@ -352,6 +353,7 @@ def play_track(request):
     except Exception as e:
         logger.error(f"Play track error: {e}")
         return JsonResponse({'error': str(e)}, status=500)
+
 
 # NEW API ENDPOINT: Control playback - ALREADY HAS CSRF EXEMPT
 @login_required
