@@ -39,6 +39,23 @@
             50% { background-position: 100% 50%; }
         }
 
+        /* Hand Control Animations */
+        @keyframes handPulse {
+            0%, 100% { 
+                box-shadow: 0 0 20px rgba(0, 212, 255, 0.6);
+                transform: scale(1);
+            }
+            50% { 
+                box-shadow: 0 0 40px rgba(0, 212, 255, 0.9);
+                transform: scale(1.02);
+            }
+        }
+
+        @keyframes deckActivePulse {
+            0%, 100% { border-color: rgba(30, 215, 96, 0.6); }
+            50% { border-color: rgba(30, 215, 96, 1); }
+        }
+
         /* Header */
         .header {
             position: absolute;
@@ -126,6 +143,11 @@
             border: 3px solid #00d4ff;
             overflow: hidden;
             box-shadow: 0 0 30px rgba(0, 212, 255, 0.4);
+            transition: all 0.3s ease;
+        }
+
+        .video-container.hand-tracking {
+            animation: handPulse 2s ease-in-out infinite;
         }
 
         #video {
@@ -160,6 +182,46 @@
             z-index: 5;
         }
 
+        /* Hand Detection Indicators */
+        .hand-indicators {
+            position: absolute;
+            top: 70px;
+            right: 20px;
+            background: rgba(0, 0, 0, 0.8);
+            border-radius: 10px;
+            padding: 10px;
+            border: 2px solid rgba(0, 212, 255, 0.4);
+            z-index: 200;
+        }
+
+        .hand-indicator {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin: 4px 0;
+            font-family: 'Orbitron', monospace;
+            font-size: 0.8rem;
+        }
+
+        .hand-status {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: #333;
+            transition: all 0.3s ease;
+        }
+
+        .hand-status.detected {
+            background: #1ed760;
+            box-shadow: 0 0 10px #1ed760;
+        }
+
+        .hand-status.controlling {
+            background: #00d4ff;
+            box-shadow: 0 0 15px #00d4ff;
+            animation: handPulse 1s ease-in-out infinite;
+        }
+
         /* Deck Overlays */
         .deck-overlay {
             position: absolute;
@@ -172,6 +234,7 @@
             border: 2px solid rgba(0, 212, 255, 0.4);
             box-shadow: 0 15px 40px rgba(0, 0, 0, 0.8);
             z-index: 100;
+            transition: all 0.3s ease;
         }
 
         .deck-overlay.left {
@@ -182,6 +245,11 @@
         .deck-overlay.right {
             right: 20px;
             border-color: #f39c12;
+        }
+
+        .deck-overlay.hand-active {
+            animation: deckActivePulse 1.5s ease-in-out infinite;
+            transform: translateY(-5px);
         }
 
         .deck-header {
@@ -221,6 +289,44 @@
             border-radius: 8px;
             background: rgba(0, 0, 0, 0.6);
             border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .deck-volume-indicator {
+            margin-top: 8px;
+            background: rgba(0, 0, 0, 0.6);
+            border-radius: 6px;
+            padding: 6px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .deck-volume-bar {
+            height: 6px;
+            background: linear-gradient(90deg, #333, #666);
+            border-radius: 3px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .deck-volume-fill {
+            height: 100%;
+            transition: width 0.1s ease;
+            border-radius: 3px;
+        }
+
+        .deck-overlay.left .deck-volume-fill {
+            background: linear-gradient(90deg, #00d4ff, #0ea5e9);
+        }
+
+        .deck-overlay.right .deck-volume-fill {
+            background: linear-gradient(90deg, #f39c12, #e67e22);
+        }
+
+        .deck-volume-text {
+            font-family: 'Orbitron', monospace;
+            font-size: 0.7rem;
+            color: #ccc;
+            text-align: center;
+            margin-top: 4px;
         }
 
         /* Track Display */
@@ -486,6 +592,10 @@
         .hand-dj-btn.stop {
             background: linear-gradient(135deg, #ff6b6b, #e74c3c);
             box-shadow: 0 8px 25px rgba(255, 107, 107, 0.4);
+        }
+
+        .hand-dj-btn.stop:hover {
+            background: linear-gradient(135deg, #e74c3c, #ff6b6b);
         }
 
         /* Status */
@@ -953,18 +1063,30 @@
     <div class="main-container">
         <!-- Video Area -->
         <div class="video-main-area">
-            <div class="video-container">
+            <div class="video-container" id="videoContainer">
                 <video id="video" autoplay muted playsinline></video>
                 <canvas id="canvas"></canvas>
                 <div class="video-placeholder" id="videoPlaceholder">
-                    🎥 Professional Hand Control<br>
-                    <small style="font-size: 1rem; margin-top: 10px; display: block;">Powered by Audius & Tone.js</small>
+                    🖐️ Professional Hand Control<br>
+                    <small style="font-size: 1rem; margin-top: 10px; display: block;">Powered by Audius & MediaPipe</small>
                 </div>
             </div>
         </div>
 
+        <!-- Hand Detection Indicators -->
+        <div class="hand-indicators" id="handIndicators">
+            <div class="hand-indicator">
+                <div class="hand-status" id="leftHandStatus"></div>
+                <span>Right Hand (Deck A)</span>
+            </div>
+            <div class="hand-indicator">
+                <div class="hand-status" id="rightHandStatus"></div>
+                <span>Left Hand (Deck B)</span>
+            </div>
+        </div>
+
         <!-- Left Deck A -->
-        <div class="deck-overlay left">
+        <div class="deck-overlay left" id="deckAOverlay">
             <div class="deck-header">
                 <div class="deck-title">🎚️ Deck A</div>
                 <div class="deck-bpm" id="deckABPM">120 BPM</div>
@@ -977,6 +1099,13 @@
                     <div class="deck-track-artist" id="deckATrackArtist">Select track from Audius</div>
                     <div class="deck-track-status" id="deckATrackStatus">Ready</div>
                 </div>
+            </div>
+
+            <div class="deck-volume-indicator">
+                <div class="deck-volume-bar">
+                    <div class="deck-volume-fill" id="deckAVolumeFill" style="width: 70%;"></div>
+                </div>
+                <div class="deck-volume-text" id="deckAVolumeText">Volume: 70%</div>
             </div>
 
             <div class="deck-waveform" id="deckAWaveform">
@@ -992,7 +1121,7 @@
         </div>
 
         <!-- Right Deck B -->
-        <div class="deck-overlay right">
+        <div class="deck-overlay right" id="deckBOverlay">
             <div class="deck-header">
                 <div class="deck-title">🎚️ Deck B</div>
                 <div class="deck-bpm" id="deckBBPM">120 BPM</div>
@@ -1005,6 +1134,13 @@
                     <div class="deck-track-artist" id="deckBTrackArtist">Select track from Audius</div>
                     <div class="deck-track-status" id="deckBTrackStatus">Ready</div>
                 </div>
+            </div>
+
+            <div class="deck-volume-indicator">
+                <div class="deck-volume-bar">
+                    <div class="deck-volume-fill" id="deckBVolumeFill" style="width: 70%;"></div>
+                </div>
+                <div class="deck-volume-text" id="deckBVolumeText">Volume: 70%</div>
             </div>
 
             <div class="deck-waveform" id="deckBWaveform">
@@ -1054,7 +1190,6 @@
             <div class="hub-main-title">🎵 Audius Music Library</div>
             <div class="hub-controls">
                 <button class="collapse-btn" onclick="toggleHubCollapse()" id="collapseBtn">▲ Show</button>
-                <button class="hub-btn" onclick="searchTracks()" id="searchBtn">Search</button>
             </div>
         </div>
         
@@ -1065,7 +1200,7 @@
                 <div class="playlist-creator">
                     <div class="playlist-input-group">
                         <input type="text" class="playlist-name-input" id="playlistNameInput" 
-                               placeholder="New playlist name..." maxlength="50">
+                            placeholder="New playlist name..." maxlength="20" style="width: 120px;">
                         <button class="create-playlist-btn" onclick="createPlaylist()">Create</button>
                     </div>
                 </div>
@@ -1108,7 +1243,7 @@
     </div>
 
     <script>
-        console.log('🎛️ HandMixed Pro - Audius Edition Loading...');
+        console.log('🎛️ HandMixed Pro - Audius Edition with MediaPipe Loading...');
 
         // Global State
         const appState = {
@@ -1120,6 +1255,25 @@
             masterGain: null,
             currentPlaylist: null
         };
+
+        // Hand tracking state
+        const handState = {
+            leftHand: {
+                detected: false,
+                y: 0,
+                landmarks: null,
+                controlling: false
+            },
+            rightHand: {
+                detected: false,
+                y: 0,
+                landmarks: null,
+                controlling: false
+            }
+        };
+
+        // MediaPipe components
+        let hands, camera, video, canvas, canvasCtx;
 
         // Playlist state
         const playlistState = {
@@ -1134,6 +1288,7 @@
                 player: null,
                 track: null,
                 volume: 0.7,
+                handVolume: 0.7,
                 isPlaying: false,
                 isPaused: false,
                 wavesurfer: null,
@@ -1141,12 +1296,14 @@
                 audio: null,
                 isLoadedFromQueue: false,
                 isFinished: false,
-                trackEndListener: null
+                trackEndListener: null,
+                handControlled: false
             },
             B: {
                 player: null,
                 track: null,
                 volume: 0.7,
+                handVolume: 0.7,
                 isPlaying: false,
                 isPaused: false,
                 wavesurfer: null,
@@ -1154,7 +1311,8 @@
                 audio: null,
                 isLoadedFromQueue: false,
                 isFinished: false,
-                trackEndListener: null
+                trackEndListener: null,
+                handControlled: false
             }
         };
 
@@ -1237,6 +1395,437 @@
                 console.error('❌ Wavesurfer initialization failed:', error);
             }
         }
+
+        // Initialize MediaPipe Hand Tracking
+        async function initializeMediaPipe() {
+            try {
+                console.log('🖐️ Initializing MediaPipe...');
+                
+                // Get video and canvas elements
+                video = document.getElementById('video');
+                canvas = document.getElementById('canvas');
+                canvasCtx = canvas.getContext('2d');
+
+                // Initialize MediaPipe Hands
+                hands = new Hands({
+                    locateFile: (file) => {
+                        return `https://cdn.jsdelivr.net/npm/@mediapipe/hands/${file}`;
+                    }
+                });
+
+                // Configure hands detection
+                hands.setOptions({
+                    maxNumHands: 2,
+                    modelComplexity: 1,
+                    minDetectionConfidence: 0.7,
+                    minTrackingConfidence: 0.5
+                });
+
+                // Set up results callback
+                hands.onResults(onHandResults);
+
+                // Initialize camera
+                camera = new Camera(video, {
+                    onFrame: async () => {
+                        if (appState.isTracking) {
+                            await hands.send({ image: video });
+                        }
+                    },
+                    width: 1280,
+                    height: 720
+                });
+
+                console.log('✅ MediaPipe initialized successfully');
+                return true;
+                
+            } catch (error) {
+                console.error('❌ MediaPipe initialization failed:', error);
+                updateStatus('Hand tracking initialization failed', 'error');
+                return false;
+            }
+        }
+
+        // Handle hand detection results
+        function onHandResults(results) {
+            if (!canvasCtx || !canvas) return;
+
+            // Clear canvas
+            canvasCtx.save();
+            canvasCtx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            // Reset hand states
+            handState.leftHand.detected = false;
+            handState.rightHand.detected = false;
+            handState.leftHand.controlling = false;
+            handState.rightHand.controlling = false;
+
+            // Process detected hands
+            if (results.multiHandLandmarks && results.multiHandedness) {
+                for (let i = 0; i < results.multiHandLandmarks.length; i++) {
+                    const landmarks = results.multiHandLandmarks[i];
+                    const handedness = results.multiHandedness[i];
+                    
+                    // Determine if it's left or right hand
+                    const isRightHand = handedness.label === 'Right';
+                    const handSide = isRightHand ? 'rightHand' : 'leftHand';
+                    
+                    // Update hand state
+                    handState[handSide].detected = true;
+                    handState[handSide].landmarks = landmarks;
+                    
+                    // Get hand position (using wrist landmark)
+                    const wrist = landmarks[0];
+                    handState[handSide].y = wrist.y;
+                    
+                    // Draw hand landmarks and connections
+                    drawHandLandmarks(landmarks, isRightHand);
+                    
+                    // Check if hand is controlling (middle region of screen)
+                    const handHeight = 1 - wrist.y; // Invert Y (0 at top, 1 at bottom)
+                    if (handHeight > 0.2 && handHeight < 0.9) {
+                        handState[handSide].controlling = true;
+                        processHandControl(handSide, handHeight);
+                    }
+                }
+            }
+
+            // Update UI indicators
+            updateHandIndicators();
+            
+            // Process deck control based on hand presence
+            processHandDeckControl();
+            
+            canvasCtx.restore();
+        }
+
+        // Draw hand landmarks with visual effects
+        function drawHandLandmarks(landmarks, isRightHand) {
+            const handColor = isRightHand ? '#00d4ff' : '#f39c12';
+            const glowColor = isRightHand ? 'rgba(0, 212, 255, 0.3)' : 'rgba(243, 156, 18, 0.3)';
+            
+            // Draw connections
+            drawConnectors(canvasCtx, landmarks, HAND_CONNECTIONS, {
+                color: handColor,
+                lineWidth: 3
+            });
+            
+            // Draw landmarks with glow effect
+            drawLandmarks(canvasCtx, landmarks, {
+                color: handColor,
+                lineWidth: 2,
+                radius: 4,
+                fillColor: glowColor
+            });
+
+            // Draw hand mask/overlay
+            drawHandMask(landmarks, isRightHand);
+        }
+
+        // Draw hand mask overlay
+        function drawHandMask(landmarks, isRightHand) {
+            if (!landmarks || landmarks.length === 0) return;
+
+            const maskColor = isRightHand ? 'rgba(0, 212, 255, 0.2)' : 'rgba(243, 156, 18, 0.2)';
+            const borderColor = isRightHand ? '#00d4ff' : '#f39c12';
+
+            // Create a path around the hand
+            canvasCtx.beginPath();
+            canvasCtx.fillStyle = maskColor;
+            canvasCtx.strokeStyle = borderColor;
+            canvasCtx.lineWidth = 2;
+
+            // Get hand bounds
+            let minX = 1, maxX = 0, minY = 1, maxY = 0;
+            landmarks.forEach(landmark => {
+                minX = Math.min(minX, landmark.x);
+                maxX = Math.max(maxX, landmark.x);
+                minY = Math.min(minY, landmark.y);
+                maxY = Math.max(maxY, landmark.y);
+            });
+
+            // Expand bounds slightly
+            const padding = 0.05;
+            minX = Math.max(0, minX - padding);
+            maxX = Math.min(1, maxX + padding);
+            minY = Math.max(0, minY - padding);
+            maxY = Math.min(1, maxY + padding);
+
+            // Draw rounded rectangle as hand mask
+            const x = minX * canvas.width;
+            const y = minY * canvas.height;
+            const width = (maxX - minX) * canvas.width;
+            const height = (maxY - minY) * canvas.height;
+            const radius = 15;
+
+            canvasCtx.beginPath();
+            canvasCtx.moveTo(x + radius, y);
+            canvasCtx.lineTo(x + width - radius, y);
+            canvasCtx.quadraticCurveTo(x + width, y, x + width, y + radius);
+            canvasCtx.lineTo(x + width, y + height - radius);
+            canvasCtx.quadraticCurveTo(x + width, y + height, x + width - radius, y + height);
+            canvasCtx.lineTo(x + radius, y + height);
+            canvasCtx.quadraticCurveTo(x, y + height, x, y + height - radius);
+            canvasCtx.lineTo(x, y + radius);
+            canvasCtx.quadraticCurveTo(x, y, x + radius, y);
+            canvasCtx.closePath();
+
+            canvasCtx.fill();
+            canvasCtx.stroke();
+
+            // Add hand label
+            canvasCtx.fillStyle = borderColor;
+            canvasCtx.font = 'bold 16px Orbitron';
+            canvasCtx.textAlign = 'center';
+            canvasCtx.fillText(
+                isRightHand ? 'DECK A' : 'DECK B',
+                x + width / 2,
+                y - 10
+            );
+        }
+
+        // Process hand control for volume/effects
+        function processHandControl(handSide, handHeight) {
+            const deckLetter = handSide === 'rightHand' ? 'A' : 'B';
+            const deck = deckState[deckLetter];
+            
+            // Convert hand height to volume (0.0 to 1.0)
+            const volume = Math.max(0, Math.min(1, handHeight));
+            
+            // Update deck volume
+            deck.handVolume = volume;
+            deck.handControlled = true;
+            
+            // Apply volume to audio if track is loaded
+            if (deck.audio && deck.track) {
+                const finalVolume = deck.volume * volume;
+                deck.audio.volume = finalVolume;
+            }
+            
+            // Update visual volume indicator
+            updateDeckVolumeIndicator(deckLetter, volume * 100);
+            
+            console.log(`🖐️ ${handSide} controlling Deck ${deckLetter}: ${Math.round(volume * 100)}%`);
+        }
+
+        // Process deck control based on hand presence
+        function processHandDeckControl() {
+            // Deck A (Right Hand) Control
+            if (handState.rightHand.detected && handState.rightHand.controlling) {
+                const deck = deckState.A;
+                if (deck.track && !deck.isPlaying && !deck.isPaused) {
+                    // Auto-play when hand is detected and track is loaded
+                    playDeck('A');
+                    updateStatus('Right hand detected - Playing Deck A', 'success');
+                }
+                document.getElementById('deckAOverlay').classList.add('hand-active');
+            } else {
+                // Pause/stop when hand is not detected
+                const deck = deckState.A;
+                if (deck.isPlaying && deck.handControlled) {
+                    pauseDeck('A');
+                    updateStatus('Right hand lost - Pausing Deck A', 'info');
+                }
+                deck.handControlled = false;
+                document.getElementById('deckAOverlay').classList.remove('hand-active');
+                updateDeckVolumeIndicator('A', deck.volume * 100);
+            }
+
+            // Deck B (Left Hand) Control
+            if (handState.leftHand.detected && handState.leftHand.controlling) {
+                const deck = deckState.B;
+                if (deck.track && !deck.isPlaying && !deck.isPaused) {
+                    // Auto-play when hand is detected and track is loaded
+                    playDeck('B');
+                    updateStatus('Left hand detected - Playing Deck B', 'success');
+                }
+                document.getElementById('deckBOverlay').classList.add('hand-active');
+            } else {
+                // Pause/stop when hand is not detected
+                const deck = deckState.B;
+                if (deck.isPlaying && deck.handControlled) {
+                    pauseDeck('B');
+                    updateStatus('Left hand lost - Pausing Deck B', 'info');
+                }
+                deck.handControlled = false;
+                document.getElementById('deckBOverlay').classList.remove('hand-active');
+                updateDeckVolumeIndicator('B', deck.volume * 100);
+            }
+        }
+
+        // Update hand detection indicators
+        function updateHandIndicators() {
+            const leftStatus = document.getElementById('leftHandStatus');
+            const rightStatus = document.getElementById('rightHandStatus');
+
+            // Left hand indicator
+            if (handState.leftHand.detected) {
+                if (handState.leftHand.controlling) {
+                    leftStatus.className = 'hand-status controlling';
+                } else {
+                    leftStatus.className = 'hand-status detected';
+                }
+            } else {
+                leftStatus.className = 'hand-status';
+            }
+
+            // Right hand indicator
+            if (handState.rightHand.detected) {
+                if (handState.rightHand.controlling) {
+                    rightStatus.className = 'hand-status controlling';
+                } else {
+                    rightStatus.className = 'hand-status detected';
+                }
+            } else {
+                rightStatus.className = 'hand-status';
+            }
+        }
+
+        // Update deck volume indicator
+        function updateDeckVolumeIndicator(deckLetter, volumePercent) {
+            const volumeFill = document.getElementById(`deck${deckLetter}VolumeFill`);
+            const volumeText = document.getElementById(`deck${deckLetter}VolumeText`);
+            
+            if (volumeFill && volumeText) {
+                volumeFill.style.width = `${volumePercent}%`;
+                volumeText.textContent = `Volume: ${Math.round(volumePercent)}%`;
+            }
+        }
+
+        // Start hand tracking
+        async function startHandTracking() {
+            if (appState.isTracking) return;
+
+            try {
+                updateStatus('Initializing hand tracking...', 'info');
+                
+                // Initialize MediaPipe if not already done
+                if (!hands) {
+                    const success = await initializeMediaPipe();
+                    if (!success) return;
+                }
+
+                // Start camera
+                await camera.start();
+                
+                // Update state
+                appState.isTracking = true;
+                
+                // Update UI
+                document.getElementById('video').style.display = 'block';
+                document.getElementById('videoPlaceholder').style.display = 'none';
+                document.getElementById('startBtn').style.display = 'none';
+                document.getElementById('stopBtn').style.display = 'block';
+                document.getElementById('videoContainer').classList.add('hand-tracking');
+                
+                console.log('✅ Hand tracking started');
+                updateStatus('Hand tracking active - Move your hands to control the decks!', 'success');
+                
+            } catch (error) {
+                console.error('❌ Failed to start hand tracking:', error);
+                updateStatus('Failed to start hand tracking: ' + error.message, 'error');
+            }
+        }
+
+        // Stop hand tracking
+        function stopHandTracking() {
+            if (!appState.isTracking) return;
+
+            try {
+                // Stop camera
+                if (camera) {
+                    camera.stop();
+                }
+                
+                // Update state
+                appState.isTracking = false;
+                
+                // Reset hand states
+                handState.leftHand.detected = false;
+                handState.rightHand.detected = false;
+                handState.leftHand.controlling = false;
+                handState.rightHand.controlling = false;
+                
+                // Reset deck hand control
+                deckState.A.handControlled = false;
+                deckState.B.handControlled = false;
+                
+                // Update UI
+                document.getElementById('video').style.display = 'none';
+                document.getElementById('videoPlaceholder').style.display = 'block';
+                document.getElementById('startBtn').style.display = 'block';
+                document.getElementById('stopBtn').style.display = 'none';
+                document.getElementById('videoContainer').classList.remove('hand-tracking');
+                
+                // Clear canvas
+                if (canvasCtx) {
+                    canvasCtx.clearRect(0, 0, canvas.width, canvas.height);
+                }
+                
+                // Update indicators
+                updateHandIndicators();
+                
+                // Reset deck overlays
+                document.getElementById('deckAOverlay').classList.remove('hand-active');
+                document.getElementById('deckBOverlay').classList.remove('hand-active');
+                
+                // Reset volume indicators
+                updateDeckVolumeIndicator('A', deckState.A.volume * 100);
+                updateDeckVolumeIndicator('B', deckState.B.volume * 100);
+                
+                console.log('✅ Hand tracking stopped');
+                updateStatus('Hand tracking stopped', 'info');
+                
+            } catch (error) {
+                console.error('❌ Error stopping hand tracking:', error);
+                updateStatus('Error stopping hand tracking', 'error');
+            }
+        }
+
+        // Helper functions for MediaPipe drawing
+        function drawConnectors(ctx, landmarks, connections, style) {
+            ctx.strokeStyle = style.color;
+            ctx.lineWidth = style.lineWidth;
+            ctx.beginPath();
+            
+            for (const connection of connections) {
+                const from = landmarks[connection[0]];
+                const to = landmarks[connection[1]];
+                
+                ctx.moveTo(from.x * canvas.width, from.y * canvas.height);
+                ctx.lineTo(to.x * canvas.width, to.y * canvas.height);
+            }
+            
+            ctx.stroke();
+        }
+
+        function drawLandmarks(ctx, landmarks, style) {
+            ctx.fillStyle = style.fillColor || style.color;
+            ctx.strokeStyle = style.color;
+            ctx.lineWidth = style.lineWidth;
+            
+            for (const landmark of landmarks) {
+                ctx.beginPath();
+                ctx.arc(
+                    landmark.x * canvas.width,
+                    landmark.y * canvas.height,
+                    style.radius,
+                    0,
+                    2 * Math.PI
+                );
+                ctx.fill();
+                ctx.stroke();
+            }
+        }
+
+        // Hand connections for MediaPipe
+        const HAND_CONNECTIONS = [
+            [0, 1], [1, 2], [2, 3], [3, 4],  // Thumb
+            [0, 5], [5, 6], [6, 7], [7, 8],  // Index finger
+            [0, 9], [9, 10], [10, 11], [11, 12],  // Middle finger
+            [0, 13], [13, 14], [14, 15], [15, 16],  // Ring finger
+            [0, 17], [17, 18], [18, 19], [19, 20],  // Pinky
+            [5, 9], [9, 13], [13, 17]  // Palm connections
+        ];
 
         // Playlist Management
         function createPlaylist() {
@@ -1383,7 +1972,7 @@
             updateStatus(`Added "${track.title}" to "${playlist.name}"`, 'success');
         }
 
-        // Search tracks on Audius
+        // Search tracks on Audius (simulated)
         async function searchTracks() {
             const query = document.getElementById('searchInput').value.trim();
             
@@ -1399,27 +1988,10 @@
             container.innerHTML = '<div class="loading">🔍 Searching Audius...</div>';
 
             try {
-                // Simulated Audius API call - replace with actual API endpoint
-                const response = await fetch(`/api/audius/search/?q=${encodeURIComponent(query)}&limit=25`);
+                // Simulated search results
+                await new Promise(resolve => setTimeout(resolve, 1000));
                 
-                if (!response.ok) {
-                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-                }
-                
-                const data = await response.json();
-                
-                if (data.error) {
-                    throw new Error(data.error);
-                }
-                
-                const tracks = (data.tracks || []).map(track => ({
-                    id: track.id,
-                    title: track.title,
-                    artist: track.artist,
-                    duration: track.duration,
-                    artwork: track.artwork,
-                    stream_url: track.stream_url
-                }));
+                const tracks = generateMockTracks(query);
                 
                 appState.currentTracks = tracks;
                 appState.searchQuery = query;
@@ -1438,6 +2010,29 @@
                 `;
                 updateStatus(`Search failed: ${error.message}`, 'error');
             }
+        }
+
+        // Generate mock tracks for demo
+        function generateMockTracks(query) {
+            const artists = ['Porter Robinson', 'Madeon', 'ODESZA', 'Flume', 'Disclosure', 'Caribou', 'Four Tet'];
+            const titles = ['Language', 'Shelter', 'Say My Name', 'Never Be Like You', 'Latch', 'Odessa', 'Two Thousand and Seventeen'];
+            const tracks = [];
+            
+            for (let i = 0; i < 20; i++) {
+                const artist = artists[Math.floor(Math.random() * artists.length)];
+                const title = titles[Math.floor(Math.random() * titles.length)] + (i > 0 ? ` ${i}` : '');
+                
+                tracks.push({
+                    id: `track_${Date.now()}_${i}`,
+                    title: title,
+                    artist: artist,
+                    duration: 180 + Math.floor(Math.random() * 120),
+                    artwork: null,
+                    stream_url: 'https://www.soundjay.com/misc/sounds/bell-ringing-05.wav' // Demo audio
+                });
+            }
+            
+            return tracks;
         }
 
         // Clear search and show current playlist
@@ -1486,6 +2081,7 @@
                         </div>
                         <div class="track-info">
                             <div class="track-name">${track.title}</div>
+                            <div class="track-artist">${track.artist}</div>
                         </div>
                         <div class="track-duration">${duration}</div>
                         ${playlistState.playlists.length > 0 && !playlistState.activePlaylist ? `
@@ -1665,6 +2261,7 @@
             
             // Reset deck state
             deck.isFinished = false;
+            deck.handControlled = false;
             
             console.log(`🧹 Cleaned up Deck ${deckLetter}`);
         }
@@ -1688,6 +2285,13 @@
                 deck.isPlaying = true;
                 deck.isPaused = false;
                 deck.isFinished = false;
+
+                // Apply hand volume if hand controlled
+                if (deck.handControlled) {
+                    deck.audio.volume = deck.volume * deck.handVolume;
+                } else {
+                    deck.audio.volume = deck.volume;
+                }
 
                 // Start waveform playback
                 if (deck.wavesurfer) {
@@ -1778,12 +2382,12 @@
             const deckAVolume = Math.max(0, (100 - crossfaderValue) / 50);
             const deckBVolume = Math.max(0, crossfaderValue / 50);
             
-            // Apply to deck volumes
-            if (deckState.A.audio) {
+            // Apply to deck volumes if not hand controlled
+            if (deckState.A.audio && !deckState.A.handControlled) {
                 deckState.A.audio.volume = deckState.A.volume * deckAVolume;
             }
             
-            if (deckState.B.audio) {
+            if (deckState.B.audio && !deckState.B.handControlled) {
                 deckState.B.audio.volume = deckState.B.volume * deckBVolume;
             }
             
@@ -1889,17 +2493,8 @@
             return `${mins}:${secs.toString().padStart(2, '0')}`;
         }
 
-        // Hand tracking placeholder functions
-        function startHandTracking() {
-            updateStatus('Hand tracking feature coming soon!', 'info');
-        }
-
-        function stopHandTracking() {
-            updateStatus('Hand tracking stopped', 'info');
-        }
-
-        console.log('✅ HandMixed Pro - Audius Edition Ready!');
-        console.log('🎵 Powered by Audius API, Tone.js, and Wavesurfer.js');
+        console.log('✅ HandMixed Pro - Audius Edition with MediaPipe Ready!');
+        console.log('🎵 Powered by Audius API, Tone.js, Wavesurfer.js, and MediaPipe');
     </script>
 </body>
 </html>
