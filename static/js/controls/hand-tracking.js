@@ -1,4 +1,4 @@
-// static/js/controls/hand-tracking.js - MediaPipe Hand Tracking System
+// static/js/controls/hand-tracking.js - MediaPipe Hand Tracking System with Fixed Text
 
 // Initialize MediaPipe Hand Tracking
 async function initializeMediaPipe() {
@@ -9,6 +9,9 @@ async function initializeMediaPipe() {
         video = document.getElementById('video');
         canvas = document.getElementById('canvas');
         canvasCtx = canvas.getContext('2d');
+
+        // Set up high DPI canvas for crisp rendering
+        setupHighDPICanvas();
 
         // Initialize MediaPipe Hands
         hands = new Hands({
@@ -49,13 +52,41 @@ async function initializeMediaPipe() {
     }
 }
 
+// Set up high DPI canvas for crisp rendering
+function setupHighDPICanvas() {
+    const rect = canvas.getBoundingClientRect();
+    const dpr = window.devicePixelRatio || 1;
+    
+    // Set the actual canvas size in memory
+    canvas.width = rect.width * dpr;
+    canvas.height = rect.height * dpr;
+    
+    // Scale the canvas back down using CSS
+    canvas.style.width = rect.width + 'px';
+    canvas.style.height = rect.height + 'px';
+    
+    // Scale the drawing context to match the device pixel ratio
+    canvasCtx.scale(dpr, dpr);
+    
+    // Enable crisp rendering
+    canvasCtx.imageSmoothingEnabled = false;
+    canvasCtx.textRendering = 'geometricPrecision';
+    
+    console.log(`📺 Canvas setup: ${canvas.width}x${canvas.height} (DPR: ${dpr})`);
+}
+
 // Handle hand detection results
 function onHandResults(results) {
     if (!canvasCtx || !canvas) return;
 
-    // Clear canvas
+    // Clear canvas with crisp edges
     canvasCtx.save();
     canvasCtx.clearRect(0, 0, canvas.width, canvas.height);
+    
+    // Set high-quality rendering settings
+    canvasCtx.imageSmoothingEnabled = false;
+    canvasCtx.lineCap = 'round';
+    canvasCtx.lineJoin = 'round';
     
     // Reset hand states
     handState.leftHand.detected = false;
@@ -125,18 +156,17 @@ function drawHandLandmarks(landmarks, isRightHand) {
     drawHandMask(landmarks, isRightHand);
 }
 
-// Draw hand mask overlay
+// Draw hand mask overlay with corrected text orientation and crisp lines
 function drawHandMask(landmarks, isRightHand) {
     if (!landmarks || landmarks.length === 0) return;
 
-    const maskColor = isRightHand ? 'rgba(0, 212, 255, 0.2)' : 'rgba(243, 156, 18, 0.2)';
+    const maskColor = isRightHand ? 'rgba(0, 212, 255, 0.15)' : 'rgba(243, 156, 18, 0.15)';
     const borderColor = isRightHand ? '#00d4ff' : '#f39c12';
 
-    // Create a path around the hand
-    canvasCtx.beginPath();
-    canvasCtx.fillStyle = maskColor;
-    canvasCtx.strokeStyle = borderColor;
-    canvasCtx.lineWidth = 2;
+    // Get canvas dimensions accounting for device pixel ratio
+    const rect = canvas.getBoundingClientRect();
+    const canvasWidth = rect.width;
+    const canvasHeight = rect.height;
 
     // Get hand bounds
     let minX = 1, maxX = 0, minY = 1, maxY = 0;
@@ -154,13 +184,19 @@ function drawHandMask(landmarks, isRightHand) {
     minY = Math.max(0, minY - padding);
     maxY = Math.min(1, maxY + padding);
 
-    // Draw rounded rectangle as hand mask
-    const x = minX * canvas.width;
-    const y = minY * canvas.height;
-    const width = (maxX - minX) * canvas.width;
-    const height = (maxY - minY) * canvas.height;
+    // Calculate pixel-aligned coordinates
+    const x = Math.round(minX * canvasWidth) + 0.5; // +0.5 for crisp lines
+    const y = Math.round(minY * canvasHeight) + 0.5;
+    const width = Math.round((maxX - minX) * canvasWidth);
+    const height = Math.round((maxY - minY) * canvasHeight);
     const radius = 15;
 
+    // Draw crisp rounded rectangle mask
+    canvasCtx.save();
+    canvasCtx.fillStyle = maskColor;
+    canvasCtx.strokeStyle = borderColor;
+    canvasCtx.lineWidth = 2;
+    
     canvasCtx.beginPath();
     canvasCtx.moveTo(x + radius, y);
     canvasCtx.lineTo(x + width - radius, y);
@@ -175,16 +211,42 @@ function drawHandMask(landmarks, isRightHand) {
 
     canvasCtx.fill();
     canvasCtx.stroke();
+    canvasCtx.restore();
 
-    // Add hand label
+    // Draw crisp text label with correct orientation
+    canvasCtx.save();
+    
+    // Calculate text position
+    const textX = x + width / 2;
+    const textY = y - 15;
+    
+    // Move to text position
+    canvasCtx.translate(textX, textY);
+    
+    // Un-flip the text by applying scaleX(-1) to cancel out the CSS transform
+    canvasCtx.scale(-1, 1);
+    
+    // Set crisp text properties
     canvasCtx.fillStyle = borderColor;
-    canvasCtx.font = 'bold 16px Orbitron';
+    canvasCtx.font = 'bold 18px Orbitron, monospace';
     canvasCtx.textAlign = 'center';
+    canvasCtx.textBaseline = 'bottom';
+    
+    // Add text shadow for better visibility
+    canvasCtx.shadowColor = 'rgba(0, 0, 0, 0.8)';
+    canvasCtx.shadowBlur = 3;
+    canvasCtx.shadowOffsetX = 1;
+    canvasCtx.shadowOffsetY = 1;
+    
+    // Draw the text (now it will appear correctly oriented and crisp)
     canvasCtx.fillText(
         isRightHand ? 'DECK A' : 'DECK B',
-        x + width / 2,
-        y - 10
+        0, // x is 0 because we translated to the text position
+        0  // y is 0 because we translated to the text position
     );
+    
+    // Restore transform state
+    canvasCtx.restore();
 }
 
 // Start hand tracking
@@ -199,6 +261,9 @@ async function startHandTracking() {
             const success = await initializeMediaPipe();
             if (!success) return;
         }
+
+        // Ensure canvas is set up for crisp rendering
+        setupHighDPICanvas();
 
         // Start camera
         await camera.start();
@@ -277,40 +342,60 @@ function stopHandTracking() {
     }
 }
 
-// Helper functions for MediaPipe drawing
+// Helper functions for MediaPipe drawing with crisp lines
 function drawConnectors(ctx, landmarks, connections, style) {
+    const rect = canvas.getBoundingClientRect();
+    const canvasWidth = rect.width;
+    const canvasHeight = rect.height;
+    
+    ctx.save();
     ctx.strokeStyle = style.color;
     ctx.lineWidth = style.lineWidth;
+    ctx.lineCap = 'round';
+    ctx.lineJoin = 'round';
+    
     ctx.beginPath();
     
     for (const connection of connections) {
         const from = landmarks[connection[0]];
         const to = landmarks[connection[1]];
         
-        ctx.moveTo(from.x * canvas.width, from.y * canvas.height);
-        ctx.lineTo(to.x * canvas.width, to.y * canvas.height);
+        // Use pixel-aligned coordinates
+        const fromX = Math.round(from.x * canvasWidth) + 0.5;
+        const fromY = Math.round(from.y * canvasHeight) + 0.5;
+        const toX = Math.round(to.x * canvasWidth) + 0.5;
+        const toY = Math.round(to.y * canvasHeight) + 0.5;
+        
+        ctx.moveTo(fromX, fromY);
+        ctx.lineTo(toX, toY);
     }
     
     ctx.stroke();
+    ctx.restore();
 }
 
 function drawLandmarks(ctx, landmarks, style) {
+    const rect = canvas.getBoundingClientRect();
+    const canvasWidth = rect.width;
+    const canvasHeight = rect.height;
+    
+    ctx.save();
     ctx.fillStyle = style.fillColor || style.color;
     ctx.strokeStyle = style.color;
     ctx.lineWidth = style.lineWidth;
     
     for (const landmark of landmarks) {
+        // Use pixel-aligned coordinates
+        const x = Math.round(landmark.x * canvasWidth);
+        const y = Math.round(landmark.y * canvasHeight);
+        
         ctx.beginPath();
-        ctx.arc(
-            landmark.x * canvas.width,
-            landmark.y * canvas.height,
-            style.radius,
-            0,
-            2 * Math.PI
-        );
+        ctx.arc(x, y, style.radius, 0, 2 * Math.PI);
         ctx.fill();
         ctx.stroke();
     }
+    
+    ctx.restore();
 }
 
 // Update hand detection indicators
