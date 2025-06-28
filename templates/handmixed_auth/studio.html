@@ -897,6 +897,285 @@
                 border-radius: 0;
             }
         }
+
+
+
+                /* ========== PROGRESSIVE LOADING VISUAL ENHANCEMENTS ========== */
+
+        /* Auto-loaded track styling */
+        .track-item-small.auto-loaded {
+            position: relative;
+            overflow: hidden;
+        }
+
+        .track-item-small.auto-loaded::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(46, 204, 113, 0.3), transparent);
+            animation: autoLoadShimmer 2s infinite;
+            z-index: 1;
+        }
+
+        @keyframes autoLoadShimmer {
+            0% { left: -100%; }
+            100% { left: 100%; }
+        }
+
+        /* Progressive loading deck animations */
+        .deck-overlay.loading {
+            animation: deckPulse 1.5s ease-in-out infinite;
+        }
+
+        @keyframes deckPulse {
+            0%, 100% { 
+                box-shadow: 0 10px 30px rgba(0, 0, 0, 0.7); 
+                transform: scale(1);
+            }
+            50% { 
+                box-shadow: 0 15px 40px rgba(0, 212, 255, 0.4); 
+                transform: scale(1.02);
+            }
+        }
+
+        /* Deck loading states */
+        .deck-track-display.loading {
+            background: linear-gradient(135deg, 
+                rgba(0, 212, 255, 0.2), 
+                rgba(243, 156, 18, 0.2),
+                rgba(0, 212, 255, 0.2)
+            ) !important;
+            background-size: 200% 200% !important;
+            animation: loadingGradient 2s ease infinite !important;
+            border-color: #00d4ff !important;
+        }
+
+        @keyframes loadingGradient {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        .deck-track-display.success {
+            background: linear-gradient(135deg, 
+                rgba(46, 204, 113, 0.3), 
+                rgba(0, 212, 255, 0.3)
+            ) !important;
+            border-color: #2ecc71 !important;
+            box-shadow: 0 0 15px rgba(46, 204, 113, 0.4) !important;
+        }
+
+        .deck-track-display.warning {
+            background: linear-gradient(135deg, 
+                rgba(243, 156, 18, 0.2), 
+                rgba(255, 107, 107, 0.2)
+            ) !important;
+            border-color: #f39c12 !important;
+        }
+
+        .deck-track-display.error {
+            background: linear-gradient(135deg, 
+                rgba(255, 107, 107, 0.3), 
+                rgba(231, 76, 60, 0.3)
+            ) !important;
+            border-color: #ff6b6b !important;
+        }
+
+        /* Progressive loading indicator for tracks */
+        .track-item-small[data-deck-target]::after {
+            content: attr(data-deck-target);
+            position: absolute;
+            top: 2px;
+            right: 2px;
+            background: linear-gradient(135deg, #2ecc71, #00d4ff);
+            color: white;
+            font-size: 0.6rem;
+            font-weight: bold;
+            padding: 2px 6px;
+            border-radius: 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-family: 'Orbitron', monospace;
+            z-index: 10;
+        }
+
+        /* Playlist loading animation */
+        .playlist-item-small.loading-progressive {
+            background: linear-gradient(135deg, 
+                rgba(0, 212, 255, 0.2), 
+                rgba(243, 156, 18, 0.2),
+                rgba(0, 212, 255, 0.2)
+            ) !important;
+            background-size: 200% 200% !important;
+            animation: playlistLoadingShimmer 1.5s ease infinite !important;
+            border-color: #00d4ff !important;
+        }
+
+        @keyframes playlistLoadingShimmer {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        /* Progressive loading status indicator */
+        .progressive-status {
+            position: absolute;
+            top: 120px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: linear-gradient(135deg, rgba(46, 204, 113, 0.15), rgba(0, 212, 255, 0.15));
+            backdrop-filter: blur(10px);
+            border: 1px solid #2ecc71;
+            color: #2ecc71;
+            padding: 8px 16px;
+            border-radius: 12px;
+            font-family: 'Orbitron', monospace;
+            font-weight: 600;
+            font-size: 0.8rem;
+            z-index: 300;
+            opacity: 0;
+            animation: fadeInOut 3s ease;
+        }
+
+        @keyframes fadeInOut {
+            0%, 100% { opacity: 0; transform: translateX(-50%) translateY(10px); }
+            10%, 90% { opacity: 1; transform: translateX(-50%) translateY(0); }
+        }
+
+        /* Deck progression indicators */
+        .deck-overlay::before {
+            content: '';
+            position: absolute;
+            top: -2px;
+            left: -2px;
+            right: -2px;
+            bottom: -2px;
+            background: linear-gradient(45deg, transparent, transparent);
+            border-radius: 14px;
+            z-index: -1;
+            transition: all 0.5s ease;
+        }
+
+        .deck-overlay.deck-a-loading::before {
+            background: linear-gradient(45deg, 
+                #00d4ff, #f39c12, #00d4ff, #f39c12
+            );
+            background-size: 200% 200%;
+            animation: deckAProgress 2s linear infinite;
+        }
+
+        .deck-overlay.deck-b-loading::before {
+            background: linear-gradient(45deg, 
+                #2ecc71, #00d4ff, #2ecc71, #00d4ff
+            );
+            background-size: 200% 200%;
+            animation: deckBProgress 2s linear infinite;
+            animation-delay: 0.8s;
+        }
+
+        @keyframes deckAProgress {
+            0% { background-position: 0% 50%; }
+            100% { background-position: 200% 50%; }
+        }
+
+        @keyframes deckBProgress {
+            0% { background-position: 0% 50%; }
+            100% { background-position: 200% 50%; }
+        }
+
+        /* Success completion glow */
+        .deck-overlay.loading-complete {
+            box-shadow: 
+                0 10px 30px rgba(0, 0, 0, 0.7),
+                0 0 20px rgba(46, 204, 113, 0.4);
+            animation: successPulse 0.6s ease-out;
+        }
+
+        @keyframes successPulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+
+        /* Loading progress bar for tracks info */
+        .tracks-info-small.loading-progress {
+            position: relative;
+            overflow: hidden;
+        }
+
+        .tracks-info-small.loading-progress::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            height: 2px;
+            background: linear-gradient(90deg, #00d4ff, #2ecc71);
+            animation: progressBar 3s ease-out;
+        }
+
+        @keyframes progressBar {
+            0% { width: 0%; }
+            33% { width: 50%; }
+            66% { width: 75%; }
+            100% { width: 100%; }
+        }
+
+        /* Manual reload button enhancement */
+        .progressive-reload-btn {
+            background: linear-gradient(135deg, #2ecc71, #00d4ff);
+            border: none;
+            padding: 6px 12px;
+            border-radius: 12px;
+            color: #1a1a1a;
+            font-size: 0.7rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-family: 'Orbitron', monospace;
+            margin-left: 8px;
+        }
+
+        .progressive-reload-btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(46, 204, 113, 0.4);
+            background: linear-gradient(135deg, #00d4ff, #2ecc71);
+        }
+
+        /* Responsive adjustments for progressive loading */
+        @media (max-width: 768px) {
+            .progressive-status {
+                font-size: 0.7rem;
+                padding: 6px 12px;
+                max-width: 300px;
+                text-align: center;
+            }
+            
+            .deck-overlay.loading {
+                animation-duration: 1s;
+            }
+            
+            .track-item-small[data-deck-target]::after {
+                font-size: 0.5rem;
+                padding: 1px 4px;
+            }
+        }
+
+        /* Dark mode enhancements for progressive loading */
+        @media (prefers-color-scheme: dark) {
+            .deck-track-display.loading {
+                box-shadow: 0 0 10px rgba(0, 212, 255, 0.3);
+            }
+            
+            .progressive-status {
+                background: linear-gradient(135deg, rgba(46, 204, 113, 0.2), rgba(0, 212, 255, 0.2));
+                backdrop-filter: blur(15px);
+            }
+        }
     </style>
 </head>
 <body>
@@ -1030,6 +1309,11 @@
                         <button class="back-to-playlists-small" onclick="showPlaylists()" style="display: none;" id="backToPlaylistsBtn">
                             ← Playlists
                         </button>
+                        <!-- NEW: Progressive reload button -->
+                        <button class="progressive-reload-btn" onclick="reloadDecksProgressively()" id="progressiveReloadBtn" style="display: none;">
+                            🎯 Reload
+                        </button>
+                        <button class="hub-btn" onclick="toggleDebugMode()" id="debugToggleBtn">Debug</button>
                     </div>
                 </div>
                 <div class="tracks-info-small" id="tracksInfo" style="margin-bottom: 8px;">
@@ -2292,15 +2576,24 @@
             container.innerHTML = '<div class="loading-small">Select a playlist to view tracks</div>';
             tracksInfo.textContent = 'Select a playlist to view tracks • Click deck first, then track to load';
             document.getElementById('backToPlaylistsBtn').style.display = 'none';
+            document.getElementById('progressiveReloadBtn').style.display = 'none'; // NEW
         }
 
         function refreshPlaylists() {
             loadPlaylists();
         }
 
+                // ========== PROGRESSIVE DECK LOADING SYSTEM ==========
+
+        /**
+         * Progressive deck loading with fallback logic
+         * Automatically loads first two tracks into decks when playlist is selected
+         */
+
         function loadPlaylistTracks(playlistId, playlistIndex, playlistName) {
             console.log(`🎵 Loading tracks for playlist: ${playlistName}`);
             
+            // Update UI to show selected playlist
             document.querySelectorAll('.playlist-item-small').forEach((item, index) => {
                 if (index === playlistIndex) {
                     item.classList.add('active');
@@ -2310,6 +2603,10 @@
             });
 
             updateStatus(`Loading tracks from "${playlistName}"...`, 'info');
+            
+            // Clear any existing deck selection state
+            selectedDeck = null;
+            clearDeckSelectionUI();
 
             fetch(`/api/spotify/playlists/${playlistId}/tracks/`)
                 .then(response => {
@@ -2325,6 +2622,7 @@
                     
                     const allTracks = data.tracks || [];
                     
+                    // Filter playable tracks
                     currentPlaylist = allTracks.filter(track => track && (track.uri || track.preview_url)).map(track => ({
                         id: track.id,
                         name: track.name,
@@ -2340,19 +2638,14 @@
                     
                     currentTrackIndex = 0;
                     
-                    const fullTracks = currentPlaylist.filter(track => track.uri).length;
-                    const previewTracks = currentPlaylist.filter(track => track.preview_url && !track.uri).length;
+                    console.log(`✅ Loaded ${currentPlaylist.length} playable tracks from "${playlistName}"`);
                     
-                    console.log(`✅ Loaded ${currentPlaylist.length} playable tracks: ${fullTracks} full, ${previewTracks} preview`);
-                    
+                    // Display track list
                     displayTrackList(allTracks, playlistName);
                     
                     if (currentPlaylist.length > 0) {
-                        if (isSpotifyPlayerReady && fullTracks > 0) {
-                            updateStatus(`${fullTracks} full tracks loaded • Click deck then track to load`, 'success');
-                        } else {
-                            updateStatus(`${previewTracks} preview tracks loaded • Click deck then track to load`, 'info');
-                        }
+                        // Start progressive deck loading
+                        progressivelyLoadDecks(playlistName);
                     } else {
                         updateStatus(`No playable tracks found in "${playlistName}"`, 'error');
                         currentPlaylist = [];
@@ -2367,6 +2660,334 @@
                     });
                 });
         }
+
+        /**
+         * Progressive deck loading with visual feedback and fallback logic
+         */
+        async function progressivelyLoadDecks(playlistName) {
+            console.log('🎯 Starting progressive deck loading...');
+            
+            try {
+                // Step 1: Clear existing decks with animation
+                await clearDecksWithAnimation();
+                
+                // Step 2: Load Deck A (first track)
+                await loadDeckProgressive('A', 0, playlistName);
+                
+                // Step 3: Load Deck B (second track) with delay for visual effect
+                await new Promise(resolve => setTimeout(resolve, 800));
+                await loadDeckProgressive('B', 1, playlistName);
+                
+                // Step 4: Final status update
+                const loadedCount = (deckA.track ? 1 : 0) + (deckB.track ? 1 : 0);
+                updateStatus(`Progressive loading complete: ${loadedCount}/2 decks loaded from "${playlistName}"`, 'success');
+                
+                // Step 5: Update tracks info
+                updateTracksInfoAfterProgressive();
+                
+            } catch (error) {
+                console.error('❌ Progressive loading failed:', error);
+                updateStatus(`Progressive loading failed: ${error.message}`, 'error');
+            }
+        }
+
+        /**
+         * Load a specific deck with visual feedback and fallback logic
+         */
+        async function loadDeckProgressive(deckLetter, trackIndex, playlistName) {
+            const deck = deckLetter === 'A' ? deckA : deckB;
+            
+            // Check if track exists
+            if (trackIndex >= currentPlaylist.length) {
+                console.log(`⚠️ No track ${trackIndex + 1} available for Deck ${deckLetter}`);
+                updateDeckDisplay(deckLetter, null);
+                showDeckLoadingState(deckLetter, `No track ${trackIndex + 1}`, 'warning');
+                return;
+            }
+            
+            const track = currentPlaylist[trackIndex];
+            
+            // Show loading state
+            showDeckLoadingState(deckLetter, 'Loading...', 'loading');
+            
+            try {
+                // Simulate loading delay for visual effect
+                await new Promise(resolve => setTimeout(resolve, 600));
+                
+                // Load track into deck
+                deck.track = track;
+                
+                // Update deck display with success animation
+                updateDeckDisplayProgressive(deckLetter, track);
+                
+                // Show success state
+                showDeckLoadingState(deckLetter, 'Loaded', 'success');
+                
+                console.log(`✅ Progressive load: Deck ${deckLetter} loaded with "${track.name}"`);
+                
+                // Clear loading state after delay
+                setTimeout(() => {
+                    updateDeckStatus(deckLetter, 'Ready');
+                }, 1500);
+                
+            } catch (error) {
+                console.error(`❌ Failed to load Deck ${deckLetter}:`, error);
+                showDeckLoadingState(deckLetter, 'Failed', 'error');
+                throw error;
+            }
+        }
+
+        /**
+         * Enhanced deck display update with progressive loading animations
+         */
+        function updateDeckDisplayProgressive(deckLetter, track) {
+            const nameElement = document.getElementById(`deck${deckLetter}TrackName`);
+            const artistElement = document.getElementById(`deck${deckLetter}TrackArtist`);
+            const statusElement = document.getElementById(`deck${deckLetter}TrackStatus`);
+            const artworkElement = document.getElementById(`deck${deckLetter}Artwork`);
+            const displayElement = document.getElementById(`deck${deckLetter}TrackDisplay`);
+            
+            if (track) {
+                // Add loading animation class
+                displayElement.style.transform = 'scale(0.95)';
+                displayElement.style.transition = 'all 0.3s ease';
+                
+                setTimeout(() => {
+                    nameElement.textContent = track.name;
+                    artistElement.textContent = track.artist;
+                    
+                    if (track.images && track.images.length > 0) {
+                        artworkElement.innerHTML = `<img src="${track.images[0].url}" alt="${track.name}">`;
+                    } else {
+                        artworkElement.textContent = '🎵';
+                    }
+                    
+                    displayElement.classList.add('loaded');
+                    
+                    // Progressive loading success animation
+                    displayElement.style.transform = 'scale(1.02)';
+                    displayElement.style.borderColor = '#2ecc71';
+                    displayElement.style.boxShadow = '0 0 15px rgba(46, 204, 113, 0.4)';
+                    
+                    setTimeout(() => {
+                        displayElement.style.transform = 'scale(1)';
+                        displayElement.style.borderColor = '';
+                        displayElement.style.boxShadow = '';
+                    }, 400);
+                    
+                }, 150);
+                
+            } else {
+                // Clear display
+                nameElement.textContent = 'No track loaded';
+                artistElement.textContent = 'Progressive load failed';
+                artworkElement.textContent = '❌';
+                displayElement.classList.remove('loaded');
+                displayElement.style.transform = 'scale(1)';
+            }
+        }
+
+        /**
+         * Show loading states with visual indicators
+         */
+        function showDeckLoadingState(deckLetter, message, type) {
+            const statusElement = document.getElementById(`deck${deckLetter}TrackStatus`);
+            const displayElement = document.getElementById(`deck${deckLetter}TrackDisplay`);
+            
+            statusElement.textContent = message;
+            
+            // Apply visual styling based on state
+            switch(type) {
+                case 'loading':
+                    statusElement.style.color = '#00d4ff';
+                    displayElement.style.borderColor = '#00d4ff';
+                    displayElement.style.background = 'linear-gradient(135deg, rgba(0, 212, 255, 0.2), rgba(243, 156, 18, 0.2))';
+                    break;
+                case 'success':
+                    statusElement.style.color = '#2ecc71';
+                    displayElement.style.borderColor = '#2ecc71';
+                    displayElement.style.background = 'linear-gradient(135deg, rgba(46, 204, 113, 0.3), rgba(0, 212, 255, 0.3))';
+                    break;
+                case 'warning':
+                    statusElement.style.color = '#f39c12';
+                    displayElement.style.borderColor = '#f39c12';
+                    displayElement.style.background = 'linear-gradient(135deg, rgba(243, 156, 18, 0.2), rgba(255, 107, 107, 0.2))';
+                    break;
+                case 'error':
+                    statusElement.style.color = '#ff6b6b';
+                    displayElement.style.borderColor = '#ff6b6b';
+                    displayElement.style.background = 'linear-gradient(135deg, rgba(255, 107, 107, 0.3), rgba(231, 76, 60, 0.3))';
+                    break;
+            }
+        }
+
+        /**
+         * Clear decks with smooth animation before progressive loading
+         */
+        async function clearDecksWithAnimation() {
+            console.log('🧹 Clearing decks before progressive loading...');
+            
+            const decksToAnimate = ['A', 'B'];
+            
+            // Animate both decks simultaneously
+            const clearPromises = decksToAnimate.map(async (deckLetter) => {
+                const deck = deckLetter === 'A' ? deckA : deckB;
+                const displayElement = document.getElementById(`deck${deckLetter}TrackDisplay`);
+                
+                // Stop any playing audio
+                if (deck.isPlaying || deck.isPaused) {
+                    stopDeck(deckLetter);
+                }
+                
+                // Clear audio
+                if (deck.audio) {
+                    deck.audio.pause();
+                    deck.audio = null;
+                }
+                
+                // Animate clearing
+                displayElement.style.transform = 'scale(0.9)';
+                displayElement.style.opacity = '0.5';
+                displayElement.style.transition = 'all 0.4s ease';
+                
+                await new Promise(resolve => setTimeout(resolve, 400));
+                
+                // Clear deck data
+                deck.track = null;
+                deck.isPlaying = false;
+                deck.isPaused = false;
+                
+                // Reset display
+                updateDeckDisplay(deckLetter, null);
+                displayElement.style.transform = 'scale(1)';
+                displayElement.style.opacity = '1';
+                displayElement.style.background = '';
+                displayElement.style.borderColor = '';
+            });
+            
+            await Promise.all(clearPromises);
+            console.log('✅ Decks cleared and ready for progressive loading');
+        }
+
+        /**
+         * Clear deck selection UI state
+         */
+        function clearDeckSelectionUI() {
+            // Remove any deck selection highlights
+            ['A', 'B'].forEach(deckLetter => {
+                const deckDisplay = document.getElementById(`deck${deckLetter}TrackDisplay`);
+                deckDisplay.style.borderColor = '';
+                deckDisplay.style.background = '';
+            });
+        }
+
+        /**
+         * Update tracks info after progressive loading
+         */
+        function updateTracksInfoAfterProgressive() {
+            const tracksInfo = document.getElementById('tracksInfo');
+            const loadedDecks = (deckA.track ? 1 : 0) + (deckB.track ? 1 : 0);
+            const availableTracks = currentPlaylist.length;
+            const fullTracks = currentPlaylist.filter(track => track.uri).length;
+            const previewTracks = currentPlaylist.filter(track => track.preview_url && !track.uri).length;
+            
+            tracksInfo.innerHTML = `
+                <span style="color: #2ecc71;">Progressive Loading: ${loadedDecks}/2 decks loaded</span> • 
+                ${availableTracks} total tracks • ${fullTracks} full • ${previewTracks} previews • 
+                <span style="color: #00d4ff;">Ready for hand gestures!</span>
+            `;
+        }
+
+        /**
+         * Manual progressive reload function (can be called from UI)
+         */
+        function reloadDecksProgressively() {
+            if (currentPlaylist.length === 0) {
+                updateStatus('No playlist selected for progressive reload', 'error');
+                return;
+            }
+            
+            console.log('🔄 Manual progressive deck reload triggered');
+            updateStatus('Reloading decks progressively...', 'info');
+            
+            const currentPlaylistName = document.querySelector('.playlist-item-small.active')?.querySelector('.playlist-name-small')?.textContent || 'Current Playlist';
+            
+            progressivelyLoadDecks(currentPlaylistName);
+        }
+
+        // ========== INTEGRATION UPDATES ==========
+
+        /**
+         * Enhanced displayTrackList with progressive loading indicators
+         */
+        function displayTrackListWithProgressive(tracks, playlistName) {
+            const container = document.getElementById('tracksContainer');
+            const tracksInfo = document.getElementById('tracksInfo');
+
+            document.getElementById('progressiveReloadBtn').style.display = 'block';
+            
+            const tracksWithPreviews = tracks.filter(track => track.preview_url);
+            const tracksWithUris = tracks.filter(track => track.uri);
+            
+            // Initial info during progressive loading
+            tracksInfo.innerHTML = `
+                <span style="color: #f39c12;">Progressive loading in progress...</span> • 
+                ${tracks.length} tracks • ${tracksWithUris.length} full • ${tracksWithPreviews.length} previews
+            `;
+            
+            let tracksHTML = '';
+            
+            tracks.forEach((track, index) => {
+                const hasPreview = track.preview_url;
+                const hasUri = track.uri;
+                const playbackType = hasUri ? 'full' : (hasPreview ? 'preview' : 'none');
+                
+                const playableClass = (hasUri || hasPreview) ? 'playable' : '';
+                
+                // Highlight first two tracks as they'll be auto-loaded
+                const isAutoLoaded = index < 2 && (hasUri || hasPreview);
+                const autoLoadClass = isAutoLoaded ? 'auto-loaded' : '';
+                
+                const duration = track.duration_ms ? formatDuration(track.duration_ms) : '--:--';
+                
+                const autoLoadIndicator = isAutoLoaded ? 
+                    `<span style="color: #2ecc71; font-size: 0.6rem; margin-left: 4px;">AUTO</span>` : '';
+                
+                tracksHTML += `
+                    <div class="track-item-small ${playableClass} ${autoLoadClass}" 
+                        onclick="loadTrackToDeckFromList(${index})"
+                        style="${isAutoLoaded ? 'background: linear-gradient(135deg, rgba(46, 204, 113, 0.1), rgba(0, 212, 255, 0.1)); border-left: 2px solid #2ecc71;' : ''}">
+                        <div class="track-number-small">${index + 1}${autoLoadIndicator}</div>
+                        <div class="track-play-icon-small">
+                            ${isAutoLoaded ? '🎯' : '▶️'}
+                        </div>
+                        <div class="track-info-container-small">
+                            <div class="track-title-small">${track.name}</div>
+                            <div class="track-artist-small">${track.artists.map(artist => artist.name).join(', ')}</div>
+                        </div>
+                        <div class="track-duration-small">${duration}</div>
+                        <div class="track-playback-indicator-small ${playbackType}"></div>
+                    </div>
+                `;
+            });
+            
+            container.innerHTML = tracksHTML;
+            
+            // Show back button
+            document.getElementById('backToPlaylistsBtn').style.display = 'block';
+        }
+
+        // Update the main displayTrackList function to use progressive version
+        const originalDisplayTrackList = displayTrackList;
+        displayTrackList = displayTrackListWithProgressive;
+
+        console.log('🎯 Progressive Deck Loading System Initialized');
+        console.log('💡 Features:');
+        console.log('  - Auto-loads first 2 tracks into decks when playlist selected');
+        console.log('  - Visual feedback during loading process');
+        console.log('  - Fallback handling for playlists with <2 tracks');
+        console.log('  - Smooth animations and state management');
+        console.log('  - Manual reload function available: reloadDecksProgressively()');
 
         function updateTrackListPlayingStateFull(currentTrack, isPlaying) {
             if (!currentTrack) return;
