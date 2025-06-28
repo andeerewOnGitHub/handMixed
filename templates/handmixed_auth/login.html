@@ -1,10 +1,9 @@
-<!-- templates/handmixed_auth/login.html -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>HAND MIXED - Login</title>
+    <title>HandMixed Pro - Professional DJ Studio</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Exo+2:wght@300;400;600&display=swap');
         
@@ -105,33 +104,66 @@
             margin-right: 15px;
             color: #00d4ff;
         }
+
+        .audius-info {
+            margin-top: 30px;
+            padding: 20px;
+            background: rgba(0, 212, 255, 0.1);
+            border-radius: 15px;
+            border: 1px solid rgba(0, 212, 255, 0.3);
+        }
+
+        .audius-logo {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #CC0FE0;
+            margin-bottom: 10px;
+        }
+
+        .audius-description {
+            font-size: 0.9rem;
+            opacity: 0.8;
+            line-height: 1.4;
+        }
     </style>
 </head>
 <body>
     <div class="login-container">
-        <h1 class="title">HAND MIXED</h1>
-        <p class="subtitle">Control Your Music with Hand Gestures</p>
+        <h1 class="title">HandMixed Pro</h1>
+        <p class="subtitle">Professional DJ Studio with Hand Gesture Control</p>
         
-        <a href="{% url 'spotify_auth' %}" class="login-btn">
-            🎵 LOGIN WITH SPOTIFY
+        <a href="/login/" class="login-btn">
+            🎛️ Enter DJ Studio
         </a>
         
         <div class="features">
             <div class="feature">
                 <span class="feature-icon">✋</span>
-                <span>Control playback with hand gestures</span>
+                <span>Advanced hand gesture controls</span>
             </div>
             <div class="feature">
                 <span class="feature-icon">🎵</span>
-                <span>Access your Spotify playlists</span>
+                <span>Powered by Audius music platform</span>
             </div>
             <div class="feature">
                 <span class="feature-icon">🎛️</span>
-                <span>Real-time DJ experience</span>
+                <span>Professional dual-deck mixing</span>
             </div>
             <div class="feature">
-                <span class="feature-icon">📹</span>
-                <span>Advanced hand tracking technology</span>
+                <span class="feature-icon">🌊</span>
+                <span>Real-time waveform visualization</span>
+            </div>
+            <div class="feature">
+                <span class="feature-icon">🔊</span>
+                <span>Full audio control with Tone.js</span>
+            </div>
+        </div>
+
+        <div class="audius-info">
+            <div class="audius-logo">AUDIUS</div>
+            <div class="audius-description">
+                Discover and mix music from the decentralized Audius platform. 
+                No authentication required - start mixing trending tracks instantly!
             </div>
         </div>
     </div>

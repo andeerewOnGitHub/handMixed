@@ -24,12 +24,12 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'django_extensions',
-    'corsheaders',  # Added for Spotify API
+    'corsheaders',  # For API calls
     'handmixed_auth',
 ]
 
 MIDDLEWARE = [
-    'corsheaders.middleware.CorsMiddleware',  # Added for Spotify API - must be near top
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -67,16 +67,29 @@ DATABASES = {
     }
 }
 
-# Spotify OAuth settings (updated to use environment variables for security)
-SPOTIFY_CLIENT_ID = os.getenv('SPOTIFY_CLIENT_ID', 'f33d016cc42445a6aec1c2efe7d33b13')
-SPOTIFY_CLIENT_SECRET = os.getenv('SPOTIFY_CLIENT_SECRET', '25f6838a16244e63976b8fa5c1ceaa51')
-SPOTIFY_REDIRECT_URI = os.getenv('SPOTIFY_REDIRECT_URI', 'http://127.0.0.1:8000/auth/callback/')
+# Audius API Configuration
+AUDIUS_API_BASE_URL = 'https://discoveryprovider.audius.co'
+AUDIUS_REQUEST_TIMEOUT = 30  # seconds
 
-# CORS settings for Spotify API (added for frontend-backend communication)
+# CORS settings for API communication
 CORS_ALLOW_ALL_ORIGINS = True  # Only for development
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:8000",
     "http://127.0.0.1:8000",
+]
+
+# Allow CORS for specific headers needed for audio streaming
+CORS_ALLOW_HEADERS = [
+    'accept',
+    'accept-encoding',
+    'authorization',
+    'content-type',
+    'dnt',
+    'origin',
+    'user-agent',
+    'x-csrftoken',
+    'x-requested-with',
+    'range',  # Important for audio streaming
 ]
 
 # Static files (CSS, JavaScript, Images)
@@ -85,10 +98,10 @@ STATICFILES_DIRS = [BASE_DIR / 'static']
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-# Login/Logout URLs
+# Login/Logout URLs (simplified for demo)
 LOGIN_URL = '/login/'
 LOGIN_REDIRECT_URL = '/'
-LOGOUT_REDIRECT_URL = '/login/'
+LOGOUT_REDIRECT_URL = '/'
 
 # Authentication backends
 AUTHENTICATION_BACKENDS = [
@@ -102,6 +115,18 @@ SESSION_SAVE_EVERY_REQUEST = True
 SESSION_EXPIRE_AT_BROWSER_CLOSE = False
 SESSION_COOKIE_SECURE = False  # Set to True in production with HTTPS
 SESSION_COOKIE_HTTPONLY = True
+
+# Cache configuration for Audius API responses
+CACHES = {
+    'default': {
+        'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
+        'LOCATION': 'audius-cache',
+        'TIMEOUT': 300,  # 5 minutes
+        'OPTIONS': {
+            'MAX_ENTRIES': 1000,
+        }
+    }
+}
 
 # Logging configuration
 LOGGING = {

@@ -3,17 +3,20 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>HandMixed - Professional DJ Studio</title>
+    <title>HandMixed Pro - Professional DJ Studio</title>
     
-    <!-- ========================================== -->
-    <!-- CSS STYLES -->
-    <!-- ========================================== -->
+    <!-- External Libraries -->
+    <script src="https://unpkg.com/tone@14.7.77/build/Tone.js"></script>
+    <script src="https://unpkg.com/wavesurfer.js@7.7.3/dist/wavesurfer.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/control_utils/control_utils.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/drawing_utils/drawing_utils.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js"></script>
+    
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Exo+2:wght@300;400;600&display=swap');
         
-        /* ========================================== */
-        /* GLOBAL STYLES */
-        /* ========================================== */
+        /* Global Styles */
         * {
             margin: 0;
             padding: 0;
@@ -31,37 +34,12 @@
             position: relative;
         }
 
-        body::before {
-            content: '';
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-image: 
-                radial-gradient(2px 2px at 20px 30px, #00d4ff, transparent),
-                radial-gradient(2px 2px at 40px 70px, #ff6b6b, transparent),
-                radial-gradient(1px 1px at 90px 40px, #f39c12, transparent);
-            background-repeat: repeat;
-            background-size: 200px 100px;
-            animation: stars 50s linear infinite;
-            opacity: 0.2;
-            z-index: -1;
-        }
-
         @keyframes cosmicFlow {
             0%, 100% { background-position: 0% 50%; }
             50% { background-position: 100% 50%; }
         }
 
-        @keyframes stars {
-            from { transform: translateY(0); }
-            to { transform: translateY(-100px); }
-        }
-
-        /* ========================================== */
-        /* HEADER STYLES */
-        /* ========================================== */
+        /* Header */
         .header {
             position: absolute;
             top: 0;
@@ -119,14 +97,7 @@
             letter-spacing: 1px;
         }
 
-        .logout-btn:hover {
-            background: linear-gradient(135deg, rgba(255, 107, 107, 0.5), rgba(0, 212, 255, 0.5));
-            transform: translateY(-1px);
-        }
-
-        /* ========================================== */
-        /* VIDEO AREA STYLES */
-        /* ========================================== */
+        /* Main Container */
         .main-container {
             position: relative;
             width: 100vw;
@@ -135,6 +106,7 @@
             flex-direction: column;
         }
 
+        /* Video Area */
         .video-main-area {
             position: relative;
             width: 100vw;
@@ -153,9 +125,7 @@
             border-radius: 15px;
             border: 3px solid #00d4ff;
             overflow: hidden;
-            box-shadow: 
-                0 0 30px rgba(0, 212, 255, 0.4),
-                inset 0 0 20px rgba(0, 0, 0, 0.5);
+            box-shadow: 0 0 30px rgba(0, 212, 255, 0.4);
         }
 
         #video {
@@ -190,51 +160,7 @@
             z-index: 5;
         }
 
-        .hand-indicators {
-            position: absolute;
-            top: 10px;
-            right: 10px;
-            z-index: 100;
-            display: flex;
-            gap: 10px;
-        }
-
-        .hand-indicator {
-            width: 30px;
-            height: 30px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 14px;
-            font-weight: bold;
-            transition: all 0.3s ease;
-            background: rgba(0, 0, 0, 0.7);
-            border: 2px solid rgba(255, 255, 255, 0.3);
-        }
-
-        .hand-indicator.detected {
-            background: linear-gradient(135deg, #2ecc71, #00d4ff);
-            border-color: #2ecc71;
-            box-shadow: 0 0 10px rgba(46, 204, 113, 0.5);
-        }
-
-        .fps-counter {
-            position: absolute;
-            top: 10px;
-            left: 10px;
-            background: rgba(0, 0, 0, 0.7);
-            padding: 5px 10px;
-            border-radius: 8px;
-            font-family: 'Orbitron', monospace;
-            font-size: 0.8rem;
-            color: #00d4ff;
-            z-index: 100;
-        }
-
-        /* ========================================== */
-        /* DJ DECK OVERLAY STYLES */
-        /* ========================================== */
+        /* Deck Overlays */
         .deck-overlay {
             position: absolute;
             top: 60px;
@@ -297,9 +223,7 @@
             border: 1px solid rgba(255, 255, 255, 0.3);
         }
 
-        /* ========================================== */
-        /* TRACK DISPLAY STYLES */
-        /* ========================================== */
+        /* Track Display */
         .deck-track-display {
             background: linear-gradient(135deg, rgba(30, 215, 96, 0.15), rgba(0, 212, 255, 0.15));
             border: 2px solid rgba(30, 215, 96, 0.4);
@@ -323,6 +247,11 @@
         .deck-track-display.loaded {
             border-color: #1ed760;
             background: linear-gradient(135deg, rgba(30, 215, 96, 0.3), rgba(0, 212, 255, 0.3));
+        }
+
+        .deck-track-display.auto-loaded {
+            border-color: #9b59b6;
+            background: linear-gradient(135deg, rgba(155, 89, 182, 0.3), rgba(0, 212, 255, 0.3));
         }
 
         .deck-track-artwork {
@@ -377,196 +306,7 @@
             color: #00d4ff;
         }
 
-        /* ========================================== */
-        /* QUEUE OVERLAY STYLES */
-        /* ========================================== */
-        .queue-overlay {
-            position: absolute;
-            top: 60px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 280px;
-            max-height: 400px;
-            background: linear-gradient(135deg, rgba(0, 0, 0, 0.95), rgba(26, 26, 26, 0.95));
-            backdrop-filter: blur(20px);
-            border-radius: 15px;
-            padding: 15px;
-            border: 2px solid rgba(155, 89, 182, 0.6);
-            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.8);
-            z-index: 150;
-            display: none;
-        }
-
-        .queue-overlay.visible {
-            display: block;
-        }
-
-        .queue-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 12px;
-            padding-bottom: 8px;
-            border-bottom: 1px solid rgba(155, 89, 182, 0.4);
-        }
-
-        .queue-title {
-            font-family: 'Orbitron', monospace;
-            font-size: 1rem;
-            font-weight: 700;
-            background: linear-gradient(45deg, #9b59b6, #e67e22);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
-
-        .queue-count {
-            font-family: 'Orbitron', monospace;
-            font-size: 0.8rem;
-            color: #9b59b6;
-            background: rgba(155, 89, 182, 0.2);
-            padding: 2px 6px;
-            border-radius: 6px;
-        }
-
-        .queue-controls {
-            display: flex;
-            gap: 6px;
-            margin-bottom: 12px;
-        }
-
-        .queue-btn {
-            background: linear-gradient(135deg, #9b59b6, #8e44ad);
-            border: none;
-            padding: 4px 8px;
-            border-radius: 6px;
-            color: white;
-            font-size: 0.7rem;
-            font-weight: 700;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            font-family: 'Orbitron', monospace;
-        }
-
-        .queue-btn:hover {
-            transform: translateY(-1px);
-            box-shadow: 0 4px 12px rgba(155, 89, 182, 0.4);
-        }
-
-        .queue-btn.active {
-            background: linear-gradient(135deg, #e67e22, #f39c12);
-        }
-
-        .queue-list {
-            max-height: 250px;
-            overflow-y: auto;
-            padding-right: 5px;
-        }
-
-        .queue-item {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            padding: 6px;
-            margin: 4px 0;
-            background: rgba(155, 89, 182, 0.15);
-            border-radius: 8px;
-            border: 1px solid rgba(155, 89, 182, 0.3);
-            transition: all 0.3s ease;
-            cursor: pointer;
-        }
-
-        .queue-item:hover {
-            background: rgba(155, 89, 182, 0.25);
-            border-color: #9b59b6;
-        }
-
-        .queue-item.loading {
-            background: rgba(243, 156, 18, 0.2);
-            border-color: #f39c12;
-        }
-
-        .queue-position {
-            font-family: 'Orbitron', monospace;
-            font-size: 0.7rem;
-            color: #9b59b6;
-            min-width: 20px;
-            text-align: center;
-            font-weight: 600;
-        }
-
-        .queue-item-info {
-            flex: 1;
-            min-width: 0;
-        }
-
-        .queue-item-name {
-            font-size: 0.75rem;
-            font-weight: 600;
-            color: #e0e0e0;
-            margin-bottom: 2px;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-
-        .queue-item-artist {
-            font-size: 0.65rem;
-            color: #b0b0b0;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-
-        .queue-item-target {
-            font-size: 0.6rem;
-            font-family: 'Orbitron', monospace;
-            color: #f39c12;
-            min-width: 15px;
-            text-align: center;
-            font-weight: 700;
-        }
-
-        .queue-toggle {
-            position: absolute;
-            top: 80px;
-            left: 50%;
-            transform: translateX(-50%);
-            z-index: 200;
-        }
-
-        .queue-toggle-btn {
-            background: linear-gradient(135deg, #9b59b6, #8e44ad);
-            border: none;
-            padding: 8px 16px;
-            border-radius: 12px;
-            color: white;
-            font-size: 0.8rem;
-            font-weight: 700;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            font-family: 'Orbitron', monospace;
-            box-shadow: 0 4px 15px rgba(155, 89, 182, 0.3);
-        }
-
-        .queue-toggle-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(155, 89, 182, 0.5);
-        }
-
-        .deck-track-display.auto-loaded {
-            border-color: #9b59b6;
-            background: linear-gradient(135deg, rgba(155, 89, 182, 0.3), rgba(0, 212, 255, 0.3));
-        }
-
-        /* ========================================== */
-        /* WAVEFORM AND PROGRESS STYLES */
-        /* ========================================== */
+        /* Waveform Container */
         .deck-waveform {
             height: 60px;
             background: rgba(0, 0, 0, 0.6);
@@ -577,143 +317,47 @@
             overflow: hidden;
         }
 
-        .waveform-canvas {
+        .waveform-container {
             width: 100%;
             height: 100%;
-        }
-
-        .playhead {
-            position: absolute;
-            top: 0;
-            bottom: 0;
-            width: 2px;
-            background: #1ed760;
-            box-shadow: 0 0 4px rgba(30, 215, 96, 0.6);
-            transition: left 0.1s ease;
-            z-index: 2;
-        }
-
-        .track-progress {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 12px;
-            font-family: 'Orbitron', monospace;
-            font-size: 0.8rem;
-        }
-
-        .time-display {
-            color: #00d4ff;
-            min-width: 50px;
-        }
-
-        .progress-bar {
-            flex: 1;
-            height: 6px;
-            background: rgba(255, 255, 255, 0.2);
-            border-radius: 3px;
-            margin: 0 10px;
             position: relative;
-            cursor: pointer;
         }
 
-        .progress-fill {
-            height: 100%;
-            background: linear-gradient(90deg, #1ed760, #00d4ff);
-            border-radius: 3px;
-            transition: width 0.1s ease;
-        }
-
-        /* ========================================== */
-        /* CONTROL SECTION STYLES */
-        /* ========================================== */
-        .tempo-section,
-        .eq-section,
-        .cue-section,
-        .loop-section,
-        .volume-section {
+        /* Controls */
+        .deck-controls {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 6px;
             margin-bottom: 12px;
-            background: rgba(0, 0, 0, 0.4);
-            border-radius: 8px;
-            padding: 8px;
         }
 
-        .tempo-header,
-        .loop-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 6px;
-        }
-
-        .tempo-label,
-        .eq-label,
-        .cue-label,
-        .loop-label,
-        .volume-label {
-            font-family: 'Orbitron', monospace;
-            font-size: 0.8rem;
-            color: #00d4ff;
-            font-weight: 600;
-            text-align: center;
-        }
-
-        .sync-btn,
-        .tempo-btn,
-        .cue-btn,
-        .loop-btn,
-        .deck-btn {
+        .deck-btn, .control-btn {
+            background: linear-gradient(135deg, #00d4ff, #f39c12);
             border: none;
-            padding: 4px 8px;
+            padding: 8px 6px;
             border-radius: 6px;
+            color: #1a1a1a;
+            font-size: 0.8rem;
+            font-weight: 700;
             cursor: pointer;
             transition: all 0.3s ease;
-            font-family: 'Orbitron', monospace;
             text-transform: uppercase;
-            font-weight: 700;
+            letter-spacing: 0.5px;
+            font-family: 'Orbitron', monospace;
         }
 
-        .sync-btn {
-            background: linear-gradient(135deg, #2ecc71, #00d4ff);
-            color: #1a1a1a;
-            font-size: 0.7rem;
-        }
-
-        .tempo-btn {
-            background: linear-gradient(135deg, #6c757d, #495057);
-            color: white;
-            font-size: 0.7rem;
-        }
-
-        .cue-btn {
-            background: linear-gradient(135deg, #e74c3c, #c0392b);
-            color: white;
-            font-size: 0.7rem;
-        }
-
-        .loop-btn {
-            background: linear-gradient(135deg, #9b59b6, #8e44ad);
-            color: white;
-            font-size: 0.7rem;
-        }
-
-        .deck-btn {
-            background: linear-gradient(135deg, #00d4ff, #f39c12);
-            color: #1a1a1a;
-            font-size: 0.8rem;
-            padding: 8px 6px;
-        }
-
-        .deck-btn:hover,
-        .sync-btn:hover,
-        .tempo-btn:hover,
-        .cue-btn:hover,
-        .loop-btn:hover {
+        .deck-btn:hover, .control-btn:hover {
             transform: translateY(-1px);
             box-shadow: 0 4px 12px rgba(0, 212, 255, 0.3);
         }
 
-         .skip-btn {
+        .deck-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .skip-btn {
             background: linear-gradient(135deg, #9b59b6, #8e44ad);
             border: none;
             padding: 8px 6px;
@@ -739,9 +383,7 @@
             transform: none;
         }
 
-        /* ========================================== */
-        /* CROSSFADER STYLES */
-        /* ========================================== */
+        /* Crossfader */
         .crossfader-section {
             position: absolute;
             bottom: calc(var(--hub-height, 140px) + 80px);
@@ -809,16 +451,13 @@
             border: 2px solid #00d4ff;
         }
 
-        /* ========================================== */
-        /* CONTROL BUTTONS STYLES */
-        /* ========================================== */
+        /* Hand Control */
         .hand-control-overlay {
             position: absolute;
             bottom: calc(var(--hub-height, 140px) + 150px);
             left: 50%;
             transform: translateX(-50%);
             z-index: 200;
-            transition: bottom 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
         .hand-dj-btn {
@@ -849,21 +488,13 @@
             box-shadow: 0 8px 25px rgba(255, 107, 107, 0.4);
         }
 
-        .hand-dj-btn.stop:hover {
-            background: linear-gradient(135deg, #e74c3c, #ff6b6b);
-            box-shadow: 0 12px 35px rgba(255, 107, 107, 0.6);
-        }
-
-        /* ========================================== */
-        /* STATUS AND GESTURE OVERLAYS */
-        /* ========================================== */
+        /* Status */
         .status-overlay {
             position: absolute;
             bottom: calc(var(--hub-height, 140px) + 10px);
             left: 50%;
             transform: translateX(-50%);
             z-index: 150;
-            transition: bottom 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
         .status {
@@ -896,35 +527,7 @@
             color: #00d4ff;
         }
 
-        .gesture-overlay {
-            position: absolute;
-            top: 80px;
-            left: 50%;
-            transform: translateX(-50%);
-            z-index: 150;
-        }
-
-        .gesture-status {
-            background: linear-gradient(135deg, rgba(46, 204, 113, 0.2), rgba(0, 212, 255, 0.2));
-            backdrop-filter: blur(10px);
-            border: 1px solid #2ecc71;
-            color: #2ecc71;
-            padding: 8px 16px;
-            border-radius: 12px;
-            text-align: center;
-            font-family: 'Orbitron', monospace;
-            font-weight: 600;
-            font-size: 0.9rem;
-            min-height: 40px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            max-width: 350px;
-        }
-
-        /* ========================================== */
-        /* MUSIC HUB STYLES */
-        /* ========================================== */
+        /* Music Hub */
         .music-hub {
             position: absolute;
             bottom: 0;
@@ -945,36 +548,6 @@
 
         .music-hub.collapsed {
             height: 40px !important;
-        }
-
-        .resize-handle {
-            position: absolute;
-            top: -5px;
-            left: 0;
-            right: 0;
-            height: 10px;
-            cursor: ns-resize;
-            background: linear-gradient(135deg, rgba(0, 212, 255, 0.1), rgba(243, 156, 18, 0.1));
-            border-radius: 5px 5px 0 0;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: background 0.2s ease;
-            z-index: 1000;
-        }
-
-        .resize-handle:hover {
-            background: linear-gradient(135deg, rgba(0, 212, 255, 0.3), rgba(243, 156, 18, 0.3));
-        }
-
-        .resize-handle::before {
-            content: '⋯';
-            color: #00d4ff;
-            font-size: 16px;
-            font-weight: bold;
-            letter-spacing: 3px;
-            opacity: 0.6;
-            transform: rotate(90deg);
         }
 
         .hub-controls-bar {
@@ -1002,8 +575,7 @@
             align-items: center;
         }
 
-        .collapse-btn,
-        .hub-btn {
+        .hub-btn, .collapse-btn {
             background: linear-gradient(135deg, #00d4ff, #f39c12);
             border: none;
             padding: 4px 8px;
@@ -1019,12 +591,6 @@
             min-width: 60px;
         }
 
-        .collapse-btn:hover,
-        .hub-btn:hover {
-            transform: translateY(-1px);
-            box-shadow: 0 4px 12px rgba(0, 212, 255, 0.3);
-        }
-
         .hub-content {
             display: flex;
             flex: 1;
@@ -1038,19 +604,17 @@
             pointer-events: none;
         }
 
-        /* ========================================== */
-        /* PLAYLIST AND TRACKS STYLES */
-        /* ========================================== */
+        /* Playlists Section */
         .hub-playlists {
-            width: 220px;
+            width: 250px;
             background: rgba(0, 0, 0, 0.6);
             border-right: 1px solid rgba(255, 255, 255, 0.1);
             overflow-y: auto;
-            padding: 8px;
             display: flex;
             flex-direction: column;
         }
 
+        /* Track Sections */
         .hub-tracks {
             flex: 1;
             background: rgba(0, 0, 0, 0.4);
@@ -1059,8 +623,7 @@
             flex-direction: column;
         }
 
-        .hub-header,
-        .tracks-header-small {
+        .hub-header {
             padding: 8px 12px;
             border-bottom: 1px solid rgba(0, 212, 255, 0.3);
             display: flex;
@@ -1070,8 +633,7 @@
             flex-shrink: 0;
         }
 
-        .hub-title,
-        .tracks-title-small {
+        .hub-title {
             font-family: 'Orbitron', monospace;
             font-weight: 700;
             color: #00d4ff;
@@ -1080,12 +642,56 @@
             font-size: 0.8rem;
         }
 
-        .playlist-item-small {
+        /* Playlist Creation */
+        .playlist-creator {
+            padding: 12px;
+            border-bottom: 1px solid rgba(0, 212, 255, 0.3);
+        }
+
+        .playlist-input-group {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 8px;
+        }
+
+        .playlist-name-input {
+            flex: 1;
+            padding: 6px 8px;
+            background: rgba(0, 0, 0, 0.6);
+            border: 1px solid rgba(0, 212, 255, 0.4);
+            border-radius: 6px;
+            color: #e0e0e0;
+            font-size: 0.8rem;
+            font-family: 'Exo 2', sans-serif;
+        }
+
+        .playlist-name-input:focus {
+            outline: none;
+            border-color: #00d4ff;
+            box-shadow: 0 0 8px rgba(0, 212, 255, 0.3);
+        }
+
+        .create-playlist-btn {
+            background: linear-gradient(135deg, #1ed760, #00d4ff);
+            border: none;
+            padding: 6px 12px;
+            border-radius: 6px;
+            color: #1a1a1a;
+            font-size: 0.7rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-family: 'Orbitron', monospace;
+        }
+
+        .playlist-item {
             display: flex;
             align-items: center;
             gap: 10px;
-            padding: 8px;
-            margin: 4px 0;
+            padding: 8px 12px;
+            margin: 4px 8px;
             background: rgba(26, 26, 26, 0.6);
             border-radius: 8px;
             cursor: pointer;
@@ -1093,42 +699,36 @@
             border: 1px solid rgba(255, 255, 255, 0.1);
         }
 
-        .playlist-item-small:hover {
+        .playlist-item:hover {
             background: rgba(0, 212, 255, 0.2);
             border-color: #00d4ff;
             transform: translateY(-1px);
         }
 
-        .playlist-item-small.active {
+        .playlist-item.active {
             background: linear-gradient(135deg, rgba(0, 212, 255, 0.3), rgba(243, 156, 18, 0.3));
             border-color: #00d4ff;
         }
 
-        .playlist-image-small {
-            width: 45px;
-            height: 45px;
+        .playlist-icon {
+            width: 35px;
+            height: 35px;
             border-radius: 6px;
-            flex-shrink: 0;
-            overflow: hidden;
             background: linear-gradient(135deg, #00d4ff, #f39c12);
             display: flex;
             align-items: center;
             justify-content: center;
+            font-size: 14px;
+            color: white;
+            flex-shrink: 0;
         }
 
-        .playlist-image-small img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            border-radius: 6px;
-        }
-
-        .playlist-info-small {
+        .playlist-info {
             flex: 1;
             min-width: 0;
         }
 
-        .playlist-name-small {
+        .playlist-name {
             font-size: 0.8rem;
             font-weight: 600;
             color: #e0e0e0;
@@ -1139,20 +739,162 @@
             font-family: 'Orbitron', monospace;
         }
 
-        .playlist-details-small {
+        .playlist-count {
             font-size: 0.7rem;
             color: #b0b0b0;
-            opacity: 0.8;
         }
 
-        .tracks-info-small {
-            padding: 0 12px;
-            font-size: 0.7rem;
+        .playlist-actions {
+            display: flex;
+            gap: 4px;
+        }
+
+        .playlist-action-btn {
+            background: rgba(255, 255, 255, 0.1);
+            border: none;
+            padding: 4px 6px;
+            border-radius: 4px;
             color: #ccc;
+            font-size: 0.6rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .playlist-action-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+            color: #fff;
+        }
+
+        /* Search */
+        .search-section {
+            padding: 12px;
+            border-bottom: 1px solid rgba(0, 212, 255, 0.3);
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 8px 12px;
+            background: rgba(0, 0, 0, 0.6);
+            border: 1px solid rgba(0, 212, 255, 0.4);
+            border-radius: 8px;
+            color: #e0e0e0;
+            font-family: 'Exo 2', sans-serif;
+            font-size: 0.9rem;
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: #00d4ff;
+            box-shadow: 0 0 8px rgba(0, 212, 255, 0.3);
+        }
+
+        .search-controls {
+            display: flex;
+            gap: 8px;
+            margin-top: 8px;
+        }
+
+        .track-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 6px 8px;
+            margin: 2px 0;
+            background: rgba(26, 26, 26, 0.6);
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .track-item:hover {
+            background: rgba(0, 212, 255, 0.2);
+            border-color: #00d4ff;
+            transform: translateY(-1px);
+        }
+
+        .track-number {
+            font-family: 'Orbitron', monospace;
+            font-size: 0.7rem;
+            color: #f39c12;
+            min-width: 20px;
             text-align: center;
         }
 
-        .loading-small {
+        .track-artwork {
+            width: 35px;
+            height: 35px;
+            border-radius: 6px;
+            background: linear-gradient(135deg, #00d4ff, #f39c12);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 12px;
+            flex-shrink: 0;
+            overflow: hidden;
+        }
+
+        .track-artwork img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 4px;
+        }
+
+        .track-info {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .track-name {
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: #e0e0e0;
+            margin-bottom: 2px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .track-artist {
+            font-size: 0.65rem;
+            color: #b0b0b0;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .track-duration {
+            font-size: 0.6rem;
+            color: #888;
+            font-family: 'Orbitron', monospace;
+            min-width: 35px;
+            text-align: right;
+        }
+
+        .track-actions {
+            display: flex;
+            gap: 4px;
+        }
+
+        .track-action-btn {
+            background: rgba(30, 215, 96, 0.2);
+            border: none;
+            padding: 2px 4px;
+            border-radius: 3px;
+            color: #1ed760;
+            font-size: 0.6rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-family: 'Orbitron', monospace;
+        }
+
+        .track-action-btn:hover {
+            background: rgba(30, 215, 96, 0.4);
+        }
+
+        .loading {
             padding: 20px;
             text-align: center;
             font-size: 0.8rem;
@@ -1160,18 +902,11 @@
             font-style: italic;
         }
 
-        /* ========================================== */
-        /* RESPONSIVE DESIGN */
-        /* ========================================== */
+        /* Responsive */
         @media (max-width: 1200px) {
             .deck-overlay {
                 width: 280px;
                 padding: 12px;
-            }
-            
-            .crossfader-section {
-                min-width: 250px;
-                padding: 12px 20px;
             }
         }
 
@@ -1182,50 +917,12 @@
                 font-size: 0.9rem;
             }
             
-            .deck-overlay.left {
-                left: 10px;
-            }
-            
-            .deck-overlay.right {
-                right: 10px;
-            }
-            
             .video-container {
                 width: 98vw;
             }
-            
-            .crossfader-section {
-                min-width: 200px;
-                padding: 10px 15px;
-            }
-            
-            .music-hub {
-                --hub-height: 120px;
-            }
-            
-            .hub-playlists {
-                width: 180px;
-            }
         }
 
-        @media (max-width: 480px) {
-            .deck-overlay {
-                display: none;
-            }
-            
-            .crossfader-section {
-                display: none;
-            }
-            
-            .video-container {
-                width: 100vw;
-                border-radius: 0;
-            }
-        }
-
-        /* ========================================== */
-        /* SCROLLBAR STYLING */
-        /* ========================================== */
+        /* Scrollbar */
         ::-webkit-scrollbar {
             width: 4px;
         }
@@ -1242,151 +939,87 @@
     </style>
 </head>
 
-<!-- ========================================== -->
-<!-- HTML STRUCTURE -->
-<!-- ========================================== -->
 <body>
-    <!-- Top Header -->
+    <!-- Header -->
     <div class="header">
         <div class="logo">HandMixed Pro</div>
         <div class="user-info">
-            <div class="username">{{ user_name }}</div>
-            <a href="{% url 'logout' %}" class="logout-btn">Logout</a>
+            <div class="username">Audius DJ</div>
+            <a href="/logout/" class="logout-btn">Logout</a>
         </div>
     </div>
 
     <!-- Main Container -->
     <div class="main-container">
-        <!-- Main Video Area -->
+        <!-- Video Area -->
         <div class="video-main-area">
             <div class="video-container">
                 <video id="video" autoplay muted playsinline></video>
                 <canvas id="canvas"></canvas>
-                <div class="hand-indicators">
-                    <div class="hand-indicator" id="leftHandIndicator">L</div>
-                    <div class="hand-indicator" id="rightHandIndicator">R</div>
-                </div>
-                <div class="fps-counter" id="fpsCounter">FPS: 0</div>
                 <div class="video-placeholder" id="videoPlaceholder">
-                    🎥 Show Your Hands<br>
-                    <small style="font-size: 1rem; margin-top: 10px; display: block;">Professional DJ Controls Ready</small>
+                    🎥 Professional Hand Control<br>
+                    <small style="font-size: 1rem; margin-top: 10px; display: block;">Powered by Audius & Tone.js</small>
                 </div>
             </div>
         </div>
 
-        <!-- Left Deck Overlay - Professional DJ Deck A -->
+        <!-- Left Deck A -->
         <div class="deck-overlay left">
             <div class="deck-header">
                 <div class="deck-title">🎚️ Deck A</div>
                 <div class="deck-bpm" id="deckABPM">120 BPM</div>
             </div>
 
-            <!-- Track Display -->
-            <div class="deck-track-display" id="deckATrackDisplay" onclick="loadTrackToDeck('A')">
+            <div class="deck-track-display" id="deckATrackDisplay" onclick="selectDeck('A')">
                 <div class="deck-track-artwork" id="deckAArtwork">🎵</div>
                 <div class="deck-track-info">
                     <div class="deck-track-name" id="deckATrackName">No track loaded</div>
-                    <div class="deck-track-artist" id="deckATrackArtist">Queue will auto-load</div>
+                    <div class="deck-track-artist" id="deckATrackArtist">Select track from Audius</div>
                     <div class="deck-track-status" id="deckATrackStatus">Ready</div>
                 </div>
             </div>
 
-            <!-- Waveform Display -->
             <div class="deck-waveform" id="deckAWaveform">
-                <canvas class="waveform-canvas" id="deckAWaveformCanvas"></canvas>
-                <div class="playhead" id="deckAPlayhead" style="left: 0%"></div>
+                <div class="waveform-container" id="deckAWaveformContainer"></div>
             </div>
 
-            <!-- Track Progress -->
-            <div class="track-progress">
-                <div class="time-display" id="deckACurrentTime">0:00</div>
-                <div class="progress-bar" id="deckAProgressBar" onclick="seekTrack('A', event)">
-                    <div class="progress-fill" id="deckAProgressFill" style="width: 0%"></div>
-                </div>
-                <div class="time-display" id="deckADuration">0:00</div>
-            </div>
-
-            <!-- Tempo/Pitch Control -->
-            <div class="tempo-section">
-                <div class="tempo-header">
-                    <div class="tempo-label">Tempo</div>
-                    <button class="sync-btn" onclick="syncTempo('A')" id="deckASyncBtn">Sync</button>
-                </div>
-                <div class="tempo-controls">
-                    <button class="tempo-btn" onclick="adjustTempo('A', -1)">-</button>
-                    <input type="range" class="tempo-slider" id="deckATempoSlider" min="-20" max="20" value="0" 
-                           oninput="setTempo('A', this.value)">
-                    <button class="tempo-btn" onclick="adjustTempo('A', 1)">+</button>
-                    <div class="tempo-value" id="deckATempoValue">100%</div>
-                </div>
-            </div>
-
-            <!-- Main Deck Controls A -->
-            <div class="deck-main-controls" style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px;">
-                <button class="deck-btn play" onclick="playDeck('A')" id="deckAPlayBtn">▶️ Play</button>
-                <button class="deck-btn pause" onclick="pauseDeck('A')" id="deckAPauseBtn">⏸️ Pause</button>
-                <button class="deck-btn stop" onclick="stopDeck('A')" id="deckAStopBtn">⏹️ Stop</button>
+            <div class="deck-controls">
+                <button class="deck-btn" onclick="playDeck('A')" id="deckAPlayBtn">▶️ Play</button>
+                <button class="deck-btn" onclick="pauseDeck('A')" id="deckAPauseBtn">⏸️ Pause</button>
+                <button class="deck-btn" onclick="stopDeck('A')" id="deckAStopBtn">⏹️ Stop</button>
                 <button class="skip-btn" onclick="skipTrackOnDeck('A')" id="deckASkipBtn">⏭️ Skip</button>
             </div>
         </div>
 
-        <!-- Right Deck Overlay - Professional DJ Deck B -->
+        <!-- Right Deck B -->
         <div class="deck-overlay right">
             <div class="deck-header">
                 <div class="deck-title">🎚️ Deck B</div>
                 <div class="deck-bpm" id="deckBBPM">120 BPM</div>
             </div>
 
-            <!-- Track Display -->
-            <div class="deck-track-display" id="deckBTrackDisplay" onclick="loadTrackToDeck('B')">
+            <div class="deck-track-display" id="deckBTrackDisplay" onclick="selectDeck('B')">
                 <div class="deck-track-artwork" id="deckBArtwork">🎵</div>
                 <div class="deck-track-info">
                     <div class="deck-track-name" id="deckBTrackName">No track loaded</div>
-                    <div class="deck-track-artist" id="deckBTrackArtist">Queue will auto-load</div>
+                    <div class="deck-track-artist" id="deckBTrackArtist">Select track from Audius</div>
                     <div class="deck-track-status" id="deckBTrackStatus">Ready</div>
                 </div>
             </div>
 
-            <!-- Waveform Display -->
             <div class="deck-waveform" id="deckBWaveform">
-                <canvas class="waveform-canvas" id="deckBWaveformCanvas"></canvas>
-                <div class="playhead" id="deckBPlayhead" style="left: 0%"></div>
+                <div class="waveform-container" id="deckBWaveformContainer"></div>
             </div>
 
-            <!-- Track Progress -->
-            <div class="track-progress">
-                <div class="time-display" id="deckBCurrentTime">0:00</div>
-                <div class="progress-bar" id="deckBProgressBar" onclick="seekTrack('B', event)">
-                    <div class="progress-fill" id="deckBProgressFill" style="width: 0%"></div>
-                </div>
-                <div class="time-display" id="deckBDuration">0:00</div>
-            </div>
-
-            <!-- Tempo/Pitch Control -->
-            <div class="tempo-section">
-                <div class="tempo-header">
-                    <div class="tempo-label">Tempo</div>
-                    <button class="sync-btn" onclick="syncTempo('B')" id="deckBSyncBtn">Sync</button>
-                </div>
-                <div class="tempo-controls">
-                    <button class="tempo-btn" onclick="adjustTempo('B', -1)">-</button>
-                    <input type="range" class="tempo-slider" id="deckBTempoSlider" min="-20" max="20" value="0" 
-                           oninput="setTempo('B', this.value)">
-                    <button class="tempo-btn" onclick="adjustTempo('B', 1)">+</button>
-                    <div class="tempo-value" id="deckBTempoValue">100%</div>
-                </div>
-            </div>
-
-            <!-- Main Deck Controls B -->
-            <div class="deck-main-controls" style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px;">
-                <button class="deck-btn play" onclick="playDeck('B')" id="deckBPlayBtn">▶️ Play</button>
-                <button class="deck-btn pause" onclick="pauseDeck('B')" id="deckBPauseBtn">⏸️ Pause</button>
-                <button class="deck-btn stop" onclick="stopDeck('B')" id="deckBStopBtn">⏹️ Stop</button>
+            <div class="deck-controls">
+                <button class="deck-btn" onclick="playDeck('B')" id="deckBPlayBtn">▶️ Play</button>
+                <button class="deck-btn" onclick="pauseDeck('B')" id="deckBPauseBtn">⏸️ Pause</button>
+                <button class="deck-btn" onclick="stopDeck('B')" id="deckBStopBtn">⏹️ Stop</button>
                 <button class="skip-btn" onclick="skipTrackOnDeck('B')" id="deckBSkipBtn">⏭️ Skip</button>
             </div>
         </div>
 
-        <!-- Crossfader Section -->
+        <!-- Crossfader -->
         <div class="crossfader-section">
             <div class="crossfader-label">🎚️ Crossfader</div>
             <div class="crossfader-container">
@@ -1397,34 +1030,7 @@
             </div>
         </div>
 
-        <!-- Queue System Toggle -->
-        <div class="queue-toggle">
-            <button class="queue-toggle-btn" onclick="toggleQueueOverlay()" id="queueToggleBtn">
-                🎵 Queue (0)
-            </button>
-        </div>
-
-        <!-- Queue System Overlay -->
-        <div class="queue-overlay" id="queueOverlay">
-            <div class="queue-header">
-                <div class="queue-title">🎵 Smart Queue</div>
-                <div class="queue-count" id="queueCount">0 tracks</div>
-            </div>
-
-            <div class="queue-controls">
-                <button class="queue-btn" onclick="toggleAutoMode()" id="autoModeBtn">Auto</button>
-                <button class="queue-btn" onclick="resetPlaylist()" id="resetBtn">Reset</button>
-                <button class="queue-btn" onclick="skipToNext()" id="skipBtn">Skip</button>
-            </div>
-
-            <div class="queue-list" id="queueList">
-                <div style="padding: 20px; text-align: center; font-size: 0.7rem; color: #9b59b6;">
-                    📋 Load a playlist to see upcoming tracks
-                </div>
-            </div>
-        </div>
-
-        <!-- Hand Control Center -->
+        <!-- Hand Control -->
         <div class="hand-control-overlay">
             <button id="startBtn" class="hand-dj-btn" onclick="startHandTracking()">
                 🖐️ Start Hand DJ
@@ -1434,384 +1040,568 @@
             </button>
         </div>
 
-        <!-- Status Display -->
+        <!-- Status -->
         <div class="status-overlay">
             <div id="status" class="status info">
-                Professional DJ Studio ready - Load tracks and start mixing!
-            </div>
-        </div>
-
-        <!-- Gesture Status -->
-        <div class="gesture-overlay">
-            <div id="gestureStatus" class="gesture-status">
-                🖐️ Show hands to control professional DJ decks
+                Professional DJ Studio ready - Load tracks from Audius!
             </div>
         </div>
     </div>
 
-    <!-- Music Library Hub -->
+    <!-- Music Hub -->
     <div class="music-hub collapsed" id="musicHub">
-        <div class="resize-handle" id="resizeHandle"></div>
-        
         <div class="hub-controls-bar">
-            <div class="hub-main-title">🎵 Music Library</div>
+            <div class="hub-main-title">🎵 Audius Music Library</div>
             <div class="hub-controls">
                 <button class="collapse-btn" onclick="toggleHubCollapse()" id="collapseBtn">▲ Show</button>
-                <button class="hub-btn" onclick="toggleDebugMode()" id="debugToggleBtn">Debug</button>
+                <button class="hub-btn" onclick="searchTracks()" id="searchBtn">Search</button>
             </div>
         </div>
         
         <div class="hub-content">
+            <!-- Playlists Section -->
             <div class="hub-playlists">
-                <div class="hub-header">
-                    <div class="hub-title">🎵 Playlists</div>
-                    <button class="hub-btn" onclick="loadPlaylists()" id="loadPlaylistsBtn">Load</button>
-                    <button class="hub-btn" onclick="refreshPlaylists()" style="display: none;" id="refreshBtn">Refresh</button>
+                <!-- Playlist Creator -->
+                <div class="playlist-creator">
+                    <div class="playlist-input-group">
+                        <input type="text" class="playlist-name-input" id="playlistNameInput" 
+                               placeholder="New playlist name..." maxlength="50">
+                        <button class="create-playlist-btn" onclick="createPlaylist()">Create</button>
+                    </div>
                 </div>
+
+                <div class="hub-header">
+                    <div class="hub-title">📋 My Playlists</div>
+                    <div id="playlistsCount">0</div>
+                </div>
+                
                 <div id="playlistsContainer">
-                    <div class="loading-small">
-                        Loading your Spotify playlists...
+                    <div class="loading">
+                        Create your first playlist above
                     </div>
                 </div>
             </div>
             
+            <!-- Tracks Section -->
             <div class="hub-tracks">
-                <div class="tracks-header-small">
-                    <div class="tracks-title-small">🎵 Tracks</div>
-                    <div style="display: flex; gap: 8px; align-items: center;">
-                        <button class="hub-btn" onclick="showPlaylists()" style="display: none;" id="backToPlaylistsBtn">
-                            ← Playlists
-                        </button>
-                        <button class="hub-btn" onclick="addAllToQueue()" id="addAllBtn" style="display: none;">
-                            + Queue All
-                        </button>
-                        <button class="hub-btn" onclick="toggleDebugMode()" id="debugToggleBtn2">Debug</button>
+                <div class="search-section">
+                    <input type="text" class="search-input" id="searchInput" placeholder="Search Audius tracks..." 
+                           onkeypress="if(event.key==='Enter') searchTracks()">
+                    <div class="search-controls">
+                        <button class="hub-btn" onclick="searchTracks()">🔍 Search</button>
+                        <button class="hub-btn" onclick="clearSearch()">🗑️ Clear</button>
                     </div>
                 </div>
-                <div class="tracks-info-small" id="tracksInfo" style="margin-bottom: 8px;">
-                    Professional DJ Studio Ready • Load playlists to start mixing
+                
+                <div class="hub-header">
+                    <div class="hub-title">🎵 Tracks</div>
+                    <div id="tracksCount">0 tracks</div>
                 </div>
+                
                 <div id="tracksContainer">
-                    <div class="loading-small">
-                        Select a playlist to load tracks into professional decks
+                    <div class="loading">
+                        🎵 Search for tracks or select a playlist
                     </div>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- External Scripts -->
-    <script src="https://sdk.scdn.co/spotify-player.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/control_utils/control_utils.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/drawing_utils/drawing_utils.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js"></script>
-    
-    <!-- ========================================== -->
-    <!-- JAVASCRIPT CODE -->
-    <!-- ========================================== -->
     <script>
-        console.log('🎛️ Professional HandMixed DJ Studio Ready');
+        console.log('🎛️ HandMixed Pro - Audius Edition Loading...');
 
-        // ========================================== 
-        // GLOBAL STATE MANAGEMENT
-        // ==========================================
-        
-        /**
-         * Core application state - manages system-wide variables
-         */
+        // Global State
         const appState = {
-            // Core system components
-            stream: null,                // Camera video stream
-            hands: null,                 // MediaPipe hands instance
-            camera: null,                // Camera controller
-            isTracking: false,           // Hand tracking active status
-            debugMode: false,            // Debug mode toggle
-            
-            // Performance tracking
-            frameCount: 0,               // Frame counter for FPS calculation
-            lastFpsUpdate: Date.now(),   // Last FPS update timestamp
-            currentFps: 0,               // Current frames per second
-            
-            // Gesture tracking
-            handGestures: {},            // Current hand gestures detected
-            gestureHistory: [],          // History of recent gestures
-            gestureStabilityCount: 0,    // Counter for gesture stability
-            GESTURE_STABILITY_THRESHOLD: 3  // Required stable frames for gesture action
+            isTracking: false,
+            selectedDeck: null,
+            currentTracks: [],
+            searchQuery: '',
+            audioContext: null,
+            masterGain: null,
+            currentPlaylist: null
         };
 
-        /**
-         * Music hub UI state - manages resizable panel behavior
-         */
-        const hubState = {
-            isResizing: false,           // Currently being resized
-            height: 40,                  // Current height in pixels
-            isCollapsed: true,           // Panel collapsed state
-            lastHeight: 540              // Last expanded height
+        // Playlist state
+        const playlistState = {
+            playlists: [],
+            activePlaylist: null,
+            nextPlaylistId: 1
         };
 
-        /**
-         * Spotify integration state - manages music playback
-         */
-        const spotifyState = {
-            player: null,                // Spotify Web Playback SDK player
-            deviceId: null,              // Current device ID
-            accessToken: null,           // Spotify access token
-            isPlayerReady: false,        // Player initialization status
-            isPremium: false,            // User's Spotify subscription level
-            currentPlaylist: [],         // Currently loaded playlist tracks
-            currentTrackIndex: 0,        // Index of current track
-            allPlaylists: [],            // All user playlists
-            isConnected: false,          // Spotify connection status
-            currentPlaybackState: null   // Current playback information
-        };
-
-        /**
-         * DJ deck state - manages individual deck properties
-         */
+        // Deck State with Tone.js integration
         const deckState = {
             A: {
-                track: null,             // Currently loaded track
-                audio: null,             // HTML5 Audio element
-                audioContext: null,      // Web Audio API context
-                gainNode: null,          // Volume control node
-                eqNodes: { high: null, mid: null, low: null }, // EQ filter nodes
-                isPlaying: false,        // Playback status
-                isPaused: false,         // Pause status
-                volume: 0.7,             // Volume level (0-1)
-                tempo: 100,              // Tempo percentage
-                bpm: 120,                // Beats per minute
-                currentTime: 0,          // Current playback position
-                duration: 0,             // Track duration
-                cuePoints: {},           // Saved cue points
-                isLooping: false,        // Loop status
-                loopStart: 0,            // Loop start position
-                loopEnd: 0,              // Loop end position
-                loopLength: 0,           // Loop length in beats
-                eq: { high: 0, mid: 0, low: 0 }, // EQ settings
-                waveform: null,          // Waveform visualization
-                progressInterval: null,   // Progress update timer
-                isLoadedFromQueue: false, // Whether track was auto-loaded from queue
-                isFinished: false,
-                trackEndListener: null,
-                isFinished: false,        // NEW: Track if song finished
-                trackEndListener: null    // NEW: Store end event listener
-
-            },
-            B: {
-                // Same structure as Deck A
-                track: null, audio: null, audioContext: null, gainNode: null,
-                eqNodes: { high: null, mid: null, low: null }, isPlaying: false,
-                isPaused: false, volume: 0.7, tempo: 100, bpm: 120,
-                currentTime: 0, duration: 0, cuePoints: {}, isLooping: false,
-                loopStart: 0, loopEnd: 0, loopLength: 0,
-                eq: { high: 0, mid: 0, low: 0 }, waveform: null, progressInterval: null,
+                player: null,
+                track: null,
+                volume: 0.7,
+                isPlaying: false,
+                isPaused: false,
+                wavesurfer: null,
+                gain: null,
+                audio: null,
                 isLoadedFromQueue: false,
                 isFinished: false,
-                trackEndListener: null,
-                isFinished: false,        // NEW: Track if song finished
-                trackEndListener: null    // NEW: Store end event listener
-            }
-        };
-
-        /**
-         * Mixing state - manages crossfader and master controls
-         */
-        const mixingState = {
-            crossfaderValue: 50,         // Crossfader position (0-100)
-            masterAudioContext: null,    // Master Web Audio context
-            masterGainNode: null,        // Master volume control
-            selectedDeck: null           // Currently selected deck for loading
-        };
-
-
-        /**
-         * Smart Queue System State - manages intelligent track distribution
-         */
-        const queueState = {
-            tracks: [],                  // Array of queued tracks with metadata
-            isAutoMode: true,            // Automatic track loading enabled
-            isVisible: false,            // Queue overlay visibility
-            maxQueueSize: 50,            // Maximum tracks in queue
-            loadingIndex: 0,             // Current index for auto-loading
-            distributionPattern: 'alternating', // 'alternating', 'balanced', 'random'
-            deckPreference: {            // Track deck assignment preferences
-                A: [],                   // Tracks assigned to deck A
-                B: []                    // Tracks assigned to deck B
+                trackEndListener: null
             },
-            history: [],                 // Previously played tracks
-            autoLoadDelay: 2000,         // Delay before auto-loading next track (ms)
-            balanceMetrics: {            // Smart balancing metrics
-                tempo: true,             // Balance by tempo/BPM
-                energy: true,            // Balance by energy level
-                genre: false,            // Balance by genre (if available)
-                key: false               // Balance by musical key (if available)
+            B: {
+                player: null,
+                track: null,
+                volume: 0.7,
+                isPlaying: false,
+                isPaused: false,
+                wavesurfer: null,
+                gain: null,
+                audio: null,
+                isLoadedFromQueue: false,
+                isFinished: false,
+                trackEndListener: null
             }
         };
 
-        // Hand visualization colors
-            const handColors = [
-                { main: '#00d4ff', accent: '#ff6b6b', name: 'Primary' },
-                { main: '#f39c12', accent: '#2ecc71', name: 'Secondary' }
-            ];
+        // Initialize Application
+        document.addEventListener('DOMContentLoaded', async function() {
+            console.log('🎵 Initializing HandMixed Pro...');
+            
+            // Initialize Tone.js
+            await initializeToneJS();
+            
+            // Initialize Wavesurfer instances
+            initializeWavesurfers();
+            
+            // Load saved playlists
+            loadSavedPlaylists();
+            
+            // Set default hub height
+            updateHubHeight(40);
+            
+            console.log('✅ HandMixed Pro initialized successfully');
+            updateStatus('Professional DJ Studio ready - Load tracks from Audius!', 'success');
+        });
 
-            // ========================================== 
-            // PLAYLIST AUTO-LOADING SYSTEM
-            // ==========================================
-
-            /**
-             * Initialize Smart Queue System (Simplified)
-             */
-            function initializeSmartQueue() {
-                console.log('🎯 Initializing Playlist Auto-Loading...');
+        // Initialize Tone.js Audio Context
+        async function initializeToneJS() {
+            try {
+                // Initialize Tone.js
+                await Tone.start();
+                console.log('🎛️ Tone.js initialized');
                 
-                // Initialize queue state
-                queueState.tracks = [];
-                queueState.isAutoMode = true;
-                queueState.loadingIndex = 0;
+                // Create master volume control
+                appState.masterGain = new Tone.Gain(0.8).toDestination();
                 
-                // Set up auto-mode monitoring
-                setupAutoModeMonitoring();
+                // Create individual deck gains
+                deckState.A.gain = new Tone.Gain(0.7).connect(appState.masterGain);
+                deckState.B.gain = new Tone.Gain(0.7).connect(appState.masterGain);
                 
-                // Update UI
-                updateQueueDisplay();
-                updateQueueToggleButton();
-                
-                console.log('✅ Playlist Auto-Loading initialized');
+                console.log('✅ Audio system initialized');
+                return true;
+            } catch (error) {
+                console.error('❌ Tone.js initialization failed:', error);
+                updateStatus('Audio system failed to initialize', 'error');
+                return false;
             }
-
-            /**
-             * Set up automatic mode monitoring
-             */
-            function setupAutoModeMonitoring() {
-                setInterval(() => {
-                    if (queueState.isAutoMode && spotifyState.currentPlaylist.length > 0) {
-                        checkAndAutoLoadTracks();
-                    }
-                }, 1000);
-                
-                console.log('🤖 Auto-mode monitoring enabled');
-            }
-
-            /**
-             * Check and auto-load tracks to available decks from playlist
-             */
-            function checkAndAutoLoadTracks() {
-                if (!queueState.isAutoMode || spotifyState.currentPlaylist.length === 0) return;
-                
-                // Check if deck A needs a track (only if no track OR track finished)
-                if (!deckState.A.track || deckState.A.isFinished) {
-                    const nextTrack = getNextTrackFromPlaylist('A');
-                    if (nextTrack) {
-                        autoLoadTrackToDeck('A', nextTrack);
-                    }
-                }
-                
-                // Check if deck B needs a track (only if no track OR track finished)
-                if (!deckState.B.track || deckState.B.isFinished) {
-                    const nextTrack = getNextTrackFromPlaylist('B');
-                    if (nextTrack) {
-                        autoLoadTrackToDeck('B', nextTrack);
-                    }
-                }
-            }
-
-            /**
-             * Get next track from playlist for specific deck
-             */
-            function getNextTrackFromPlaylist(deckLetter) {
-                if (queueState.loadingIndex >= spotifyState.currentPlaylist.length) {
-                    return null; // No more tracks
-                }
-                
-                const track = spotifyState.currentPlaylist[queueState.loadingIndex];
-                queueState.loadingIndex++;
-                
-                return {
-                    track: track,
-                    targetDeck: deckLetter,
-                    playlistIndex: queueState.loadingIndex - 1
-                };
-            }
-
-            /**
-         * Auto-load track to deck from playlist
-         */
-        function autoLoadTrackToDeck(deckLetter, trackData) {
-            if (!trackData || !trackData.track) return;
-            
-            console.log(`🤖 Auto-loading "${trackData.track.name}" to Deck ${deckLetter} (Track ${trackData.playlistIndex + 1})`);
-            
-            const deck = deckState[deckLetter];
-            
-            // Clean up previous track
-            cleanupDeckTrack(deckLetter);
-            
-            // Load new track
-            deck.track = trackData.track;
-            deck.isLoadedFromQueue = true;
-            deck.isFinished = false; // Reset finished state
-            
-            // Initialize deck audio
-            initializeDeckAudio(deckLetter);
-            
-            // Set up track end detection
-            setupTrackEndDetection(deckLetter);
-            
-            // Detect BPM
-            deck.bpm = 120 + Math.floor(Math.random() * 60);
-            
-            // Update deck display
-            updateDeckDisplay(deckLetter, trackData.track);
-            updateDeckUI(deckLetter);
-            
-            // Generate waveform
-            generatePlaceholderWaveform(deckLetter);
-            
-            // Update deck display styling
-            const deckDisplay = document.getElementById(`deck${deckLetter}TrackDisplay`);
-            deckDisplay.classList.add('auto-loaded');
-            
-            // Update queue display
-            updateQueueDisplay();
-            updateQueueToggleButton();
-            
-            updateStatus(`Auto-loaded "${trackData.track.name}" to Deck ${deckLetter} (${trackData.playlistIndex + 1}/${spotifyState.currentPlaylist.length})`, 'success');
         }
 
-        /**
-         * NEW: Skip to next track on specified deck
-         */
-        function skipTrackOnDeck(deckLetter) {
-            const deck = deckState[deckLetter];
+        // Initialize Wavesurfer instances for both decks
+        function initializeWavesurfers() {
+            try {
+                // Deck A Wavesurfer
+                deckState.A.wavesurfer = WaveSurfer.create({
+                    container: '#deckAWaveformContainer',
+                    waveColor: '#00d4ff',
+                    progressColor: '#1ed760',
+                    cursorColor: '#fff',
+                    barWidth: 2,
+                    barRadius: 1,
+                    height: 60,
+                    normalize: true,
+                    backend: 'WebAudio',
+                    responsive: true
+                });
+
+                // Deck B Wavesurfer
+                deckState.B.wavesurfer = WaveSurfer.create({
+                    container: '#deckBWaveformContainer',
+                    waveColor: '#f39c12',
+                    progressColor: '#1ed760',
+                    cursorColor: '#fff',
+                    barWidth: 2,
+                    barRadius: 1,
+                    height: 60,
+                    normalize: true,
+                    backend: 'WebAudio',
+                    responsive: true
+                });
+
+                console.log('🌊 Wavesurfer instances initialized');
+            } catch (error) {
+                console.error('❌ Wavesurfer initialization failed:', error);
+            }
+        }
+
+        // Playlist Management
+        function createPlaylist() {
+            const input = document.getElementById('playlistNameInput');
+            const name = input.value.trim();
             
-            if (!deck.track) {
-                updateStatus(`No track to skip on Deck ${deckLetter}`, 'error');
+            if (!name) {
+                updateStatus('Please enter a playlist name', 'error');
                 return;
             }
             
-            console.log(`⏭️ Skipping track on Deck ${deckLetter}: ${deck.track.name}`);
+            const playlist = {
+                id: playlistState.nextPlaylistId++,
+                name: name,
+                tracks: [],
+                created: new Date().toISOString()
+            };
             
-            // Stop current track
-            stopDeck(deckLetter);
+            playlistState.playlists.push(playlist);
+            savePlaylistsToStorage();
+            displayPlaylists();
             
-            // Mark as finished to trigger auto-load
-            deck.isFinished = true;
-            
-            // Update status
-            updateStatus(`Skipped track on Deck ${deckLetter}`, 'success');
-            
-            // Load next track if auto-mode is enabled
-            if (queueState.isAutoMode) {
-                setTimeout(() => {
-                    checkAndAutoLoadTracks();
-                }, 500);
+            input.value = '';
+            updateStatus(`Created playlist "${name}"`, 'success');
+            console.log('✅ Created playlist:', playlist);
+        }
+
+        function loadSavedPlaylists() {
+            try {
+                const saved = localStorage.getItem('audius_playlists');
+                if (saved) {
+                    const data = JSON.parse(saved);
+                    playlistState.playlists = data.playlists || [];
+                    playlistState.nextPlaylistId = data.nextId || 1;
+                    displayPlaylists();
+                    console.log('✅ Loaded saved playlists:', playlistState.playlists.length);
+                }
+            } catch (error) {
+                console.error('❌ Error loading playlists:', error);
             }
         }
 
-        /**
-         * NEW: Set up track end detection for automatic cycling
-         */
+        function savePlaylistsToStorage() {
+            try {
+                const data = {
+                    playlists: playlistState.playlists,
+                    nextId: playlistState.nextPlaylistId
+                };
+                localStorage.setItem('audius_playlists', JSON.stringify(data));
+                console.log('💾 Playlists saved to storage');
+            } catch (error) {
+                console.error('❌ Error saving playlists:', error);
+            }
+        }
+
+        function displayPlaylists() {
+            const container = document.getElementById('playlistsContainer');
+            const countElement = document.getElementById('playlistsCount');
+            
+            countElement.textContent = playlistState.playlists.length;
+            
+            if (playlistState.playlists.length === 0) {
+                container.innerHTML = '<div class="loading">Create your first playlist above</div>';
+                return;
+            }
+
+            let playlistsHTML = '';
+            
+            playlistState.playlists.forEach((playlist, index) => {
+                const isActive = playlistState.activePlaylist && playlistState.activePlaylist.id === playlist.id;
+                
+                playlistsHTML += `
+                    <div class="playlist-item ${isActive ? 'active' : ''}" onclick="selectPlaylist(${playlist.id})">
+                        <div class="playlist-icon">📋</div>
+                        <div class="playlist-info">
+                            <div class="playlist-name">${playlist.name}</div>
+                            <div class="playlist-count">${playlist.tracks.length} tracks</div>
+                        </div>
+                        <div class="playlist-actions">
+                            <button class="playlist-action-btn" onclick="event.stopPropagation(); deletePlaylist(${playlist.id})" title="Delete">🗑️</button>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            container.innerHTML = playlistsHTML;
+        }
+
+        function selectPlaylist(playlistId) {
+            const playlist = playlistState.playlists.find(p => p.id === playlistId);
+            if (!playlist) return;
+            
+            playlistState.activePlaylist = playlist;
+            appState.currentTracks = playlist.tracks;
+            
+            displayPlaylists();
+            displayTracks(playlist.tracks);
+            
+            updateStatus(`Selected playlist "${playlist.name}" with ${playlist.tracks.length} tracks`, 'success');
+            console.log('✅ Selected playlist:', playlist);
+        }
+
+        function deletePlaylist(playlistId) {
+            if (!confirm('Delete this playlist?')) return;
+            
+            const index = playlistState.playlists.findIndex(p => p.id === playlistId);
+            if (index === -1) return;
+            
+            const playlist = playlistState.playlists[index];
+            playlistState.playlists.splice(index, 1);
+            
+            if (playlistState.activePlaylist && playlistState.activePlaylist.id === playlistId) {
+                playlistState.activePlaylist = null;
+                appState.currentTracks = [];
+                document.getElementById('tracksContainer').innerHTML = '<div class="loading">🎵 Search for tracks or select a playlist</div>';
+                document.getElementById('tracksCount').textContent = '0 tracks';
+            }
+            
+            savePlaylistsToStorage();
+            displayPlaylists();
+            
+            updateStatus(`Deleted playlist "${playlist.name}"`, 'success');
+        }
+
+        function addTrackToPlaylist(track, playlistId) {
+            const playlist = playlistState.playlists.find(p => p.id === playlistId);
+            if (!playlist) return;
+            
+            // Check if track already exists
+            if (playlist.tracks.find(t => t.id === track.id)) {
+                updateStatus('Track already in playlist', 'error');
+                return;
+            }
+            
+            playlist.tracks.push(track);
+            savePlaylistsToStorage();
+            
+            if (playlistState.activePlaylist && playlistState.activePlaylist.id === playlistId) {
+                appState.currentTracks = playlist.tracks;
+                displayTracks(playlist.tracks);
+            }
+            
+            displayPlaylists();
+            updateStatus(`Added "${track.title}" to "${playlist.name}"`, 'success');
+        }
+
+        // Search tracks on Audius
+        async function searchTracks() {
+            const query = document.getElementById('searchInput').value.trim();
+            
+            if (!query) {
+                updateStatus('Please enter a search query', 'error');
+                return;
+            }
+            
+            console.log(`🔍 Searching Audius for: "${query}"`);
+            updateStatus(`Searching for "${query}"...`, 'info');
+            
+            const container = document.getElementById('tracksContainer');
+            container.innerHTML = '<div class="loading">🔍 Searching Audius...</div>';
+
+            try {
+                // Simulated Audius API call - replace with actual API endpoint
+                const response = await fetch(`/api/audius/search/?q=${encodeURIComponent(query)}&limit=25`);
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+                
+                const data = await response.json();
+                
+                if (data.error) {
+                    throw new Error(data.error);
+                }
+                
+                const tracks = (data.tracks || []).map(track => ({
+                    id: track.id,
+                    title: track.title,
+                    artist: track.artist,
+                    duration: track.duration,
+                    artwork: track.artwork,
+                    stream_url: track.stream_url
+                }));
+                
+                appState.currentTracks = tracks;
+                appState.searchQuery = query;
+                displayTracks(tracks);
+                
+                console.log(`✅ Found ${tracks.length} tracks for "${query}"`);
+                updateStatus(`Found ${tracks.length} tracks for "${query}"`, 'success');
+                
+            } catch (error) {
+                console.error('❌ Search error:', error);
+                container.innerHTML = `
+                    <div class="loading" style="color: #ff6b6b;">
+                        ❌ Search failed: ${error.message}<br>
+                        <button class="hub-btn" onclick="searchTracks()" style="margin-top: 10px;">Try Again</button>
+                    </div>
+                `;
+                updateStatus(`Search failed: ${error.message}`, 'error');
+            }
+        }
+
+        // Clear search and show current playlist
+        function clearSearch() {
+            document.getElementById('searchInput').value = '';
+            appState.searchQuery = '';
+            
+            if (playlistState.activePlaylist) {
+                appState.currentTracks = playlistState.activePlaylist.tracks;
+                displayTracks(appState.currentTracks);
+                updateStatus(`Showing playlist "${playlistState.activePlaylist.name}"`, 'info');
+            } else {
+                appState.currentTracks = [];
+                document.getElementById('tracksContainer').innerHTML = '<div class="loading">🎵 Search for tracks or select a playlist</div>';
+                document.getElementById('tracksCount').textContent = '0 tracks';
+                updateStatus('Search cleared', 'info');
+            }
+        }
+
+        // Display tracks in UI
+        function displayTracks(tracks) {
+            const container = document.getElementById('tracksContainer');
+            const countElement = document.getElementById('tracksCount');
+            
+            countElement.textContent = `${tracks.length} tracks`;
+            
+            if (!tracks || tracks.length === 0) {
+                container.innerHTML = '<div class="loading">No tracks found</div>';
+                return;
+            }
+
+            let tracksHTML = '';
+            
+            tracks.forEach((track, index) => {
+                const duration = formatDuration(track.duration);
+                const artworkUrl = track.artwork;
+                
+                tracksHTML += `
+                    <div class="track-item" onclick="loadTrackToDeck(${index})">
+                        <div class="track-number">${index + 1}</div>
+                        <div class="track-artwork">
+                            ${artworkUrl ? 
+                                `<img src="${artworkUrl}" alt="${track.title}" loading="lazy">` :
+                                '🎵'
+                            }
+                        </div>
+                        <div class="track-info">
+                            <div class="track-name">${track.title}</div>
+                        </div>
+                        <div class="track-duration">${duration}</div>
+                        ${playlistState.playlists.length > 0 && !playlistState.activePlaylist ? `
+                            <div class="track-actions">
+                                <select class="track-action-btn" onchange="addTrackToSelectedPlaylist(${index}, this.value); this.value='';" style="background: rgba(30, 215, 96, 0.2); border: none; color: #1ed760; font-size: 0.6rem;">
+                                    <option value="">+ Playlist</option>
+                                    ${playlistState.playlists.map(p => `<option value="${p.id}">${p.name}</option>`).join('')}
+                                </select>
+                            </div>
+                        ` : ''}
+                    </div>
+                `;
+            });
+            
+            container.innerHTML = tracksHTML;
+        }
+
+        function addTrackToSelectedPlaylist(trackIndex, playlistId) {
+            if (!playlistId || trackIndex >= appState.currentTracks.length) return;
+            
+            const track = appState.currentTracks[trackIndex];
+            addTrackToPlaylist(track, parseInt(playlistId));
+        }
+
+        // Select deck for loading
+        function selectDeck(deckLetter) {
+            appState.selectedDeck = deckLetter;
+            updateStatus(`Deck ${deckLetter} selected - choose a track to load`, 'info');
+            
+            // Visual feedback
+            document.querySelectorAll('.deck-track-display').forEach(display => {
+                display.style.borderColor = '';
+                display.style.background = '';
+            });
+            
+            const selectedDisplay = document.getElementById(`deck${deckLetter}TrackDisplay`);
+            selectedDisplay.style.borderColor = deckLetter === 'A' ? '#00d4ff' : '#f39c12';
+            selectedDisplay.style.background = deckLetter === 'A' ? 
+                'linear-gradient(135deg, rgba(0, 212, 255, 0.4), rgba(30, 215, 96, 0.4))' :
+                'linear-gradient(135deg, rgba(243, 156, 18, 0.4), rgba(30, 215, 96, 0.4))';
+        }
+
+        // Load track to selected deck
+        async function loadTrackToDeck(trackIndex) {
+            if (!appState.selectedDeck) {
+                updateStatus('Please select a deck first (click on a deck display)', 'error');
+                return;
+            }
+
+            if (trackIndex < 0 || trackIndex >= appState.currentTracks.length) {
+                updateStatus('Invalid track selection', 'error');
+                return;
+            }
+
+            const track = appState.currentTracks[trackIndex];
+            const deckLetter = appState.selectedDeck;
+            const deck = deckState[deckLetter];
+
+            console.log(`🎵 Loading track to Deck ${deckLetter}:`, track.title);
+            updateStatus(`Loading "${track.title}" to Deck ${deckLetter}...`, 'info');
+
+            try {
+                // Stop current track if playing
+                if (deck.isPlaying) {
+                    stopDeck(deckLetter);
+                }
+
+                // Clean up previous track
+                cleanupDeckTrack(deckLetter);
+
+                // Store track info
+                deck.track = track;
+
+                // Create HTML5 Audio element for playback
+                deck.audio = new Audio();
+                deck.audio.crossOrigin = 'anonymous';
+                deck.audio.preload = 'auto';
+                
+                // Set up audio event listeners
+                deck.audio.addEventListener('loadeddata', () => {
+                    console.log(`✅ Track loaded in Deck ${deckLetter}: ${track.title}`);
+                    updateStatus(`"${track.title}" loaded in Deck ${deckLetter}`, 'success');
+                    updateDeckDisplay(deckLetter, track);
+                    updateDeckUI(deckLetter);
+                });
+
+                deck.audio.addEventListener('error', (error) => {
+                    console.error(`❌ Error loading track in Deck ${deckLetter}:`, error);
+                    updateStatus(`Failed to load track in Deck ${deckLetter}`, 'error');
+                });
+
+                // Set up track end detection
+                setupTrackEndDetection(deckLetter);
+
+                // Load the track
+                deck.audio.src = track.stream_url;
+
+                // Load waveform
+                if (deck.wavesurfer && track.stream_url) {
+                    deck.wavesurfer.load(track.stream_url);
+                }
+
+                // Clear selection
+                appState.selectedDeck = null;
+                document.querySelectorAll('.deck-track-display').forEach(display => {
+                    display.style.borderColor = '';
+                    display.style.background = '';
+                });
+
+            } catch (error) {
+                console.error(`❌ Error loading track to Deck ${deckLetter}:`, error);
+                updateStatus(`Failed to load track: ${error.message}`, 'error');
+            }
+        }
+
+        // Set up track end detection
         function setupTrackEndDetection(deckLetter) {
             const deck = deckState[deckLetter];
             
@@ -1823,7 +1613,7 @@
                 
                 // Create new end listener
                 deck.trackEndListener = function() {
-                    console.log(`🏁 Track finished on Deck ${deckLetter}: ${deck.track.name}`);
+                    console.log(`🏁 Track finished on Deck ${deckLetter}: ${deck.track.title}`);
                     handleTrackEnd(deckLetter);
                 };
                 
@@ -1834,9 +1624,7 @@
             }
         }
 
-        /**
-         * NEW: Handle when a track ends
-         */
+        // Handle when a track ends
         function handleTrackEnd(deckLetter) {
             const deck = deckState[deckLetter];
             
@@ -1850,19 +1638,10 @@
             updateDeckUI(deckLetter);
             
             // Update status
-            updateStatus(`Track finished on Deck ${deckLetter} - Loading next...`, 'info');
-            
-            // Trigger auto-load if enabled
-            if (queueState.isAutoMode) {
-                setTimeout(() => {
-                    checkAndAutoLoadTracks();
-                }, 1000);
-            }
+            updateStatus(`Track finished on Deck ${deckLetter}`, 'info');
         }
 
-        /**
-         * NEW: Clean up deck track before loading new one
-         */
+        // Clean up deck track
         function cleanupDeckTrack(deckLetter) {
             const deck = deckState[deckLetter];
             
@@ -1877,1341 +1656,215 @@
                 deck.trackEndListener = null;
             }
             
+            // Clean up audio element
+            if (deck.audio) {
+                deck.audio.pause();
+                deck.audio.src = '';
+                deck.audio = null;
+            }
+            
             // Reset deck state
             deck.isFinished = false;
-            deck.currentTime = 0;
             
             console.log(`🧹 Cleaned up Deck ${deckLetter}`);
         }
 
-
-
-            // ========================================== 
-            // QUEUE UI FUNCTIONS (Simplified)
-            // ==========================================
-
-            /**
-            * Toggle queue overlay visibility
-            */
-            function toggleQueueOverlay() {
-                const overlay = document.getElementById('queueOverlay');
-                queueState.isVisible = !queueState.isVisible;
-                
-                if (queueState.isVisible) {
-                    overlay.classList.add('visible');
-                    updateQueueDisplay();
-                } else {
-                    overlay.classList.remove('visible');
-                }
-            }
-
-            /**
-            * Update queue display to show upcoming tracks from playlist
-            */
-            function updateQueueDisplay() {
-                const queueList = document.getElementById('queueList');
-                const queueCount = document.getElementById('queueCount');
-                
-                if (spotifyState.currentPlaylist.length === 0) {
-                    queueCount.textContent = 'No playlist';
-                    queueList.innerHTML = `
-                        <div style="padding: 20px; text-align: center; font-size: 0.7rem; color: #9b59b6;">
-                            📋 Load a playlist to see upcoming tracks
-                        </div>
-                    `;
-                    return;
-                }
-                
-                const remaining = spotifyState.currentPlaylist.length - queueState.loadingIndex;
-                queueCount.textContent = `${remaining} remaining`;
-                
-                // Show next 10 tracks from current position
-                const upcomingTracks = spotifyState.currentPlaylist.slice(queueState.loadingIndex, queueState.loadingIndex + 10);
-                
-                if (upcomingTracks.length === 0) {
-                    queueList.innerHTML = `
-                        <div style="padding: 20px; text-align: center; font-size: 0.7rem; color: #9b59b6;">
-                            ✅ All tracks loaded<br>
-                            Playlist complete!
-                        </div>
-                    `;
-                    return;
-                }
-                
-                let queueHTML = '';
-                upcomingTracks.forEach((track, index) => {
-                    const actualIndex = queueState.loadingIndex + index;
-                    const targetDeck = index % 2 === 0 ? 'A' : 'B'; // Alternate between decks
-                    
-                    queueHTML += `
-                        <div class="queue-item">
-                            <div class="queue-position">${actualIndex + 1}</div>
-                            <div class="queue-item-info">
-                                <div class="queue-item-name">🎵 ${track.name}</div>
-                                <div class="queue-item-artist">${track.artist}</div>
-                            </div>
-                            <div class="queue-item-target">${targetDeck}</div>
-                        </div>
-                    `;
-                });
-                
-                queueList.innerHTML = queueHTML;
-            }
-
-            /**
-            * Update queue toggle button
-            */
-            function updateQueueToggleButton() {
-                const btn = document.getElementById('queueToggleBtn');
-                if (spotifyState.currentPlaylist.length === 0) {
-                    btn.textContent = '📋 No Playlist';
-                    return;
-                }
-                
-                const remaining = spotifyState.currentPlaylist.length - queueState.loadingIndex;
-                const autoIcon = queueState.isAutoMode ? '🤖' : '📋';
-                btn.textContent = `${autoIcon} Next: ${remaining}`;
-            }
-
-            /**
-            * Toggle automatic mode
-            */
-            function toggleAutoMode() {
-                queueState.isAutoMode = !queueState.isAutoMode;
-                
-                const btn = document.getElementById('autoModeBtn');
-                btn.classList.toggle('active', queueState.isAutoMode);
-                btn.textContent = queueState.isAutoMode ? 'Auto ✓' : 'Auto';
-                
-                updateQueueToggleButton();
-                
-                const status = queueState.isAutoMode ? 'enabled' : 'disabled';
-                updateStatus(`Playlist auto-loading ${status}`, 'success');
-                
-                if (queueState.isAutoMode) {
-                    setTimeout(() => {
-                        checkAndAutoLoadTracks();
-                    }, 1000);
-                }
-            }
-
-            /**
-            * Reset playlist to beginning
-            */
-            function resetPlaylist() {
-                queueState.loadingIndex = 0;
-                updateQueueDisplay();
-                updateQueueToggleButton();
-                updateStatus('Playlist reset to beginning', 'success');
-            }
-
-            /**
-            * Skip to next track in playlist
-            */
-            function skipToNext() {
-                if (queueState.loadingIndex < spotifyState.currentPlaylist.length) {
-                    queueState.loadingIndex++;
-                    updateQueueDisplay();
-                    updateQueueToggleButton();
-                    updateStatus('Skipped to next track in playlist', 'info');
-                }
-            }
-
-            /**
-            * Clear any auto-loaded tracks from previous playlist
-            */
-            function clearAutoLoadedTracks() {
-                console.log('🧹 Clearing auto-loaded tracks from previous playlist...');
-                
-                // Clear Deck A if it was auto-loaded and not currently playing
-                if (deckState.A.isLoadedFromQueue && !deckState.A.isPlaying && !deckState.A.isPaused) {
-                    console.log('🧹 Clearing auto-loaded track from Deck A');
-                    stopDeck('A');
-                    deckState.A.track = null;
-                    deckState.A.isLoadedFromQueue = false;
-                    updateDeckDisplay('A');
-                    
-                    // Remove auto-loaded styling
-                    const deckADisplay = document.getElementById('deckATrackDisplay');
-                    deckADisplay.classList.remove('auto-loaded', 'loaded');
-                }
-                
-                // Clear Deck B if it was auto-loaded and not currently playing
-                if (deckState.B.isLoadedFromQueue && !deckState.B.isPlaying && !deckState.B.isPaused) {
-                    console.log('🧹 Clearing auto-loaded track from Deck B');
-                    stopDeck('B');
-                    deckState.B.track = null;
-                    deckState.B.isLoadedFromQueue = false;
-                    updateDeckDisplay('B');
-                    
-                    // Remove auto-loaded styling
-                    const deckBDisplay = document.getElementById('deckBTrackDisplay');
-                    deckBDisplay.classList.remove('auto-loaded', 'loaded');
-                }
-                
-                console.log('✅ Previous auto-loaded tracks cleared');
-            }
-
-            /**
-            * Force auto-loading tracks from new playlist
-            */
-            function forceAutoLoadNewPlaylist() {
-                console.log('🎯 Force loading tracks from new playlist...');
-                
-                if (spotifyState.currentPlaylist.length === 0) {
-                    console.log('❌ No tracks in current playlist to load');
-                    return;
-                }
-                
-                // Force load to Deck A if it doesn't have a track or has an auto-loaded track
-                if (!deckState.A.track || deckState.A.isLoadedFromQueue) {
-                    const nextTrackA = getNextTrackFromPlaylist('A');
-                    if (nextTrackA) {
-                        autoLoadTrackToDeck('A', nextTrackA);
-                    }
-                }
-                
-                // Force load to Deck B if it doesn't have a track or has an auto-loaded track
-                if (!deckState.B.track || deckState.B.isLoadedFromQueue) {
-                    const nextTrackB = getNextTrackFromPlaylist('B');
-                    if (nextTrackB) {
-                        autoLoadTrackToDeck('B', nextTrackB);
-                    }
-                }
-                
-                updateStatus('New playlist tracks loaded into decks', 'success');
-                console.log('✅ New playlist tracks force-loaded into available decks');
-            }
-
-
-
-        // ========================================== 
-        // INITIALIZATION FUNCTIONS
-        // ==========================================
-
-        /**
-         * Initialize the application when DOM is loaded
-         */
-        document.addEventListener('DOMContentLoaded', function() {
-            console.log('🎵 Initializing Professional DJ Studio...');
-            
-            initializeAudioContext();    // Set up Web Audio API
-            initializeHubResize();       // Set up resizable music panel
-            autoInitializeSpotify();     // Connect to Spotify
-            initializeWaveforms();       // Set up waveform displays
-            initializeSmartQueue();      // Set up smart queue system
-
-            
-            console.log('✅ Professional DJ Studio initialized');
-            updateStatus('Professional DJ Studio ready - Load tracks and start mixing!', 'success');
-        });
-
-        /**
-         * Initialize Web Audio API for advanced audio processing
-         */
-        function initializeAudioContext() {
-            try {
-                mixingState.masterAudioContext = new (window.AudioContext || window.webkitAudioContext)();
-                mixingState.masterGainNode = mixingState.masterAudioContext.createGain();
-                mixingState.masterGainNode.connect(mixingState.masterAudioContext.destination);
-                
-                console.log('🎛️ Web Audio API initialized');
-                return true;
-            } catch (error) {
-                console.error('❌ Web Audio API not supported:', error);
-                updateStatus('Web Audio API not supported in this browser', 'error');
-                return false;
-            }
-        }
-
-        /**
-         * Initialize resizable music hub functionality
-         */
-        function initializeHubResize() {
-            const resizeHandle = document.getElementById('resizeHandle');
-            updateHubHeight(40);
-            
-            // Mouse events for desktop
-            resizeHandle.addEventListener('mousedown', startResize);
-            document.addEventListener('mousemove', handleResize);
-            document.addEventListener('mouseup', stopResize);
-            
-            // Touch events for mobile
-            resizeHandle.addEventListener('touchstart', startResizeTouch, { passive: false });
-            document.addEventListener('touchmove', handleResizeTouch, { passive: false });
-            document.addEventListener('touchend', stopResize);
-        }
-
-        /**
-         * Initialize waveform display canvases for both decks
-         */
-        function initializeWaveforms() {
-            try {
-                initializeWaveformCanvas('A');
-                initializeWaveformCanvas('B');
-                console.log('🌊 Waveform displays initialized');
-            } catch (error) {
-                console.error('❌ Waveform initialization failed:', error);
-            }
-        }
-
-        // ========================================== 
-        // SPOTIFY INTEGRATION
-        // ==========================================
-
-        /**
-         * Automatically connect to Spotify when app loads
-         */
-        async function autoInitializeSpotify() {
-            try {
-                console.log('🎵 Checking Spotify authentication...');
-                
-                const authResponse = await fetch('/api/spotify/check-auth/', {
-                    method: 'GET',
-                    credentials: 'same-origin',
-                    headers: {
-                        'Accept': 'application/json',
-                        'Content-Type': 'application/json'
-                    }
-                });
-                
-                if (!authResponse.ok) {
-                    throw new Error(`Auth check failed: ${authResponse.status} ${authResponse.statusText}`);
-                }
-                
-                const authData = await authResponse.json();
-                console.log('🎵 Spotify auth response:', authData);
-                
-                if (authData.authenticated) {
-                    spotifyState.isConnected = true;
-                    spotifyState.isPremium = authData.premium || false;
-                    
-                    updateStatus(`Spotify connected ${spotifyState.isPremium ? '(Premium)' : '(Free)'}`, 'success');
-                    
-                    // Initialize Spotify Web Playback SDK if Premium
-                    if (spotifyState.isPremium) {
-                        await initializeSpotifyPlayer();
-                    } else {
-                        updateStatus('Spotify Free - Limited to 30-second previews', 'info');
-                    }
-                    
-                    // Auto-load playlists after connection
-                    setTimeout(() => {
-                        loadPlaylists();
-                    }, 1000);
-                    
-                } else {
-                    console.log('❌ Not authenticated with Spotify');
-                    updateStatus('Redirecting to Spotify login...', 'info');
-                    setTimeout(() => {
-                        window.location.href = '/api/spotify/auth/';
-                    }, 2000);
-                }
-                
-            } catch (error) {
-                console.error('❌ Spotify auto-initialization failed:', error);
-                updateStatus(`Spotify connection failed: ${error.message}`, 'error');
-                
-                // Retry connection after delay
-                setTimeout(() => {
-                    console.log('🔄 Retrying Spotify connection...');
-                    window.location.href = '/api/spotify/auth/';
-                }, 5000);
-            }
-        }
-
-        /**
-         * Initialize Spotify Web Playback SDK for full track playback
-         */
-        async function initializeSpotifyPlayer() {
-            console.log('🎵 Initializing Spotify Web Playback SDK...');
-            
-            try {
-                // Get access token from backend
-                const tokenResponse = await fetch('/api/spotify/token/', {
-                    method: 'GET',
-                    credentials: 'same-origin',
-                    headers: {
-                        'Accept': 'application/json',
-                        'Content-Type': 'application/json'
-                    }
-                });
-                
-                if (!tokenResponse.ok) {
-                    const errorData = await tokenResponse.json();
-                    throw new Error(errorData.error || 'Failed to get access token');
-                }
-                
-                const tokenData = await tokenResponse.json();
-                spotifyState.accessToken = tokenData.access_token;
-                
-                // Initialize Spotify Web Playback SDK
-                window.onSpotifyWebPlaybackSDKReady = () => {
-                    console.log('🎵 Spotify Web Playback SDK Ready');
-                    
-                    const player = new Spotify.Player({
-                        name: 'HandMixed Pro DJ Studio',
-                        getOAuthToken: cb => { cb(spotifyState.accessToken); },
-                        volume: 0.5
-                    });
-                    
-                    // Set up event listeners
-                    setupSpotifyPlayerListeners(player);
-                    
-                    // Connect to the player
-                    player.connect().then(success => {
-                        if (success) {
-                            console.log('✅ Successfully connected to Spotify Player');
-                        } else {
-                            console.error('❌ Failed to connect to Spotify Player');
-                            updateStatus('Failed to connect to Spotify Player', 'error');
-                        }
-                    });
-                };
-                
-                // Load the Spotify Web Playback SDK script
-                if (!window.Spotify) {
-                    const script = document.createElement('script');
-                    script.src = 'https://sdk.scdn.co/spotify-player.js';
-                    script.async = true;
-                    document.head.appendChild(script);
-                } else {
-                    window.onSpotifyWebPlaybackSDKReady();
-                }
-                
-            } catch (error) {
-                console.error('❌ Spotify Player initialization failed:', error);
-                updateStatus(`Spotify Player failed: ${error.message}`, 'error');
-                throw error;
-            }
-        }
-
-        /**
-         * Set up Spotify player event listeners
-         */
-        function setupSpotifyPlayerListeners(player) {
-            // Error handling
-            player.addListener('initialization_error', ({ message }) => {
-                console.error('🚫 Spotify initialization error:', message);
-                updateStatus('Spotify player initialization failed', 'error');
-            });
-            
-            player.addListener('authentication_error', ({ message }) => {
-                console.error('🚫 Spotify authentication error:', message);
-                updateStatus('Spotify authentication failed', 'error');
-            });
-            
-            player.addListener('account_error', ({ message }) => {
-                console.error('🚫 Spotify account error:', message);
-                updateStatus('Spotify Premium required', 'error');
-            });
-            
-            player.addListener('playback_error', ({ message }) => {
-                console.error('🚫 Spotify playback error:', message);
-                updateStatus('Playback error occurred', 'error');
-            });
-            
-            // Ready state
-            player.addListener('ready', ({ device_id }) => {
-                console.log('✅ Spotify Player Ready with Device ID:', device_id);
-                spotifyState.deviceId = device_id;
-                spotifyState.player = player;
-                spotifyState.isPlayerReady = true;
-                
-                updateStatus('Spotify Premium Player ready for full track playback', 'success');
-                transferPlaybackToDevice(device_id);
-            });
-            
-            // Not ready state
-            player.addListener('not_ready', ({ device_id }) => {
-                console.log('❌ Spotify Player Device has gone offline:', device_id);
-                spotifyState.isPlayerReady = false;
-                updateStatus('Spotify Player disconnected', 'error');
-            });
-            
-            // Player state changes
-            player.addListener('player_state_changed', (state) => {
-                if (!state) return;
-                
-                spotifyState.currentPlaybackState = state;
-                const currentTrack = state.track_window.current_track;
-                
-                console.log('🎵 Player state changed:', {
-                    track: currentTrack.name,
-                    artist: currentTrack.artists[0].name,
-                    paused: state.paused,
-                    position: state.position,
-                    duration: state.duration
-                });
-            });
-        }
-
-        /**
-         * Transfer playback to our Web Playback SDK device
-         */
-        async function transferPlaybackToDevice(deviceId) {
-            try {
-                console.log('🎵 Transferring playback to HandMixed device...');
-                
-                const response = await fetch('/api/spotify/transfer-playback/', {
-                    method: 'POST',
-                    headers: { 
-                        'Content-Type': 'application/json',
-                        'X-CSRFToken': getCsrfToken()
-                    },
-                    credentials: 'same-origin',
-                    body: JSON.stringify({ device_id: deviceId })
-                });
-                
-                const data = await response.json();
-                
-                if (response.ok) {
-                    console.log('✅ Playback transferred to HandMixed device');
-                    updateStatus('Spotify Player connected and ready', 'success');
-                } else {
-                    console.warn('⚠️ Playback transfer failed, but player is ready:', data.error);
-                }
-            } catch (error) {
-                console.warn('⚠️ Playback transfer error:', error);
-            }
-        }
-
-        /**
-         * Get CSRF token for API requests
-         */
-        function getCsrfToken() {
-            const cookies = document.cookie.split(';');
-            for (let cookie of cookies) {
-                const [name, value] = cookie.trim().split('=');
-                if (name === 'csrftoken') {
-                    return value;
-                }
-            }
-            return '';
-        }
-
-        // ========================================== 
-        // PLAYLIST MANAGEMENT
-        // ==========================================
-
-        /**
-         * Load user's Spotify playlists
-         */
-        function loadPlaylists() {
-            console.log('🎵 Loading Spotify playlists...');
-            const container = document.getElementById('playlistsContainer');
-            container.innerHTML = '<div class="loading-small">◈ Loading playlists...</div>';
-
-            fetch('/api/spotify/check-auth/', {
-                method: 'GET',
-                credentials: 'same-origin',
-                headers: {
-                    'Accept': 'application/json',
-                    'Content-Type': 'application/json'
-                }
-            })
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-                }
-                return response.json();
-            })
-            .then(data => {
-                if (data.authenticated) {
-                    spotifyState.isConnected = true;
-                    spotifyState.isPremium = data.premium;
-                    
-                    if (!spotifyState.isPremium) {
-                        container.innerHTML = `
-                            <div style="padding: 10px; font-size: 0.7rem; color: #ff6b6b; text-align: center;">
-                                ⚠️ Premium Required<br>
-                                <button class="hub-btn" onclick="fetchPlaylists()" style="margin-top: 5px; font-size: 0.6rem;">
-                                    Load Preview Mode
-                                </button>
-                            </div>
-                        `;
-                        return;
-                    }
-                    
-                    return fetchPlaylists();
-                } else {
-                    window.location.href = '/api/spotify/auth/';
-                }
-            })
-            .catch(error => {
-                console.error('❌ Auth check error:', error);
-                container.innerHTML = `
-                    <div style="padding: 10px; font-size: 0.7rem; color: #ff6b6b; text-align: center;">
-                        ❌ Connection failed<br>
-                        <button class="hub-btn" onclick="retrySpotifyConnection()" style="margin-top: 5px; font-size: 0.6rem;">
-                            Retry
-                        </button>
-                    </div>
-                `;
-            });
-        }
-
-        /**
-         * Fetch playlists from Spotify API
-         */
-        function fetchPlaylists() {
-            const container = document.getElementById('playlistsContainer');
-            container.innerHTML = '<div class="loading-small">◈ Loading playlists...</div>';
-
-            return fetch('/api/spotify/playlists/', {
-                method: 'GET',
-                credentials: 'same-origin',
-                headers: {
-                    'Accept': 'application/json',
-                    'Content-Type': 'application/json'
-                }
-            })
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-                }
-                return response.json();
-            })
-            .then(data => {
-                if (data.error) {
-                    throw new Error(data.error);
-                }
-                
-                spotifyState.allPlaylists = data.playlists || [];
-                displayPlaylists(spotifyState.allPlaylists);
-                console.log(`✅ Loaded ${spotifyState.allPlaylists.length} playlists`);
-                
-                // Show refresh button
-                document.getElementById('loadPlaylistsBtn').style.display = 'none';
-                document.getElementById('refreshBtn').style.display = 'block';
-            })
-            .catch(error => {
-                console.error('❌ Error loading playlists:', error);
-                container.innerHTML = `
-                    <div style="padding: 10px; font-size: 0.7rem; color: #ff6b6b; text-align: center;">
-                        ❌ Failed: ${error.message}<br>
-                        <button class="hub-btn" onclick="loadPlaylists()" style="margin-top: 5px; font-size: 0.6rem;">
-                            Try Again
-                        </button>
-                    </div>
-                `;
-            });
-        }
-
-        /**
-         * Display playlists in the UI
-         */
-        function displayPlaylists(playlists) {
-            const container = document.getElementById('playlistsContainer');
-            
-            if (!playlists || playlists.length === 0) {
-                container.innerHTML = `
-                    <div class="loading-small">
-                        No playlists found<br>
-                        <button class="hub-btn" onclick="loadPlaylists()" style="margin-top: 5px; font-size: 0.6rem;">
-                            Refresh
-                        </button>
-                    </div>
-                `;
-                return;
-            }
-
-            let playlistsHTML = '';
-            
-            playlists.forEach((playlist, index) => {
-                const imageUrl = playlist.images && playlist.images.length > 0 
-                    ? playlist.images[0].url 
-                    : null;
-                
-                playlistsHTML += `
-                    <div class="playlist-item-small" onclick="loadPlaylistTracks('${playlist.id}', ${index}, '${playlist.name.replace(/'/g, "\\'")}')">
-                        ${imageUrl ? 
-                            `<img src="${imageUrl}" alt="${playlist.name}" class="playlist-image-small" loading="lazy">` :
-                            '<div class="playlist-image-small" style="background: linear-gradient(135deg, #00d4ff, #f39c12); display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; font-size: 0.6rem;">🎵</div>'
-                        }
-                        <div class="playlist-info-small">
-                            <div class="playlist-name-small">${playlist.name}</div>
-                            <div class="playlist-details-small">
-                                ${playlist.tracks?.total || 0} tracks
-                            </div>
-                        </div>
-                    </div>
-                `;
-            });
-            
-            container.innerHTML = playlistsHTML;
-        }
-
-        /**
-         * Load tracks from selected playlist
-         */
-        function loadPlaylistTracks(playlistId, playlistIndex, playlistName) {
-            console.log(`🎵 Loading tracks for playlist: ${playlistName}`);
-            
-            // Update UI to show selected playlist
-            document.querySelectorAll('.playlist-item-small').forEach((item, index) => {
-                if (index === playlistIndex) {
-                    item.classList.add('active');
-                } else {
-                    item.classList.remove('active');
-                }
-            });
-
-            updateStatus(`Loading tracks from "${playlistName}"...`, 'info');
-            
-            // Clear deck selection state
-            mixingState.selectedDeck = null;
-            clearDeckSelection();
-
-            fetch(`/api/spotify/playlists/${playlistId}/tracks/`, {
-                method: 'GET',
-                credentials: 'same-origin',
-                headers: {
-                    'Accept': 'application/json',
-                    'Content-Type': 'application/json'
-                }
-            })
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-                }
-                return response.json();
-            })
-            .then(data => {
-                if (data.error) {
-                    throw new Error(data.error);
-                }
-                
-                const allTracks = data.tracks || [];
-                
-                // Filter playable tracks
-                spotifyState.currentPlaylist = allTracks.filter(track => 
-                    track && (track.uri || track.preview_url)
-                ).map(track => ({
-                    id: track.id,
-                    name: track.name,
-                    artist: track.artists.map(artist => artist.name).join(', '),
-                    album: track.album?.name || 'Unknown Album',
-                    uri: track.uri,
-                    preview_url: track.preview_url,
-                    external_url: track.external_urls?.spotify,
-                    duration_ms: track.duration_ms,
-                    popularity: track.popularity,
-                    images: track.album?.images || []
-                }));
-                
-                spotifyState.currentTrackIndex = 0;
-                
-                console.log(`✅ Loaded ${spotifyState.currentPlaylist.length} playable tracks from "${playlistName}"`);
-                
-                // Display track list
-                displayTrackList(allTracks, playlistName);
-                
-                if (spotifyState.currentPlaylist.length > 0) {
-                    // Reset the playlist position when a new playlist is loaded
-                    queueState.loadingIndex = 0;
-                    
-                    // Clear any auto-loaded tracks from previous playlist
-                    clearAutoLoadedTracks();
-                    
-                    // Update queue display
-                    updateQueueDisplay();
-                    updateQueueToggleButton();
-                    
-                    // Auto-load first tracks from new playlist if auto-mode is enabled
-                    if (queueState.isAutoMode) {
-                        setTimeout(() => {
-                            forceAutoLoadNewPlaylist();
-                        }, 1000);
-                    }
-                    
-                    updateStatus(`Loaded playlist "${playlistName}" with ${spotifyState.currentPlaylist.length} tracks`, 'success');
-                } else {
-                    updateStatus(`No playable tracks found in "${playlistName}"`, 'error');
-                    spotifyState.currentPlaylist = [];
-                }
-            })
-            .catch(error => {
-                console.error('❌ Error loading tracks:', error);
-                updateStatus(`Failed to load tracks: ${error.message}`, 'error');
-                
-                document.querySelectorAll('.playlist-item-small').forEach(item => {
-                    item.classList.remove('active');
-                });
-            });
-        }
-
-        /**
-         * Display track list in the UI
-         */
-        function displayTrackList(tracks, playlistName) {
-            const container = document.getElementById('tracksContainer');
-            const tracksInfo = document.getElementById('tracksInfo');
-            
-            document.getElementById('progressiveReloadBtn').style.display = 'block';
-
-            const tracksWithPreviews = tracks.filter(track => track.preview_url);
-            const tracksWithUris = tracks.filter(track => track.uri);
-            
-            tracksInfo.innerHTML = `${tracks.length} tracks • ${tracksWithUris.length} full • ${tracksWithPreviews.length} previews • Click deck first, then track to load`;
-            
-            let tracksHTML = '';
-            
-            tracks.forEach((track, index) => {
-                const hasPreview = track.preview_url;
-                const hasUri = track.uri;
-                const playbackType = hasUri ? 'full' : (hasPreview ? 'preview' : 'none');
-                
-                const playableClass = (hasUri || hasPreview) ? 'playable' : '';
-                const duration = track.duration_ms ? formatDuration(track.duration_ms) : '--:--';
-                
-                tracksHTML += `
-                    <div class="track-item-small ${playableClass}" 
-                        onclick="loadTrackToDeckFromList(${index})"
-                        style="padding: 8px; margin: 4px 0; background: rgba(26,26,26,0.6); border-radius: 6px; cursor: pointer; display: flex; align-items: center; gap: 12px; border: 1px solid rgba(255,255,255,0.1); transition: all 0.3s ease;">
-                        <div style="font-family: Orbitron; font-size: 0.7rem; color: #f39c12; min-width: 20px; text-align: center;">${index + 1}</div>
-                        <div style="flex: 1; min-width: 0;">
-                            <div style="font-size: 0.8rem; font-weight: 600; color: #e0e0e0; margin-bottom: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${track.name}</div>
-                            <div style="font-size: 0.7rem; color: #b0b0b0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${track.artists.map(artist => artist.name).join(', ')}</div>
-                        </div>
-                        <div style="font-size: 0.6rem; color: #888; font-family: Orbitron; min-width: 40px; text-align: right;">${duration}</div>
-                        <div style="width: 6px; height: 6px; border-radius: 50%; background: ${playbackType === 'full' ? '#1ed760' : playbackType === 'preview' ? '#f39c12' : '#666'}; margin-left: 8px;"></div>
-                    </div>
-                `;
-            });
-            
-            container.innerHTML = tracksHTML;
-            document.getElementById('backToPlaylistsBtn').style.display = 'block';
-        }
-
-        // ========================================== 
-        // DECK MANAGEMENT
-        // ==========================================
-
-        /**
-         * Select a deck for track loading
-         */
-        function loadTrackToDeck(deckLetter) {
-            console.log(`🎵 Loading track to Professional Deck ${deckLetter}`);
-            mixingState.selectedDeck = deckLetter;
-            updateStatus(`Select a track to load into Professional Deck ${deckLetter}`, 'info');
-            
-            // Highlight selected deck
-            const deckDisplay = document.getElementById(`deck${deckLetter}TrackDisplay`);
-            deckDisplay.style.borderColor = deckLetter === 'A' ? '#00d4ff' : '#f39c12';
-            deckDisplay.style.background = deckLetter === 'A' ? 
-                'linear-gradient(135deg, rgba(0, 212, 255, 0.4), rgba(30, 215, 96, 0.4))' :
-                'linear-gradient(135deg, rgba(243, 156, 18, 0.4), rgba(30, 215, 96, 0.4))';
-            
-            // Remove highlight from other deck
-            const otherDeck = deckLetter === 'A' ? 'B' : 'A';
-            const otherDisplay = document.getElementById(`deck${otherDeck}TrackDisplay`);
-            otherDisplay.style.borderColor = '';
-            otherDisplay.style.background = '';
-            
-            // Auto-cancel selection after 10 seconds
-            setTimeout(() => {
-                if (mixingState.selectedDeck === deckLetter) {
-                    clearDeckSelection();
-                }
-            }, 10000);
-        }
-
-        /**
-         * Clear deck selection highlighting
-         */
-        function clearDeckSelection() {
-            if (!mixingState.selectedDeck) return;
-            
-            const deckDisplay = document.getElementById(`deck${mixingState.selectedDeck}TrackDisplay`);
-            deckDisplay.style.borderColor = '';
-            deckDisplay.style.background = '';
-            mixingState.selectedDeck = null;
-            updateStatus('Track loading cancelled', 'info');
-        }
-
-        /**
-         * Load track from playlist to selected deck
-         */
-        function loadTrackToDeckFromList(trackIndex) {
-            if (!mixingState.selectedDeck) {
-                updateStatus('Select a deck first by clicking on a deck display', 'error');
-                return;
-            }
-
-            if (trackIndex >= 0 && trackIndex < spotifyState.currentPlaylist.length) {
-                const track = spotifyState.currentPlaylist[trackIndex];
-                const deck = deckState[mixingState.selectedDeck];
-                
-                // Stop current track if playing
-                if (deck.isPlaying || deck.isPaused) {
-                    stopDeck(mixingState.selectedDeck);
-                }
-                
-                // Load track into deck
-                deck.track = track;
-                
-                // Initialize deck audio
-                initializeDeckAudio(mixingState.selectedDeck);
-                
-                // Detect BPM (placeholder - would use audio analysis in real implementation)
-                deck.bpm = 120 + Math.floor(Math.random() * 60); // Random BPM between 120-180
-                
-                // Update deck display
-                updateDeckDisplay(mixingState.selectedDeck, track);
-                updateDeckUI(mixingState.selectedDeck);
-                
-                // Generate waveform placeholder
-                generatePlaceholderWaveform(mixingState.selectedDeck);
-                
-                // Clear selection
-                clearDeckSelection();
-                
-                updateStatus(`"${track.name}" loaded into Professional Deck ${mixingState.selectedDeck}`, 'success');
-                console.log(`🎵 Professional track loaded into Deck ${mixingState.selectedDeck}:`, track);
-            }
-        }
-
-        /**
-         * Play selected deck
-         */
-        function playDeck(deckLetter) {
+        // Play deck
+        async function playDeck(deckLetter) {
             const deck = deckState[deckLetter];
             
-            if (!deck.track) {
-                updateStatus(`No track loaded in Professional Deck ${deckLetter}`, 'error');
+            if (!deck.audio || !deck.track) {
+                updateStatus(`No track loaded in Deck ${deckLetter}`, 'error');
                 return;
             }
 
-            console.log(`▶️ Playing Deck ${deckLetter}: ${deck.track.name}`);
+            try {
+                // Ensure audio context is running
+                if (Tone.context.state !== 'running') {
+                    await Tone.start();
+                }
 
-            // Resume audio context if suspended
-            if (mixingState.masterAudioContext && mixingState.masterAudioContext.state === 'suspended') {
-                mixingState.masterAudioContext.resume().then(() => {
-                    console.log('🎛️ Audio context resumed');
-                });
-            }
+                await deck.audio.play();
+                deck.isPlaying = true;
+                deck.isPaused = false;
+                deck.isFinished = false;
 
-            // Handle Spotify Premium playback
-            if (spotifyState.isPlayerReady && deck.track.uri && deck.audioType === 'spotify') {
-                playSpotifyTrack(deck.track.uri, deckLetter);
+                // Start waveform playback
+                if (deck.wavesurfer) {
+                    deck.wavesurfer.play();
+                }
+
+                updateDeckStatus(deckLetter, 'Playing');
+                updateDeckUI(deckLetter);
+                
+                console.log(`▶️ Playing Deck ${deckLetter}: ${deck.track.title}`);
+                updateStatus(`Playing: ${deck.track.title}`, 'success');
+
+            } catch (error) {
+                console.error(`❌ Error playing Deck ${deckLetter}:`, error);
+                updateStatus(`Failed to play Deck ${deckLetter}`, 'error');
             }
-            // Handle preview audio playback
-            else if (deck.audio && deck.audioType === 'preview') {
-                playDeckAudio(deckLetter);
-            }
-            // No playback available
-            else {
-                updateStatus(`No playback available for track in Deck ${deckLetter}`, 'error');
-                return;
-            }
-            
-            // Update deck state
-            deck.isPlaying = true;
-            deck.isPaused = false;
-            deck.isFinished = false;
-            
-            // Update UI
-            updateDeckStatus(deckLetter, 'Playing');
-            updateDeckUI(deckLetter);
-            
-            // Start progress tracking
-            startProgressTracking(deckLetter);
-            
-            updateStatus(`Playing: ${deck.track.name} on Deck ${deckLetter}`, 'success');
         }
-        /**
-         * Pause selected deck
-         */
+
+        // Pause deck
         function pauseDeck(deckLetter) {
             const deck = deckState[deckLetter];
             
-            if (!deck.isPlaying) return;
-            
-            if (spotifyState.isPlayerReady && deck.track.uri) {
-                controlSpotifyPlayback('pause');
-            } else if (deck.audio) {
-                deck.audio.pause();
-            }
-            
+            if (!deck.isPlaying || !deck.audio) return;
+
+            deck.audio.pause();
             deck.isPlaying = false;
             deck.isPaused = true;
-            stopProgressTracking(deckLetter);
+
+            // Pause waveform
+            if (deck.wavesurfer) {
+                deck.wavesurfer.pause();
+            }
+
             updateDeckStatus(deckLetter, 'Paused');
             updateDeckUI(deckLetter);
             
-            console.log(`⏸️ Paused Professional Deck ${deckLetter}`);
+            console.log(`⏸️ Paused Deck ${deckLetter}`);
         }
 
-        /**
-         * Stop selected deck
-         */
+        // Stop deck
         function stopDeck(deckLetter) {
             const deck = deckState[deckLetter];
             
-            if (spotifyState.isPlayerReady && deck.track && deck.track.uri) {
-                controlSpotifyPlayback('pause');
-            } else if (deck.audio) {
+            if (deck.audio) {
                 deck.audio.pause();
                 deck.audio.currentTime = 0;
             }
             
             deck.isPlaying = false;
             deck.isPaused = false;
-            deck.currentTime = 0;
-            deck.isLooping = false;
-            
-            stopProgressTracking(deckLetter);
+
+            // Stop waveform
+            if (deck.wavesurfer) {
+                deck.wavesurfer.stop();
+            }
+
             updateDeckStatus(deckLetter, 'Stopped');
-            updateProgressDisplay(deckLetter);
-            updatePlayhead(deckLetter);
             updateDeckUI(deckLetter);
             
-            // If this was an auto-loaded track that's now stopped, mark it as ready for new auto-loading
-            if (deck.isLoadedFromQueue) {
-                updateDeckStatus(deckLetter, 'Ready for next track');
-                
-                // If auto-mode is enabled, queue up the next track after a short delay
-                if (queueState.isAutoMode && spotifyState.currentPlaylist.length > 0) {
-                    setTimeout(() => {
-                        checkAndAutoLoadTracks();
-                    }, 2000); // 2-second delay before auto-loading next track
-                }
-            }
-            
-            console.log(`⏹️ Stopped Professional Deck ${deckLetter}`);
+            console.log(`⏹️ Stopped Deck ${deckLetter}`);
         }
 
-        // ========================================== 
-        // TEMPO AND MIXING CONTROLS
-        // ==========================================
-
-        /**
-         * Set tempo for a deck
-         */
-        function setTempo(deckLetter, value) {
+        // Skip track on deck
+        function skipTrackOnDeck(deckLetter) {
             const deck = deckState[deckLetter];
-            deck.tempo = 100 + parseInt(value); // Convert to percentage
             
-            if (deck.audio) {
-                deck.audio.playbackRate = deck.tempo / 100;
-            }
-            
-            // Update BPM display
-            const newBPM = Math.round(deck.bpm * (deck.tempo / 100));
-            document.getElementById(`deck${deckLetter}BPM`).textContent = `${newBPM} BPM`;
-            document.getElementById(`deck${deckLetter}TempoValue`).textContent = `${deck.tempo}%`;
-            
-            console.log(`🎛️ Deck ${deckLetter} tempo: ${deck.tempo}% (${newBPM} BPM)`);
-        }
-
-        /**
-         * Adjust tempo by increment
-         */
-        function adjustTempo(deckLetter, direction) {
-            const slider = document.getElementById(`deck${deckLetter}TempoSlider`);
-            const currentValue = parseInt(slider.value);
-            const newValue = Math.max(-20, Math.min(20, currentValue + direction));
-            slider.value = newValue;
-            setTempo(deckLetter, newValue);
-        }
-
-        /**
-         * Sync tempo between decks
-         */
-        function syncTempo(deckLetter) {
-            const sourceDeck = deckState[deckLetter === 'A' ? 'B' : 'A'];
-            const targetDeck = deckState[deckLetter];
-            
-            if (!sourceDeck.track) {
-                updateStatus(`No track loaded in other deck to sync with`, 'error');
+            if (!deck.track) {
+                updateStatus(`No track to skip on Deck ${deckLetter}`, 'error');
                 return;
             }
             
-            targetDeck.tempo = sourceDeck.tempo;
-            targetDeck.bpm = sourceDeck.bpm;
+            console.log(`⏭️ Skipping track on Deck ${deckLetter}: ${deck.track.title}`);
             
-            const slider = document.getElementById(`deck${deckLetter}TempoSlider`);
-            slider.value = targetDeck.tempo - 100;
+            // Stop current track
+            stopDeck(deckLetter);
             
-            if (targetDeck.audio) {
-                targetDeck.audio.playbackRate = targetDeck.tempo / 100;
-            }
+            // Mark as finished
+            deck.isFinished = true;
             
-            // Update displays
-            setTempo(deckLetter, targetDeck.tempo - 100);
-            
-            updateStatus(`Deck ${deckLetter} synced to ${targetDeck.tempo}%`, 'success');
-            console.log(`🔄 Deck ${deckLetter} synced to Deck ${deckLetter === 'A' ? 'B' : 'A'}`);
+            updateStatus(`Skipped track on Deck ${deckLetter}`, 'success');
         }
 
-        /**
-         * Set crossfader position
-         */
+        // Set crossfader
         function setCrossfader(value) {
-            mixingState.crossfaderValue = parseInt(value);
+            const crossfaderValue = parseInt(value);
             
-            // Calculate volume for each deck based on crossfader position
-            const deckAVolume = Math.max(0, (100 - mixingState.crossfaderValue) / 50);
-            const deckBVolume = Math.max(0, mixingState.crossfaderValue / 50);
+            // Calculate volume for each deck (0-1)
+            const deckAVolume = Math.max(0, (100 - crossfaderValue) / 50);
+            const deckBVolume = Math.max(0, crossfaderValue / 50);
             
-            // Apply crossfader to deck volumes
-            if (deckState.A.gainNode) {
-                deckState.A.gainNode.gain.value = deckState.A.volume * deckAVolume;
-            } else if (deckState.A.audio) {
+            // Apply to deck volumes
+            if (deckState.A.audio) {
                 deckState.A.audio.volume = deckState.A.volume * deckAVolume;
             }
             
-            if (deckState.B.gainNode) {
-                deckState.B.gainNode.gain.value = deckState.B.volume * deckBVolume;
-            } else if (deckState.B.audio) {
+            if (deckState.B.audio) {
                 deckState.B.audio.volume = deckState.B.volume * deckBVolume;
             }
             
-            console.log(`🎚️ Crossfader: ${mixingState.crossfaderValue}% (A: ${Math.round(deckAVolume * 100)}%, B: ${Math.round(deckBVolume * 100)}%)`);
+            console.log(`🎚️ Crossfader: ${crossfaderValue}% (A: ${Math.round(deckAVolume * 100)}%, B: ${Math.round(deckBVolume * 100)}%)`);
         }
 
-        // ========================================== 
-        // HAND TRACKING CONTROLS
-        // ==========================================
-
-        /**
-         * Start hand tracking with camera
-         */
-        function startHandTracking() {
-            console.log('🚀 Starting Hand Tracking...');
-            updateStatus('Starting camera...', 'info');
+        // Update deck display
+        function updateDeckDisplay(deckLetter, track) {
+            const nameElement = document.getElementById(`deck${deckLetter}TrackName`);
+            const artistElement = document.getElementById(`deck${deckLetter}TrackArtist`);
+            const artworkElement = document.getElementById(`deck${deckLetter}Artwork`);
+            const displayElement = document.getElementById(`deck${deckLetter}TrackDisplay`);
             
-            const startBtn = document.getElementById('startBtn');
-            const stopBtn = document.getElementById('stopBtn');
-            const video = document.getElementById('video');
-            const placeholder = document.getElementById('videoPlaceholder');
-            
-            startBtn.disabled = true;
-
-            navigator.mediaDevices.getUserMedia({
-                video: { 
-                    width: { ideal: 1280, max: 1920 }, 
-                    height: { ideal: 720, max: 1080 },
-                    frameRate: { ideal: 30, max: 30 },
-                    facingMode: 'user'
-                }
-            })
-            .then(function(mediaStream) {
-                console.log('✅ Camera stream obtained');
-                appState.stream = mediaStream;
-                video.srcObject = appState.stream;
-                video.style.display = 'block';
-                placeholder.style.display = 'none';
-                appState.isTracking = true;
+            if (track) {
+                nameElement.textContent = track.title;
+                artistElement.textContent = track.artist;
                 
-                video.addEventListener('loadedmetadata', () => {
-                    console.log('📹 Video metadata loaded, initializing MediaPipe...');
-                    setTimeout(() => {
-                        initializeHandTracking();
-                    }, 1000);
-                }, { once: true });
-                
-                updateStatus('Camera ready - initializing hand tracking...', 'info');
-                startBtn.style.display = 'none';
-                stopBtn.style.display = 'block';
-                
-            })
-            .catch(function(error) {
-                console.error('❌ Camera error:', error);
-                updateStatus(`Camera failed: ${error.message}`, 'error');
-                startBtn.disabled = false;
-            });
-        }
-
-        /**
-         * Initialize MediaPipe hand tracking
-         */
-        function initializeHandTracking() {
-            try {
-                console.log('🔧 Initializing MediaPipe Hands...');
-                
-                appState.hands = new Hands({
-                    locateFile: (file) => {
-                        return `https://cdn.jsdelivr.net/npm/@mediapipe/hands/${file}`;
-                    }
-                });
-                
-                appState.hands.setOptions({
-                    maxNumHands: 2,
-                    modelComplexity: 1,
-                    minDetectionConfidence: 0.7,
-                    minTrackingConfidence: 0.5
-                });
-                
-                appState.hands.onResults(onResults);
-                
-                const video = document.getElementById('video');
-                
-                async function processFrame() {
-                    if (appState.isTracking && video.readyState >= 2) {
-                        try {
-                            await appState.hands.send({image: video});
-                        } catch (e) {
-                            console.warn('Frame processing error:', e);
-                        }
-                    }
-                    
-                    if (appState.isTracking) {
-                        requestAnimationFrame(processFrame);
-                    }
+                if (track.artwork) {
+                    artworkElement.innerHTML = `<img src="${track.artwork}" alt="${track.title}">`;
+                } else {
+                    artworkElement.textContent = '🎵';
                 }
                 
-                processFrame();
-                
-                console.log('✅ MediaPipe Hands initialized and processing started');
-                updateStatus('🚀 Hand tracking active! Use gestures to control professional decks', 'success');
-                
-            } catch (error) {
-                console.error('❌ MediaPipe initialization error:', error);
-                updateStatus('Hand tracking initialization failed', 'error');
-            }
-        }
-
-        /**
-         * Stop hand tracking
-         */
-        function stopHandTracking() {
-            console.log('🛑 Stopping Hand Tracking...');
-            
-            appState.isTracking = false;
-            
-            if (appState.camera) {
-                try {
-                    appState.camera.stop();
-                } catch (e) {
-                    console.warn('Camera stop error:', e);
-                }
-                appState.camera = null;
-            }
-            
-            if (appState.hands) {
-                try {
-                    appState.hands.close();
-                } catch (e) {
-                    console.warn('Hands close error:', e);
-                }
-                appState.hands = null;
-            }
-            
-            if (appState.stream) {
-                appState.stream.getTracks().forEach(track => {
-                    track.stop();
-                    console.log(`Stopped track: ${track.kind}`);
-                });
-                appState.stream = null;
-            }
-            
-            const video = document.getElementById('video');
-            const canvas = document.getElementById('canvas');
-            const startBtn = document.getElementById('startBtn');
-            const stopBtn = document.getElementById('stopBtn');
-            const placeholder = document.getElementById('videoPlaceholder');
-            
-            video.srcObject = null;
-            video.style.display = 'none';
-            placeholder.style.display = 'block';
-            
-            const ctx = canvas.getContext('2d');
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            
-            updateStatus('Hand tracking stopped', 'info');
-            document.getElementById('gestureStatus').innerHTML = '🖐️ Show hands to control professional decks';
-            
-            startBtn.style.display = 'block';
-            startBtn.disabled = false;
-            stopBtn.style.display = 'none';
-            
-            appState.handGestures = {};
-            appState.gestureStabilityCount = 0;
-            appState.gestureHistory = [];
-            
-            console.log('✅ Hand tracking stopped and cleaned up');
-        }
-
-        /**
-         * Process hand tracking results from MediaPipe
-         */
-        function onResults(results) {
-            if (!appState.isTracking) return;
-            
-            // Update FPS counter
-            appState.frameCount++;
-            const now = Date.now();
-            if (now - appState.lastFpsUpdate > 1000) {
-                appState.currentFps = Math.round(appState.frameCount * 1000 / (now - appState.lastFpsUpdate));
-                appState.frameCount = 0;
-                appState.lastFpsUpdate = now;
-                document.getElementById('fpsCounter').textContent = `FPS: ${appState.currentFps}`;
-            }
-
-            const canvasElement = document.getElementById('canvas');
-            const canvasCtx = canvasElement.getContext('2d');
-            const videoElement = document.getElementById('video');
-            
-            // Set canvas size to match video
-            canvasElement.width = videoElement.videoWidth;
-            canvasElement.height = videoElement.videoHeight;
-            
-            // Clear canvas
-            canvasCtx.clearRect(0, 0, canvasElement.width, canvasElement.height);
-            
-            // Update hand indicators
-            const leftIndicator = document.getElementById('leftHandIndicator');
-            const rightIndicator = document.getElementById('rightHandIndicator');
-            
-            leftIndicator.classList.remove('detected');
-            rightIndicator.classList.remove('detected');
-            
-            if (results.multiHandLandmarks) {
-                for (let i = 0; i < results.multiHandLandmarks.length; i++) {
-                    const landmarks = results.multiHandLandmarks[i];
-                    const handedness = results.multiHandedness[i];
-                    const label = handedness.label;
-                    
-                    // Detect gesture
-                    const gesture = detectGestureImproved(landmarks);
-                    appState.handGestures[i] = gesture;
-                    
-                    // Update hand indicators
-                    if (label === 'Right') {
-                        leftIndicator.classList.add('detected'); // Camera is mirrored
-                    } else {
-                        rightIndicator.classList.add('detected');
-                    }
-                    
-                    // Draw hand
-                    const handColor = handColors[i % handColors.length];
-                    drawEnhancedHand(canvasCtx, landmarks, i, handColor, label);
-                }
-                
-                // Update gesture status
-                updateMultiHandGestureStatus(appState.handGestures);
-                
-                // Handle gesture actions
-                const primaryGesture = appState.handGestures[0];
-                if (primaryGesture) {
-                    handleGestureStability(primaryGesture);
-                }
+                displayElement.classList.add('loaded');
+                updateDeckStatus(deckLetter, 'Ready');
             } else {
-                appState.handGestures = {};
-                updateMultiHandGestureStatus({});
+                nameElement.textContent = 'No track loaded';
+                artistElement.textContent = 'Select track from Audius';
+                artworkElement.textContent = '🎵';
+                displayElement.classList.remove('loaded');
+                updateDeckStatus(deckLetter, 'Empty');
+            }
+            
+            updateDeckUI(deckLetter);
+        }
+
+        // Update deck status
+        function updateDeckStatus(deckLetter, status) {
+            document.getElementById(`deck${deckLetter}TrackStatus`).textContent = status;
+        }
+
+        // Update deck buttons
+        function updateDeckUI(deckLetter) {
+            const deck = deckState[deckLetter];
+            
+            const playBtn = document.getElementById(`deck${deckLetter}PlayBtn`);
+            const pauseBtn = document.getElementById(`deck${deckLetter}PauseBtn`);
+            const stopBtn = document.getElementById(`deck${deckLetter}StopBtn`);
+            const skipBtn = document.getElementById(`deck${deckLetter}SkipBtn`);
+            
+            if (playBtn) playBtn.disabled = !deck.track || deck.isPlaying;
+            if (pauseBtn) pauseBtn.disabled = !deck.isPlaying;
+            if (stopBtn) stopBtn.disabled = !deck.track || (!deck.isPlaying && !deck.isPaused);
+            if (skipBtn) skipBtn.disabled = !deck.track;
+        }
+
+        // Toggle music hub
+        function toggleHubCollapse() {
+            const musicHub = document.getElementById('musicHub');
+            const collapseBtn = document.getElementById('collapseBtn');
+            
+            const isCollapsed = musicHub.classList.contains('collapsed');
+            
+            if (isCollapsed) {
+                musicHub.classList.remove('collapsed');
+                collapseBtn.textContent = '▼ Hide';
+                updateHubHeight(300);
+            } else {
+                musicHub.classList.add('collapsed');
+                collapseBtn.textContent = '▲ Show';
+                updateHubHeight(40);
             }
         }
 
-        // ========================================== 
-        // UI UPDATE FUNCTIONS
-        // ==========================================
+        // Update hub height
+        function updateHubHeight(height) {
+            document.documentElement.style.setProperty('--hub-height', `${height}px`);
+        }
 
-        /**
-         * Update status message display
-         */
-        function updateStatus(message, type) {
+        // Update status
+        function updateStatus(message, type = 'info') {
             const statusDiv = document.getElementById('status');
             statusDiv.textContent = '▸ ' + message;
             statusDiv.className = 'status ' + type;
@@ -3227,186 +1880,8 @@
             }
         }
 
-        /**
-         * Update deck display with track information
-         */
-        function updateDeckDisplay(deckLetter, track = null) {
-            const deck = deckState[deckLetter];
-            const useTrack = track || deck.track;
-            
-            const nameElement = document.getElementById(`deck${deckLetter}TrackName`);
-            const artistElement = document.getElementById(`deck${deckLetter}TrackArtist`);
-            const statusElement = document.getElementById(`deck${deckLetter}TrackStatus`);
-            const artworkElement = document.getElementById(`deck${deckLetter}Artwork`);
-            const displayElement = document.getElementById(`deck${deckLetter}TrackDisplay`);
-            
-            if (useTrack) {
-                nameElement.textContent = useTrack.name;
-                artistElement.textContent = useTrack.artist;
-                statusElement.textContent = 'Ready';
-                
-                if (useTrack.images && useTrack.images.length > 0) {
-                    artworkElement.innerHTML = `<img src="${useTrack.images[0].url}" alt="${useTrack.name}">`;
-                } else {
-                    artworkElement.textContent = '🎵';
-                }
-                
-                displayElement.classList.add('loaded');
-                
-                // Update duration
-                if (useTrack.duration_ms) {
-                    deck.duration = useTrack.duration_ms / 1000;
-                    document.getElementById(`deck${deckLetter}Duration`).textContent = formatTime(deck.duration);
-                }
-            } else {
-                nameElement.textContent = 'No track loaded';
-                artistElement.textContent = 'Click to load from playlist';
-                statusElement.textContent = 'Ready';
-                artworkElement.textContent = '🎵';
-                displayElement.classList.remove('loaded');
-            }
-        }
-
-        /**
-         * Update deck status text
-         */
-        function updateDeckStatus(deckLetter, status) {
-            document.getElementById(`deck${deckLetter}TrackStatus`).textContent = status;
-        }
-
-        /**
-         * Update deck control button states
-         */
-        function updateDeckUI(deckLetter) {
-            const deck = deckState[deckLetter];
-            
-            const playBtn = document.getElementById(`deck${deckLetter}PlayBtn`);
-            const pauseBtn = document.getElementById(`deck${deckLetter}PauseBtn`);
-            const stopBtn = document.getElementById(`deck${deckLetter}StopBtn`);
-            const skipBtn = document.getElementById(`deck${deckLetter}SkipBtn`);
-            
-            // Add null checks to prevent errors
-            if (!playBtn || !pauseBtn || !stopBtn) {
-                console.warn(`Missing deck buttons for Deck ${deckLetter}`);
-                return;
-            }
-            
-            if (deck.isPlaying) {
-                playBtn.disabled = true;
-                pauseBtn.disabled = false;
-                stopBtn.disabled = false;
-                if (skipBtn) skipBtn.disabled = false;
-            } else {
-                playBtn.disabled = !deck.track || deck.isFinished;
-                pauseBtn.disabled = true;
-                stopBtn.disabled = !deck.isPaused;
-                if (skipBtn) skipBtn.disabled = !deck.track;
-            }
-        }
-        // ========================================== 
-        // HUB RESIZE FUNCTIONALITY
-        // ==========================================
-
-        /**
-         * Start resizing the music hub
-         */
-        function startResize(e) {
-            e.preventDefault();
-            hubState.isResizing = true;
-            document.body.style.cursor = 'ns-resize';
-            document.body.style.userSelect = 'none';
-        }
-
-        /**
-         * Handle resize drag events
-         */
-        function handleResize(e) {
-            if (!hubState.isResizing || hubState.isCollapsed) return;
-            
-            const windowHeight = window.innerHeight;
-            const mouseY = e.clientY;
-            const newHeight = Math.max(40, Math.min(windowHeight * 0.6, windowHeight - mouseY));
-            
-            hubState.height = newHeight;
-            updateHubHeight(hubState.height);
-        }
-
-        /**
-         * Stop resizing the music hub
-         */
-        function stopResize() {
-            if (hubState.isResizing) {
-                hubState.isResizing = false;
-                document.body.style.cursor = '';
-                document.body.style.userSelect = '';
-                
-                if (!hubState.isCollapsed) {
-                    hubState.lastHeight = hubState.height;
-                }
-            }
-        }
-
-        /**
-         * Update hub height CSS variable
-         */
-        function updateHubHeight(height) {
-            document.documentElement.style.setProperty('--hub-height', `${height}px`);
-            
-            const musicHub = document.getElementById('musicHub');
-            if (musicHub && !hubState.isCollapsed) {
-                musicHub.style.height = `${height}px`;
-            }
-        }
-
-        /**
-         * Toggle music hub collapsed state
-         */
-        function toggleHubCollapse() {
-            const musicHub = document.getElementById('musicHub');
-            const collapseBtn = document.getElementById('collapseBtn');
-            
-            hubState.isCollapsed = !hubState.isCollapsed;
-            
-            if (hubState.isCollapsed) {
-                hubState.lastHeight = hubState.height;
-                musicHub.classList.add('collapsed');
-                collapseBtn.textContent = '▲ Show';
-                updateHubHeight(40);
-                console.log('🔻 Music hub collapsed');
-            } else {
-                musicHub.classList.remove('collapsed');
-                collapseBtn.textContent = '▼ Hide';
-                hubState.height = hubState.lastHeight;
-                updateHubHeight(hubState.height);
-                console.log('🔺 Music hub expanded');
-            }
-        }
-
-        /**
-         * Toggle debug mode
-         */
-        function toggleDebugMode() {
-            appState.debugMode = !appState.debugMode;
-            const debugInfo = document.getElementById('debugInfo');
-            
-            if (debugInfo) {
-                debugInfo.style.display = appState.debugMode ? 'block' : 'none';
-            }
-            
-            const debugBtn = document.getElementById('debugToggleBtn');
-            if (debugBtn) {
-                debugBtn.textContent = appState.debugMode ? 'Hide Debug' : 'Debug';
-            }
-        }
-
-        // ========================================== 
-        // UTILITY FUNCTIONS
-        // ==========================================
-
-        /**
-         * Format time in minutes:seconds
-         */
-        function formatTime(seconds) {
+        // Format duration
+        function formatDuration(seconds) {
             if (!seconds || isNaN(seconds)) return '0:00';
             
             const mins = Math.floor(seconds / 60);
@@ -3414,371 +1889,17 @@
             return `${mins}:${secs.toString().padStart(2, '0')}`;
         }
 
-        /**
-         * Format duration from milliseconds
-         */
-        function formatDuration(ms) {
-            const minutes = Math.floor(ms / 60000);
-            const seconds = Math.floor((ms % 60000) / 1000);
-            return `${minutes}:${seconds.toString().padStart(2, '0')}`;
+        // Hand tracking placeholder functions
+        function startHandTracking() {
+            updateStatus('Hand tracking feature coming soon!', 'info');
         }
 
-        /**
-         * Show playlists view
-         */
-        function showPlaylists() {
-            displayPlaylists(spotifyState.allPlaylists);
-            const container = document.getElementById('tracksContainer');
-            const tracksInfo = document.getElementById('tracksInfo');
-            container.innerHTML = '<div class="loading-small">Select a playlist to view tracks</div>';
-            tracksInfo.textContent = 'Professional DJ Studio Ready • Load playlists to start mixing';
-            document.getElementById('backToPlaylistsBtn').style.display = 'none';
-            document.getElementById('progressiveReloadBtn').style.display = 'none';
+        function stopHandTracking() {
+            updateStatus('Hand tracking stopped', 'info');
         }
 
-        /**
-         * Refresh playlists
-         */
-        function refreshPlaylists() {
-            loadPlaylists();
-        }
-
-        /**
-         * Retry Spotify connection
-         */
-        function retrySpotifyConnection() {
-            console.log('🔄 Retrying Spotify connection...');
-            autoInitializeSpotify();
-        }
-
-        /**
-         * Progressive deck loading
-         */
-        function reloadDecksProgressively() {
-            if (spotifyState.currentPlaylist.length === 0) {
-                updateStatus('No playlist selected for progressive reload', 'error');
-                return;
-            }
-            
-            const currentPlaylistName = 'Current Playlist';
-            progressivelyLoadDecks(currentPlaylistName);
-        }
-
-        // ========================================== 
-        // Audio playback FUNCTIONS
-        // ==========================================
-        // These functions provide basic implementations
-        // and should be expanded based on requirements
-
-        function initializeDeckAudio(deckLetter) {
-            const deck = deckState[deckLetter];
-            
-            if (!deck.track) return;
-            
-            console.log(`🎛️ Initializing audio for Deck ${deckLetter}:`, deck.track.name);
-            
-            // Clean up existing audio
-            if (deck.audio) {
-                deck.audio.pause();
-                deck.audio.src = '';
-                deck.audio = null;
-            }
-            
-            // For Spotify Premium users with full tracks
-            if (spotifyState.isPlayerReady && deck.track.uri) {
-                console.log(`🎵 Using Spotify Web Playback SDK for ${deck.track.name}`);
-                deck.audioType = 'spotify';
-                return;
-            }
-            
-            // For preview tracks or non-premium users
-            if (deck.track.preview_url) {
-                console.log(`🔊 Using preview audio for ${deck.track.name}`);
-                deck.audio = new Audio(deck.track.preview_url);
-                deck.audio.crossOrigin = 'anonymous';
-                deck.audio.preload = 'metadata';
-                deck.audioType = 'preview';
-                
-                // Set up audio event listeners
-                deck.audio.addEventListener('loadedmetadata', () => {
-                    deck.duration = deck.audio.duration;
-                    document.getElementById(`deck${deckLetter}Duration`).textContent = formatTime(deck.duration);
-                    console.log(`📊 Audio metadata loaded for Deck ${deckLetter}: ${formatTime(deck.duration)}`);
-                });
-                
-                deck.audio.addEventListener('ended', () => {
-                    console.log(`🏁 Audio ended for Deck ${deckLetter}`);
-                    handleTrackEnd(deckLetter);
-                });
-                
-                deck.audio.addEventListener('error', (e) => {
-                    console.error(`❌ Audio error for Deck ${deckLetter}:`, e);
-                    updateStatus(`Audio error for Deck ${deckLetter}`, 'error');
-                });
-                
-                // Set up Web Audio context if available
-                if (mixingState.masterAudioContext) {
-                    try {
-                        const source = mixingState.masterAudioContext.createMediaElementSource(deck.audio);
-                        deck.gainNode = mixingState.masterAudioContext.createGain();
-                        deck.gainNode.gain.value = deck.volume;
-                        
-                        source.connect(deck.gainNode);
-                        deck.gainNode.connect(mixingState.masterGainNode);
-                        
-                        console.log(`🎛️ Web Audio context connected for Deck ${deckLetter}`);
-                    } catch (error) {
-                        console.warn(`⚠️ Web Audio setup failed for Deck ${deckLetter}:`, error);
-                    }
-                }
-            } else {
-                console.warn(`⚠️ No playable audio source for Deck ${deckLetter}`);
-                updateStatus(`No audio available for this track`, 'error');
-            }
-        }
-
-        function initializeWaveformCanvas(deckLetter) {
-            console.log(`🌊 Initializing waveform for Deck ${deckLetter}`);
-        }
-
-        function generatePlaceholderWaveform(deckLetter) {
-            console.log(`🌊 Generating waveform for Deck ${deckLetter}`);
-        }
-
-        function playDeckAudio(deckLetter) {
-            const deck = deckState[deckLetter];
-            
-            if (!deck.audio) {
-                console.error(`❌ No audio element for Deck ${deckLetter}`);
-                return;
-            }
-            
-            console.log(`🔊 Starting audio playback for Deck ${deckLetter}`);
-            
-            // Apply current volume and tempo
-            deck.audio.volume = deck.volume;
-            deck.audio.playbackRate = deck.tempo / 100;
-            
-            // Apply crossfader volume
-            const crossfaderEffect = deckLetter === 'A' ? 
-                Math.max(0, (100 - mixingState.crossfaderValue) / 50) :
-                Math.max(0, mixingState.crossfaderValue / 50);
-            
-            if (deck.gainNode) {
-                deck.gainNode.gain.value = deck.volume * crossfaderEffect;
-            } else {
-                deck.audio.volume = deck.volume * crossfaderEffect;
-            }
-            
-            // Play the audio
-            const playPromise = deck.audio.play();
-            
-            if (playPromise !== undefined) {
-                playPromise.then(() => {
-                    console.log(`✅ Audio playing successfully for Deck ${deckLetter}`);
-                }).catch(error => {
-                    console.error(`❌ Audio play failed for Deck ${deckLetter}:`, error);
-                    updateStatus(`Playback failed for Deck ${deckLetter}: ${error.message}`, 'error');
-                    
-                    // Reset deck state on error
-                    deck.isPlaying = false;
-                    deck.isPaused = false;
-                    updateDeckUI(deckLetter);
-                });
-            }
-        }
-
-        async function playSpotifyTrack(uri, deckLetter) {
-            if (!spotifyState.isPlayerReady || !spotifyState.player) {
-                console.error('❌ Spotify player not ready');
-                updateStatus('Spotify player not available', 'error');
-                return;
-            }
-            
-            console.log(`🎵 Playing Spotify track on Deck ${deckLetter}: ${uri}`);
-            
-            try {
-                // Start playback using Spotify Web API
-                const response = await fetch('/api/spotify/play/', {
-                    method: 'POST',
-                    headers: { 
-                        'Content-Type': 'application/json',
-                        'X-CSRFToken': getCsrfToken()
-                    },
-                    credentials: 'same-origin',
-                    body: JSON.stringify({ 
-                        uris: [uri],
-                        device_id: spotifyState.deviceId 
-                    })
-                });
-                
-                if (response.ok) {
-                    console.log(`✅ Spotify playback started for Deck ${deckLetter}`);
-                } else {
-                    const errorData = await response.json();
-                    throw new Error(errorData.error || 'Spotify playback failed');
-                }
-                
-            } catch (error) {
-                console.error(`❌ Spotify playback error for Deck ${deckLetter}:`, error);
-                updateStatus(`Spotify playback failed: ${error.message}`, 'error');
-                
-                // Fallback to preview if available
-                const deck = deckState[deckLetter];
-                if (deck.track.preview_url) {
-                    console.log(`🔄 Falling back to preview for Deck ${deckLetter}`);
-                    deck.audioType = 'preview';
-                    initializeDeckAudio(deckLetter);
-                    setTimeout(() => playDeckAudio(deckLetter), 500);
-                }
-            }
-        }
-
-        function controlSpotifyPlayback(action) {
-            console.log(`🎛️ Spotify control: ${action}`);
-        }
-
-        function updateProgressDisplay(deckLetter) {
-            const deck = deckState[deckLetter];
-            
-            const currentTimeElement = document.getElementById(`deck${deckLetter}CurrentTime`);
-            const progressFillElement = document.getElementById(`deck${deckLetter}ProgressFill`);
-            
-            if (currentTimeElement) {
-                currentTimeElement.textContent = formatTime(deck.currentTime);
-            }
-            
-            if (progressFillElement && deck.duration > 0) {
-                const progressPercent = (deck.currentTime / deck.duration) * 100;
-                progressFillElement.style.width = `${Math.min(100, progressPercent)}%`;
-            }
-        }
-
-        function updatePlayhead(deckLetter) {
-            const deck = deckState[deckLetter];
-            const playheadElement = document.getElementById(`deck${deckLetter}Playhead`);
-            
-            if (playheadElement && deck.duration > 0) {
-                const position = (deck.currentTime / deck.duration) * 100;
-                playheadElement.style.left = `${Math.min(100, position)}%`;
-            }
-        }
-
-        function startProgressTracking(deckLetter) {
-            const deck = deckState[deckLetter];
-            
-            // Clear any existing interval
-            if (deck.progressInterval) {
-                clearInterval(deck.progressInterval);
-            }
-            
-            console.log(`⏱️ Starting progress tracking for Deck ${deckLetter}`);
-            
-            deck.progressInterval = setInterval(() => {
-                if (!deck.isPlaying) {
-                    stopProgressTracking(deckLetter);
-                    return;
-                }
-                
-                // Update current time
-                if (deck.audioType === 'preview' && deck.audio) {
-                    deck.currentTime = deck.audio.currentTime;
-                } else if (deck.audioType === 'spotify' && spotifyState.currentPlaybackState) {
-                    deck.currentTime = spotifyState.currentPlaybackState.position / 1000;
-                }
-                
-                // Update UI
-                updateProgressDisplay(deckLetter);
-                updatePlayhead(deckLetter);
-                
-            }, 100); // Update every 100ms for smooth progress
-        }
-
-        function stopProgressTracking(deckLetter) {
-            const deck = deckState[deckLetter];
-            
-            if (deck.progressInterval) {
-                clearInterval(deck.progressInterval);
-                deck.progressInterval = null;
-                console.log(`⏹️ Progress tracking stopped for Deck ${deckLetter}`);
-            }
-        }
-
-        function progressivelyLoadDecks(playlistName) {
-            console.log(`🎯 Progressively loading decks from: ${playlistName}`);
-        }
-
-        function seekTrack(deckLetter, event) {
-            console.log(`⏭️ Seeking track on Deck ${deckLetter}`);
-        }
-
-        function detectGestureImproved(landmarks) {
-            return 'open'; // Placeholder gesture detection
-        }
-
-        function handleGestureStability(gesture) {
-            console.log(`👋 Gesture detected: ${gesture}`);
-        }
-
-        function updateMultiHandGestureStatus(gestures) {
-            console.log(`🖐️ Hand gestures:`, gestures);
-        }
-
-        function drawEnhancedHand(ctx, landmarks, handIndex, handColor, handLabel) {
-            console.log(`✋ Drawing hand ${handIndex}`);
-        }
-
-        function startResizeTouch(e) {
-            startResize(e.touches[0]);
-        }
-
-        function handleResizeTouch(e) {
-            handleResize(e.touches[0]);
-        }
-
-        // ========================================== 
-        // KEYBOARD SHORTCUTS
-        // ==========================================
-
-        document.addEventListener('keydown', function(event) {
-            if (event.target.tagName === 'INPUT' || event.target.tagName === 'TEXTAREA') {
-                return;
-            }
-            
-            switch(event.key) {
-                case ' ':
-                    // Spacebar - play/pause active deck
-                    if (deckState.A.isPlaying) {
-                        pauseDeck('A');
-                    } else if (deckState.B.isPlaying) {
-                        pauseDeck('B');
-                    } else if (deckState.A.track) {
-                        playDeck('A');
-                    } else if (deckState.B.track) {
-                        playDeck('B');
-                    }
-                    event.preventDefault();
-                    break;
-                case '1':
-                    if (deckState.A.track) playDeck('A');
-                    event.preventDefault();
-                    break;
-                case '2':
-                    if (deckState.B.track) playDeck('B');
-                    event.preventDefault();
-                    break;
-                case 'Escape':
-                    // Emergency stop
-                    stopDeck('A');
-                    stopDeck('B');
-                    event.preventDefault();
-                    break;
-            }
-        });
-
-        console.log('🎛️ Professional HandMixed DJ Studio Initialized');
-        console.log('💡 Keyboard Shortcuts: Space=Play/Pause, 1/2=Deck A/B, Esc=Stop all');
-        console.log('🖐️ Gesture Controls: Open hand=Center crossfader, Gestures control decks');
+        console.log('✅ HandMixed Pro - Audius Edition Ready!');
+        console.log('🎵 Powered by Audius API, Tone.js, and Wavesurfer.js');
     </script>
 </body>
 </html>
