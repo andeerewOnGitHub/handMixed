@@ -105,3 +105,29 @@
     box-shadow: 0 0 15px #00d4ff;
     animation: handPulse 1s ease-in-out infinite;
 }
+
+
+/* Add this CSS to static/css/video.css to fix the camera mirroring */
+
+#video {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 12px;
+    display: none;
+    /* Flip the video horizontally to un-mirror it */
+    transform: scaleX(-1);
+}
+
+#canvas {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    border-radius: 12px;
+    pointer-events: none;
+    z-index: 10;
+    /* Also flip the canvas to match the video */
+    transform: scaleX(-1);
+}

@@ -1,6 +1,7 @@
 // static/js/utils/search-manager.js - Search Management Functions
 
 // Search tracks on Audius (simulated)
+// Search tracks on Audius via Django API
 async function searchTracks() {
     const query = document.getElementById('searchInput').value.trim();
     
@@ -16,10 +17,20 @@ async function searchTracks() {
     container.innerHTML = '<div class="loading">🔍 Searching Audius...</div>';
 
     try {
-        // Simulated search results
-        await new Promise(resolve => setTimeout(resolve, 1000));
+        // Call your Django API endpoint
+        const response = await fetch(`/api/audius/search/?q=${encodeURIComponent(query)}&limit=25`);
         
-        const tracks = generateMockTracks(query);
+        if (!response.ok) {
+            throw new Error(`API error: ${response.status}`);
+        }
+        
+        const data = await response.json();
+        
+        if (data.error) {
+            throw new Error(data.error);
+        }
+        
+        const tracks = data.tracks || [];
         
         appState.currentTracks = tracks;
         appState.searchQuery = query;
@@ -37,6 +48,47 @@ async function searchTracks() {
             </div>
         `;
         updateStatus(`Search failed: ${error.message}`, 'error');
+    }
+}
+
+// Load trending tracks on startup
+async function loadTrendingTracks() {
+    console.log('🔥 Loading trending tracks from Audius...');
+    updateStatus('Loading trending tracks...', 'info');
+    
+    const container = document.getElementById('tracksContainer');
+    container.innerHTML = '<div class="loading">🔥 Loading trending tracks...</div>';
+
+    try {
+        const response = await fetch('/api/audius/trending/?limit=50');
+        
+        if (!response.ok) {
+            throw new Error(`API error: ${response.status}`);
+        }
+        
+        const data = await response.json();
+        
+        if (data.error) {
+            throw new Error(data.error);
+        }
+        
+        const tracks = data.tracks || [];
+        
+        appState.currentTracks = tracks;
+        displayTracks(tracks);
+        
+        console.log(`✅ Loaded ${tracks.length} trending tracks`);
+        updateStatus(`Loaded ${tracks.length} trending tracks`, 'success');
+        
+    } catch (error) {
+        console.error('❌ Error loading trending tracks:', error);
+        container.innerHTML = `
+            <div class="loading" style="color: #ff6b6b;">
+                ❌ Failed to load trending tracks: ${error.message}<br>
+                <button class="hub-btn" onclick="loadTrendingTracks()" style="margin-top: 10px;">Try Again</button>
+            </div>
+        `;
+        updateStatus(`Failed to load trending tracks: ${error.message}`, 'error');
     }
 }
 

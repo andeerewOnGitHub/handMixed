@@ -1,8 +1,9 @@
 // static/js/gestures/hand-gestures.js - Hand Gesture Processing
 
-// Process hand control for volume/effects
+// Also update the processHandControl function to match the new mapping
 function processHandControl(handSide, handHeight) {
-    const deckLetter = handSide === 'rightHand' ? 'A' : 'B';
+    // Now left hand controls Deck A and right hand controls Deck B
+    const deckLetter = handSide === 'leftHand' ? 'A' : 'B';
     const deck = deckState[deckLetter];
     
     // Convert hand height to volume (0.0 to 1.0)
@@ -26,13 +27,13 @@ function processHandControl(handSide, handHeight) {
 
 // Process deck control based on hand presence
 function processHandDeckControl() {
-    // Deck A (Right Hand) Control
-    if (handState.rightHand.detected && handState.rightHand.controlling) {
+    // Deck A (Left Hand) Control - now that camera is unmirrored
+    if (handState.leftHand.detected && handState.leftHand.controlling) {
         const deck = deckState.A;
         if (deck.track && !deck.isPlaying && !deck.isPaused) {
             // Auto-play when hand is detected and track is loaded
             playDeck('A');
-            updateStatus('Right hand detected - Playing Deck A', 'success');
+            updateStatus('Left hand detected - Playing Deck A', 'success');
         }
         document.getElementById('deckAOverlay').classList.add('hand-active');
     } else {
@@ -40,20 +41,20 @@ function processHandDeckControl() {
         const deck = deckState.A;
         if (deck.isPlaying && deck.handControlled) {
             pauseDeck('A');
-            updateStatus('Right hand lost - Pausing Deck A', 'info');
+            updateStatus('Left hand lost - Pausing Deck A', 'info');
         }
         deck.handControlled = false;
         document.getElementById('deckAOverlay').classList.remove('hand-active');
         updateDeckVolumeIndicator('A', deck.volume * 100);
     }
 
-    // Deck B (Left Hand) Control
-    if (handState.leftHand.detected && handState.leftHand.controlling) {
+    // Deck B (Right Hand) Control - now that camera is unmirrored
+    if (handState.rightHand.detected && handState.rightHand.controlling) {
         const deck = deckState.B;
         if (deck.track && !deck.isPlaying && !deck.isPaused) {
             // Auto-play when hand is detected and track is loaded
             playDeck('B');
-            updateStatus('Left hand detected - Playing Deck B', 'success');
+            updateStatus('Right hand detected - Playing Deck B', 'success');
         }
         document.getElementById('deckBOverlay').classList.add('hand-active');
     } else {
@@ -61,7 +62,7 @@ function processHandDeckControl() {
         const deck = deckState.B;
         if (deck.isPlaying && deck.handControlled) {
             pauseDeck('B');
-            updateStatus('Left hand lost - Pausing Deck B', 'info');
+            updateStatus('Right hand lost - Pausing Deck B', 'info');
         }
         deck.handControlled = false;
         document.getElementById('deckBOverlay').classList.remove('hand-active');

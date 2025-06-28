@@ -1,4 +1,4 @@
-// static/js/audio/deck-manager.js - Deck Audio Management
+// static/js/audio/deck-manager.js - Deck Audio Management with Improved Error Handling
 
 // Select deck for loading
 function selectDeck(deckLetter) {
@@ -54,28 +54,106 @@ async function loadTrackToDeck(trackIndex) {
         deck.audio.crossOrigin = 'anonymous';
         deck.audio.preload = 'auto';
         
-        // Set up audio event listeners
+        // Set up loading timeout
+        const loadTimeout = setTimeout(() => {
+            if (deck.audio && deck.audio.readyState === 0) {
+                console.warn(`⚠️ Track loading timeout for Deck ${deckLetter}`);
+                updateStatus(`Track loading timeout for Deck ${deckLetter} - trying alternate stream`, 'error');
+                
+                // Try to fallback or cleanup
+                cleanupDeckTrack(deckLetter);
+                updateDeckDisplay(deckLetter, null);
+            }
+        }, 15000); // 15 second timeout
+        
+        // Set up audio event listeners with improved error handling
         deck.audio.addEventListener('loadeddata', () => {
+            clearTimeout(loadTimeout);
             console.log(`✅ Track loaded in Deck ${deckLetter}: ${track.title}`);
             updateStatus(`"${track.title}" loaded in Deck ${deckLetter}`, 'success');
             updateDeckDisplay(deckLetter, track);
             updateDeckUI(deckLetter);
         });
 
+        deck.audio.addEventListener('canplaythrough', () => {
+            clearTimeout(loadTimeout);
+            console.log(`✅ Track ready to play in Deck ${deckLetter}: ${track.title}`);
+        });
+
         deck.audio.addEventListener('error', (error) => {
+            clearTimeout(loadTimeout);
             console.error(`❌ Error loading track in Deck ${deckLetter}:`, error);
-            updateStatus(`Failed to load track in Deck ${deckLetter}`, 'error');
+            console.error('Audio error details:', deck.audio.error);
+            
+            let errorMessage = 'Failed to load track';
+            if (deck.audio.error) {
+                switch(deck.audio.error.code) {
+                    case deck.audio.error.MEDIA_ERR_ABORTED:
+                        errorMessage = 'Audio loading aborted';
+                        break;
+                    case deck.audio.error.MEDIA_ERR_NETWORK:
+                        errorMessage = 'Network error loading audio - check connection';
+                        break;
+                    case deck.audio.error.MEDIA_ERR_DECODE:
+                        errorMessage = 'Audio decode error - unsupported format';
+                        break;
+                    case deck.audio.error.MEDIA_ERR_SRC_NOT_SUPPORTED:
+                        errorMessage = 'Audio source not supported - try another track';
+                        break;
+                    default:
+                        errorMessage = 'Unknown audio error';
+                }
+            }
+            
+            updateStatus(`${errorMessage} in Deck ${deckLetter}`, 'error');
+            
+            // Reset deck display
+            cleanupDeckTrack(deckLetter);
+            updateDeckDisplay(deckLetter, null);
+        });
+
+        // Additional event listeners for debugging
+        deck.audio.addEventListener('loadstart', () => {
+            console.log(`🔄 Started loading track in Deck ${deckLetter}`);
+        });
+
+        deck.audio.addEventListener('progress', () => {
+            if (deck.audio.buffered.length > 0) {
+                const buffered = (deck.audio.buffered.end(0) / deck.audio.duration) * 100;
+                console.log(`📊 Deck ${deckLetter} buffered: ${buffered.toFixed(1)}%`);
+            }
+        });
+
+        deck.audio.addEventListener('stalled', () => {
+            console.warn(`⚠️ Audio stalled in Deck ${deckLetter}`);
+            updateStatus(`Audio streaming stalled in Deck ${deckLetter}`, 'error');
+        });
+
+        deck.audio.addEventListener('waiting', () => {
+            console.log(`⏳ Waiting for data in Deck ${deckLetter}`);
         });
 
         // Set up track end detection
         setupTrackEndDetection(deckLetter);
 
+        // Validate stream URL before loading
+        if (!track.stream_url || track.stream_url.trim() === '') {
+            throw new Error('Invalid or missing stream URL');
+        }
+
+        console.log(`🌐 Loading audio from: ${track.stream_url}`);
+        
         // Load the track
         deck.audio.src = track.stream_url;
 
-        // Load waveform
+        // Load waveform with error handling
         if (deck.wavesurfer && track.stream_url) {
-            deck.wavesurfer.load(track.stream_url);
+            try {
+                deck.wavesurfer.load(track.stream_url);
+            } catch (waveError) {
+                console.warn(`⚠️ Waveform loading failed for Deck ${deckLetter}:`, waveError);
+                // Continue without waveform - audio should still work
+            }
         }
 
         // Clear selection
@@ -88,6 +166,10 @@ async function loadTrackToDeck(trackIndex) {
     } catch (error) {
         console.error(`❌ Error loading track to Deck ${deckLetter}:`, error);
         updateStatus(`Failed to load track: ${error.message}`, 'error');
+        
+        // Cleanup on error
+        cleanupDeckTrack(deckLetter);
+        updateDeckDisplay(deckLetter, null);
     }
 }
 
@@ -175,6 +257,12 @@ async function playDeck(deckLetter) {
             await Tone.start();
         }
 
+        // Check if audio is ready to play
+        if (deck.audio.readyState < 2) {
+            updateStatus(`Track still loading in Deck ${deckLetter}, please wait...`, 'info');
+            return;
+        }
+
         await deck.audio.play();
         deck.isPlaying = true;
         deck.isPaused = false;
@@ -189,7 +277,12 @@ async function playDeck(deckLetter) {
 
         // Start waveform playback
         if (deck.wavesurfer) {
-            deck.wavesurfer.play();
+            try {
+                deck.wavesurfer.play();
+            } catch (waveError) {
+                console.warn(`⚠️ Waveform play failed for Deck ${deckLetter}:`, waveError);
+                // Continue without waveform - audio should still work
+            }
         }
 
         updateDeckStatus(deckLetter, 'Playing');
@@ -200,7 +293,18 @@ async function playDeck(deckLetter) {
 
     } catch (error) {
         console.error(`❌ Error playing Deck ${deckLetter}:`, error);
-        updateStatus(`Failed to play Deck ${deckLetter}`, 'error');
+        
+        // Provide specific error messages for common play issues
+        let errorMessage = 'Failed to play track';
+        if (error.name === 'NotAllowedError') {
+            errorMessage = 'Browser blocked audio - user interaction required';
+        } else if (error.name === 'NotSupportedError') {
+            errorMessage = 'Audio format not supported';
+        } else if (error.name === 'AbortError') {
+            errorMessage = 'Audio playback aborted';
+        }
+        
+        updateStatus(`${errorMessage} in Deck ${deckLetter}`, 'error');
     }
 }
 
@@ -216,7 +320,11 @@ function pauseDeck(deckLetter) {
 
     // Pause waveform
     if (deck.wavesurfer) {
-        deck.wavesurfer.pause();
+        try {
+            deck.wavesurfer.pause();
+        } catch (waveError) {
+            console.warn(`⚠️ Waveform pause failed for Deck ${deckLetter}:`, waveError);
+        }
     }
 
     updateDeckStatus(deckLetter, 'Paused');
@@ -239,7 +347,11 @@ function stopDeck(deckLetter) {
 
     // Stop waveform
     if (deck.wavesurfer) {
-        deck.wavesurfer.stop();
+        try {
+            deck.wavesurfer.stop();
+        } catch (waveError) {
+            console.warn(`⚠️ Waveform stop failed for Deck ${deckLetter}:`, waveError);
+        }
     }
 
     updateDeckStatus(deckLetter, 'Stopped');
