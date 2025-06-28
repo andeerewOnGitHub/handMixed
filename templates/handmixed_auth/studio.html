@@ -1345,6 +1345,9 @@
         
     </style>
 </head>
+
+
+
 <body>
     <!-- Top Header -->
     <div class="header">
@@ -1777,7 +1780,7 @@
                 isResizing: false,
                 height: 40,
                 isCollapsed: true,  // Fixed: proper boolean
-                lastHeight: 140
+                lastHeight: 540
             };
 
             const spotifyState = {
@@ -2825,7 +2828,7 @@
             document.documentElement.style.setProperty('--hub-height', `${height}px`);
             
             const musicHub = document.getElementById('musicHub');
-            if (musicHub && !isHubCollapsed) {
+            if (musicHub && !hubState.isCollapsed) {
                 musicHub.style.height = `${height}px`;
             }
         }
@@ -2851,17 +2854,17 @@
             }
         }
 
-        function toggleDebugMode() {
-            debugMode = !debugMode;
+       function toggleDebugMode() {
+            appState.debugMode = !appState.debugMode;
             const debugInfo = document.getElementById('debugInfo');
             
             if (debugInfo) {
-                debugInfo.style.display = debugMode ? 'block' : 'none';
+                debugInfo.style.display = appState.debugMode ? 'block' : 'none';
             }
             
             const debugBtn = document.getElementById('debugToggleBtn');
             if (debugBtn) {
-                debugBtn.textContent = debugMode ? 'Hide Debug' : 'Debug';
+                debugBtn.textContent = appState.debugMode ? 'Hide Debug' : 'Debug';
             }
         }
 
