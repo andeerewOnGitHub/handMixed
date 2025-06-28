@@ -1,0 +1,19 @@
+/* Responsive */
+@media (max-width: 1200px) {
+    .deck-overlay {
+        width: 280px;
+        padding: 12px;
+    }
+}
+
+@media (max-width: 768px) {
+    .deck-overlay {
+        width: 220px;
+        padding: 10px;
+        font-size: 0.9rem;
+    }
+    
+    .video-container {
+        width: 98vw;
+    }
+}

@@ -95,6 +95,7 @@ CORS_ALLOW_HEADERS = [
 # Static files (CSS, JavaScript, Images)
 STATIC_URL = '/static/'
 STATICFILES_DIRS = [BASE_DIR / 'static']
+STATIC_ROOT = BASE_DIR / 'staticfiles'  # For production
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 

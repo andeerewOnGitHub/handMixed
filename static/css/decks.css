@@ -1,0 +1,266 @@
+/* Deck Overlays */
+.deck-overlay {
+    position: absolute;
+    top: 60px;
+    width: 320px;
+    background: linear-gradient(135deg, rgba(0, 0, 0, 0.95), rgba(26, 26, 26, 0.95));
+    backdrop-filter: blur(20px);
+    border-radius: 15px;
+    padding: 15px;
+    border: 2px solid rgba(0, 212, 255, 0.4);
+    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.8);
+    z-index: 100;
+    transition: all 0.3s ease;
+}
+
+.deck-overlay.left {
+    left: 20px;
+    border-color: #00d4ff;
+}
+
+.deck-overlay.right {
+    right: 20px;
+    border-color: #f39c12;
+}
+
+.deck-overlay.hand-active {
+    animation: deckActivePulse 1.5s ease-in-out infinite;
+    transform: translateY(-5px);
+}
+
+.deck-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.deck-title {
+    font-family: 'Orbitron', monospace;
+    font-size: 1.1rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.deck-overlay.left .deck-title {
+    background: linear-gradient(45deg, #00d4ff, #0ea5e9);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.deck-overlay.right .deck-title {
+    background: linear-gradient(45deg, #f39c12, #e67e22);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.deck-bpm {
+    font-family: 'Orbitron', monospace;
+    font-size: 0.9rem;
+    font-weight: 600;
+    padding: 4px 8px;
+    border-radius: 8px;
+    background: rgba(0, 0, 0, 0.6);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.deck-volume-indicator {
+    margin-top: 8px;
+    background: rgba(0, 0, 0, 0.6);
+    border-radius: 6px;
+    padding: 6px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.deck-volume-bar {
+    height: 6px;
+    background: linear-gradient(90deg, #333, #666);
+    border-radius: 3px;
+    overflow: hidden;
+    position: relative;
+}
+
+.deck-volume-fill {
+    height: 100%;
+    transition: width 0.1s ease;
+    border-radius: 3px;
+}
+
+.deck-overlay.left .deck-volume-fill {
+    background: linear-gradient(90deg, #00d4ff, #0ea5e9);
+}
+
+.deck-overlay.right .deck-volume-fill {
+    background: linear-gradient(90deg, #f39c12, #e67e22);
+}
+
+.deck-volume-text {
+    font-family: 'Orbitron', monospace;
+    font-size: 0.7rem;
+    color: #ccc;
+    text-align: center;
+    margin-top: 4px;
+}
+
+/* Track Display */
+.deck-track-display {
+    background: linear-gradient(135deg, rgba(30, 215, 96, 0.15), rgba(0, 212, 255, 0.15));
+    border: 2px solid rgba(30, 215, 96, 0.4);
+    border-radius: 12px;
+    padding: 12px;
+    margin-bottom: 12px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    min-height: 80px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.deck-track-display:hover {
+    border-color: #1ed760;
+    background: linear-gradient(135deg, rgba(30, 215, 96, 0.25), rgba(0, 212, 255, 0.25));
+    transform: translateY(-2px);
+}
+
+.deck-track-display.loaded {
+    border-color: #1ed760;
+    background: linear-gradient(135deg, rgba(30, 215, 96, 0.3), rgba(0, 212, 255, 0.3));
+}
+
+.deck-track-display.auto-loaded {
+    border-color: #9b59b6;
+    background: linear-gradient(135deg, rgba(155, 89, 182, 0.3), rgba(0, 212, 255, 0.3));
+}
+
+.deck-track-artwork {
+    width: 50px;
+    height: 50px;
+    border-radius: 8px;
+    background: linear-gradient(135deg, #1ed760, #00d4ff);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    color: white;
+    flex-shrink: 0;
+    overflow: hidden;
+}
+
+.deck-track-artwork img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 6px;
+}
+
+.deck-track-info {
+    flex: 1;
+    min-width: 0;
+}
+
+.deck-track-name {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: #1ed760;
+    margin-bottom: 4px;
+    font-family: 'Orbitron', monospace;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.deck-track-artist {
+    font-size: 0.8rem;
+    color: #e0e0e0;
+    opacity: 0.8;
+    margin-bottom: 4px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.deck-track-status {
+    font-size: 0.7rem;
+    color: #00d4ff;
+}
+
+/* Waveform Container */
+.deck-waveform {
+    height: 60px;
+    background: rgba(0, 0, 0, 0.6);
+    border-radius: 8px;
+    margin-bottom: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    position: relative;
+    overflow: hidden;
+}
+
+.waveform-container {
+    width: 100%;
+    height: 100%;
+    position: relative;
+}
+
+/* Controls */
+.deck-controls {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 6px;
+    margin-bottom: 12px;
+}
+
+.deck-btn, .control-btn {
+    background: linear-gradient(135deg, #00d4ff, #f39c12);
+    border: none;
+    padding: 8px 6px;
+    border-radius: 6px;
+    color: #1a1a1a;
+    font-size: 0.8rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    font-family: 'Orbitron', monospace;
+}
+
+.deck-btn:hover, .control-btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0, 212, 255, 0.3);
+}
+
+.deck-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none;
+}
+
+.skip-btn {
+    background: linear-gradient(135deg, #9b59b6, #8e44ad);
+    border: none;
+    padding: 8px 6px;
+    border-radius: 6px;
+    color: white;
+    font-size: 0.8rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    font-family: 'Orbitron', monospace;
+}
+
+.skip-btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(155, 89, 182, 0.4);
+}
+
+.skip-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none;
+}
