@@ -1196,10 +1196,153 @@
             border-radius: 3px;
         }
 
+        * Scrollbar Styling */
+        ::-webkit-scrollbar {
+            width: 4px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: rgba(26, 26, 26, 0.5);
+            border-radius: 3px;
+        }
+
         ::-webkit-scrollbar-thumb {
             background: linear-gradient(135deg, #00d4ff, #f39c12);
             border-radius: 3px;
         }
+        /* PLAYLIST ITEM STYLING - FIXES IMAGE SIZING ISSUES */
+            .playlist-item-small {
+                display: flex;
+                align-items: center;
+                gap: 10px;
+                padding: 8px;
+                margin: 4px 0;
+                background: rgba(26, 26, 26, 0.6);
+                border-radius: 8px;
+                cursor: pointer;
+                transition: all 0.3s ease;
+                border: 1px solid rgba(255, 255, 255, 0.1);
+            }
+
+            .playlist-item-small:hover {
+                background: rgba(0, 212, 255, 0.2);
+                border-color: #00d4ff;
+                transform: translateY(-1px);
+            }
+
+            .playlist-item-small.active {
+                background: linear-gradient(135deg, rgba(0, 212, 255, 0.3), rgba(243, 156, 18, 0.3));
+                border-color: #00d4ff;
+            }
+
+            /* PLAYLIST IMAGE STYLING - PROPER SIZING & ASPECT RATIO */
+            .playlist-image-small {
+                width: 45px;
+                height: 45px;
+                border-radius: 6px;
+                flex-shrink: 0;
+                overflow: hidden;
+                background: linear-gradient(135deg, #00d4ff, #f39c12);
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+
+            .playlist-image-small img {
+                width: 100%;
+                height: 100%;
+                object-fit: cover; /* This ensures the entire image is visible and properly scaled */
+                border-radius: 6px;
+            }
+
+            /* PLAYLIST INFO STYLING */
+            .playlist-info-small {
+                flex: 1;
+                min-width: 0; /* Allows text to truncate properly */
+            }
+
+            .playlist-name-small {
+                font-size: 0.8rem;
+                font-weight: 600;
+                color: #e0e0e0;
+                margin-bottom: 2px;
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                font-family: 'Orbitron', monospace;
+            }
+
+            .playlist-details-small {
+                font-size: 0.7rem;
+                color: #b0b0b0;
+                opacity: 0.8;
+            }
+
+            /* TRACKS STYLING */
+            .tracks-header-small {
+                padding: 8px 12px;
+                border-bottom: 1px solid rgba(0, 212, 255, 0.3);
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                font-size: 0.9rem;
+                flex-shrink: 0;
+            }
+
+            .tracks-title-small {
+                font-family: 'Orbitron', monospace;
+                font-weight: 700;
+                color: #00d4ff;
+                text-transform: uppercase;
+                letter-spacing: 1px;
+                font-size: 0.8rem;
+            }
+
+            .tracks-info-small {
+                padding: 0 12px;
+                font-size: 0.7rem;
+                color: #ccc;
+                text-align: center;
+            }
+
+            .back-to-playlists-small, .progressive-reload-btn {
+                background: linear-gradient(135deg, #00d4ff, #f39c12);
+                border: none;
+                padding: 4px 8px;
+                border-radius: 6px;
+                color: #1a1a1a;
+                font-size: 0.7rem;
+                font-weight: 700;
+                cursor: pointer;
+                transition: all 0.3s ease;
+                text-transform: uppercase;
+                letter-spacing: 0.5px;
+                font-family: 'Orbitron', monospace;
+            }
+
+            .back-to-playlists-small:hover, .progressive-reload-btn:hover {
+                transform: translateY(-1px);
+                box-shadow: 0 4px 12px rgba(0, 212, 255, 0.3);
+            }
+
+            /* HUB TRACKS CONTAINER */
+            .hub-tracks {
+                flex: 1;
+                background: rgba(0, 0, 0, 0.4);
+                overflow-y: auto;
+                display: flex;
+                flex-direction: column;
+            }
+
+            /* LOADING STATES */
+            .loading-small {
+                padding: 20px;
+                text-align: center;
+                font-size: 0.8rem;
+                color: #00d4ff;
+                font-style: italic;
+            }
+        
     </style>
 </head>
 <body>
@@ -1493,56 +1636,105 @@
         </div>
     </div>
 
-    <!-- Music Hub (keeping original implementation) -->
-    <div class="music-hub" id="musicHub">
-        <div class="resize-handle" id="resizeHandle"></div>
-        
-        <div class="hub-controls-bar">
-            <div class="hub-main-title">🎵 Music Library</div>
-            <div class="hub-controls">
-                <button class="collapse-btn" onclick="toggleHubCollapse()" id="collapseBtn">▼ Hide</button>
-                <button class="hub-btn" onclick="toggleDebugMode()" id="debugToggleBtn">Debug</button>
-            </div>
-        </div>
-        
-        <div class="hub-content">
-            <div class="hub-playlists">
-                <div class="hub-header">
-                    <div class="hub-title">🎵 Playlists</div>
-                    <button class="hub-btn" onclick="loadPlaylists()" id="loadPlaylistsBtn">Load</button>
-                    <button class="hub-btn" onclick="refreshPlaylists()" style="display: none;" id="refreshBtn">Refresh</button>
-                </div>
-                <div id="playlistsContainer">
-                    <div class="loading-small">
-                        Loading your Spotify playlists...
-                    </div>
+   <!-- ===== MUSIC LIBRARY HUB - FIXED VERSION ===== -->
+        <!-- Main container for the music library interface - resizable panel at bottom of screen -->
+        <!-- NOW DEFAULTS TO HIDDEN STATE -->
+        <div class="music-hub collapsed" id="musicHub">
+            
+            <!-- ===== RESIZE HANDLE ===== -->
+            <!-- Interactive handle that allows users to drag and resize the music library panel vertically -->
+            <div class="resize-handle" id="resizeHandle"></div>
+            
+            <!-- ===== TOP CONTROL BAR ===== -->
+            <!-- Fixed header bar with library title and main control buttons -->
+            <div class="hub-controls-bar">
+                <!-- Library title with music note emoji -->
+                <div class="hub-main-title">🎵 Music Library</div>
+                
+                <!-- Right-side control buttons group -->
+                <div class="hub-controls">
+                    <!-- Collapse/Expand button - calls toggleHubCollapse() to minimize/maximize the panel -->
+                    <!-- NOW DEFAULTS TO "▲ Show" since hub starts collapsed -->
+                    <button class="collapse-btn" onclick="toggleHubCollapse()" id="collapseBtn">▲ Show</button>
+                    
+                    <!-- Debug mode toggle - calls toggleDebugMode() to show/hide technical information -->
+                    <button class="hub-btn" onclick="toggleDebugMode()" id="debugToggleBtn">Debug</button>
                 </div>
             </div>
             
-            <div class="hub-tracks">
-                <div class="tracks-header-small">
-                    <div class="tracks-title-small">🎵 Tracks</div>
-                    <div style="display: flex; gap: 8px; align-items: center;">
-                        <button class="back-to-playlists-small" onclick="showPlaylists()" style="display: none;" id="backToPlaylistsBtn">
-                            ← Playlists
-                        </button>
-                        <button class="progressive-reload-btn" onclick="reloadDecksProgressively()" id="progressiveReloadBtn" style="display: none;">
-                            🎯 Reload
-                        </button>
-                        <button class="hub-btn" onclick="toggleDebugMode()" id="debugToggleBtn2">Debug</button>
+            <!-- ===== MAIN CONTENT AREA ===== -->
+            <!-- Container for the two-column layout: playlists on left, tracks on right -->
+            <div class="hub-content">
+                
+                <!-- ===== LEFT COLUMN: SPOTIFY PLAYLISTS ===== -->
+                <!-- Fixed-width left panel for displaying user's Spotify playlists -->
+                <div class="hub-playlists">
+                    
+                    <!-- Playlists section header with controls -->
+                    <div class="hub-header">
+                        <!-- Section title -->
+                        <div class="hub-title">🎵 Playlists</div>
+                        
+                        <!-- Load button - calls loadPlaylists() to fetch user's Spotify playlists via API -->
+                        <button class="hub-btn" onclick="loadPlaylists()" id="loadPlaylistsBtn">Load</button>
+                        
+                        <!-- Refresh button - calls refreshPlaylists() to reload playlist data (hidden by default) -->
+                        <button class="hub-btn" onclick="refreshPlaylists()" style="display: none;" id="refreshBtn">Refresh</button>
+                    </div>
+                    
+                    <!-- Dynamic container where playlist items are rendered -->
+                    <!-- Initially shows loading message, then populated with clickable playlist cards -->
+                    <div id="playlistsContainer">
+                        <div class="loading-small">
+                            Loading your Spotify playlists...
+                        </div>
                     </div>
                 </div>
-                <div class="tracks-info-small" id="tracksInfo" style="margin-bottom: 8px;">
-                    Professional DJ Studio Ready • Load playlists to start mixing
-                </div>
-                <div id="tracksContainer">
-                    <div class="loading-small">
-                        Select a playlist to load tracks into professional decks
+                
+                <!-- ===== RIGHT COLUMN: PLAYLIST TRACKS ===== -->
+                <!-- Expandable right panel for displaying tracks from selected playlist -->
+                <div class="hub-tracks">
+                    
+                    <!-- Tracks section header with navigation and action buttons -->
+                    <div class="tracks-header-small">
+                        <!-- Section title -->
+                        <div class="tracks-title-small">🎵 Tracks</div>
+                        
+                        <!-- Button group for track-related actions -->
+                        <div style="display: flex; gap: 8px; align-items: center;">
+                            
+                            <!-- Back button - calls showPlaylists() to return to playlist view (hidden by default) -->
+                            <button class="back-to-playlists-small" onclick="showPlaylists()" style="display: none;" id="backToPlaylistsBtn">
+                                ← Playlists
+                            </button>
+                            
+                            <!-- Progressive reload button - calls reloadDecksProgressively() to auto-load tracks into both DJ decks (hidden by default) -->
+                            <button class="progressive-reload-btn" onclick="reloadDecksProgressively()" id="progressiveReloadBtn" style="display: none;">
+                                🎯 Reload
+                            </button>
+                            
+                            <!-- Debug toggle (duplicate) - calls toggleDebugMode() for technical information -->
+                            <button class="hub-btn" onclick="toggleDebugMode()" id="debugToggleBtn2">Debug</button>
+                        </div>
+                    </div>
+                    
+                    <!-- Status and information bar -->
+                    <!-- Shows track count, playability info, and user instructions -->
+                    <div class="tracks-info-small" id="tracksInfo" style="margin-bottom: 8px;">
+                        Professional DJ Studio Ready • Load playlists to start mixing
+                    </div>
+                    
+                    <!-- Dynamic container where track list is rendered -->
+                    <!-- Initially shows selection prompt, then populated with clickable track rows -->
+                    <div id="tracksContainer">
+                        <div class="loading-small">
+                            Select a playlist to load tracks into professional decks
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
-    </div>
+
 
     <!-- External Scripts -->
     <script src="https://sdk.scdn.co/spotify-player.js"></script>
@@ -1559,104 +1751,107 @@
     <script>
         console.log('🎛️ Professional HandMixed DJ Studio Ready');
         
-        // ===== GLOBAL VARIABLES =====
-        
-        // Core system variables
-        let stream = null;
-        let hands = null;
-        let camera = null;
-        let isTracking = false;
-        let debugMode = false;
-        
-        // Hub resize variables
-        let isResizing = false;
-        let hubHeight = 140;
-        let isHubCollapsed = false;
-        let lastHubHeight = 140;
-        
-        // Spotify integration variables
-        let spotifyPlayer = null;
-        let spotifyDeviceId = null;
-        let spotifyAccessToken = null;
-        let isSpotifyPlayerReady = false;
-        let isSpotifyPremium = false;
-        let currentPlaylist = [];
-        let currentTrackIndex = 0;
-        let allPlaylists = [];
-        let isSpotifyConnected = false;
-        let currentPlaybackState = null;
-        
-        // Professional DJ Deck Objects
-        let deckA = {
-            track: null,
-            audio: null,
-            audioContext: null,
-            gainNode: null,
-            eqNodes: { high: null, mid: null, low: null },
-            isPlaying: false,
-            isPaused: false,
-            volume: 0.7,
-            tempo: 100, // percentage
-            bpm: 120,
-            currentTime: 0,
-            duration: 0,
-            cuePoints: {},
-            isLooping: false,
-            loopStart: 0,
-            loopEnd: 0,
-            loopLength: 0,
-            eq: { high: 0, mid: 0, low: 0 }, // -1 to 1
-            waveform: null,
-            progressInterval: null
-        };
-        
-        let deckB = {
-            track: null,
-            audio: null,
-            audioContext: null,
-            gainNode: null,
-            eqNodes: { high: null, mid: null, low: null },
-            isPlaying: false,
-            isPaused: false,
-            volume: 0.7,
-            tempo: 100,
-            bpm: 120,
-            currentTime: 0,
-            duration: 0,
-            cuePoints: {},
-            isLooping: false,
-            loopStart: 0,
-            loopEnd: 0,
-            loopLength: 0,
-            eq: { high: 0, mid: 0, low: 0 },
-            waveform: null,
-            progressInterval: null
-        };
-        
-        // Crossfader and mixing
-        let crossfaderValue = 50; // 0-100, 50 = center
-        let masterAudioContext = null;
-        let masterGainNode = null;
-        
-        // Deck selection
-        let selectedDeck = null;
-        
-        // Performance tracking
-        let frameCount = 0;
-        let lastFpsUpdate = Date.now();
-        let currentFps = 0;
-        
-        // Gesture tracking
-        let handGestures = {};
-        let gestureHistory = [];
-        let gestureStabilityCount = 0;
-        const GESTURE_STABILITY_THRESHOLD = 3;
-        
-        // Hand colors for visualization
-        const handColors = [
-            { main: '#00d4ff', accent: '#ff6b6b', name: 'Primary' },
-            { main: '#f39c12', accent: '#2ecc71', name: 'Secondary' }
-        ];
+        // ===== ORGANIZED GLOBAL STATE =====
+
+            const appState = {
+                // Core system
+                stream: null,
+                hands: null,
+                camera: null,
+                isTracking: false,
+                debugMode: false,
+                
+                // Performance tracking
+                frameCount: 0,
+                lastFpsUpdate: Date.now(),
+                currentFps: 0,
+                
+                // Gesture tracking
+                handGestures: {},
+                gestureHistory: [],
+                gestureStabilityCount: 0,
+                GESTURE_STABILITY_THRESHOLD: 3
+            };
+
+            const hubState = {
+                isResizing: false,
+                height: 40,
+                isCollapsed: true,  // Fixed: proper boolean
+                lastHeight: 140
+            };
+
+            const spotifyState = {
+                player: null,
+                deviceId: null,
+                accessToken: null,
+                isPlayerReady: false,
+                isPremium: false,
+                currentPlaylist: [],
+                currentTrackIndex: 0,
+                allPlaylists: [],
+                isConnected: false,
+                currentPlaybackState: null
+            };
+
+            const deckState = {
+                A: {
+                    track: null,
+                    audio: null,
+                    audioContext: null,
+                    gainNode: null,
+                    eqNodes: { high: null, mid: null, low: null },
+                    isPlaying: false,
+                    isPaused: false,
+                    volume: 0.7,
+                    tempo: 100,
+                    bpm: 120,
+                    currentTime: 0,
+                    duration: 0,
+                    cuePoints: {},
+                    isLooping: false,
+                    loopStart: 0,
+                    loopEnd: 0,
+                    loopLength: 0,
+                    eq: { high: 0, mid: 0, low: 0 },
+                    waveform: null,
+                    progressInterval: null
+                },
+                B: {
+                    track: null,
+                    audio: null,
+                    audioContext: null,
+                    gainNode: null,
+                    eqNodes: { high: null, mid: null, low: null },
+                    isPlaying: false,
+                    isPaused: false,
+                    volume: 0.7,
+                    tempo: 100,
+                    bpm: 120,
+                    currentTime: 0,
+                    duration: 0,
+                    cuePoints: {},
+                    isLooping: false,
+                    loopStart: 0,
+                    loopEnd: 0,
+                    loopLength: 0,
+                    eq: { high: 0, mid: 0, low: 0 },
+                    waveform: null,
+                    progressInterval: null
+                }
+            };
+
+            const mixingState = {
+                crossfaderValue: 50,
+                masterAudioContext: null,
+                masterGainNode: null,
+                selectedDeck: null
+            };
+
+            // Hand colors for visualization
+            const handColors = [
+                { main: '#00d4ff', accent: '#ff6b6b', name: 'Primary' },
+                { main: '#f39c12', accent: '#2ecc71', name: 'Secondary' }
+            ];
 
         // ===== INITIALIZATION =====
         
@@ -2585,7 +2780,7 @@
 
         function initializeHubResize() {
             const resizeHandle = document.getElementById('resizeHandle');
-            updateHubHeight(hubHeight);
+            updateHubHeight(40);
             
             resizeHandle.addEventListener('mousedown', startResize);
             document.addEventListener('mousemove', handleResize);
@@ -2598,49 +2793,30 @@
 
         function startResize(e) {
             e.preventDefault();
-            isResizing = true;
+            hubState.isResizing = true;
             document.body.style.cursor = 'ns-resize';
             document.body.style.userSelect = 'none';
         }
 
-        function startResizeTouch(e) {
-            e.preventDefault();
-            isResizing = true;
-            document.body.style.userSelect = 'none';
-        }
-
         function handleResize(e) {
-            if (!isResizing || isHubCollapsed) return;
+            if (!hubState.isResizing || hubState.isCollapsed) return;
             
             const windowHeight = window.innerHeight;
             const mouseY = e.clientY;
             const newHeight = Math.max(40, Math.min(windowHeight * 0.6, windowHeight - mouseY));
             
-            hubHeight = newHeight;
-            updateHubHeight(hubHeight);
-        }
-
-        function handleResizeTouch(e) {
-            if (!isResizing || isHubCollapsed) return;
-            
-            e.preventDefault();
-            const touch = e.touches[0];
-            const windowHeight = window.innerHeight;
-            const touchY = touch.clientY;
-            const newHeight = Math.max(40, Math.min(windowHeight * 0.6, windowHeight - touchY));
-            
-            hubHeight = newHeight;
-            updateHubHeight(hubHeight);
+            hubState.height = newHeight;
+            updateHubHeight(hubState.height);
         }
 
         function stopResize() {
-            if (isResizing) {
-                isResizing = false;
+            if (hubState.isResizing) {
+                hubState.isResizing = false;
                 document.body.style.cursor = '';
                 document.body.style.userSelect = '';
                 
-                if (!isHubCollapsed) {
-                    lastHubHeight = hubHeight;
+                if (!hubState.isCollapsed) {
+                    hubState.lastHeight = hubState.height;
                 }
             }
         }
@@ -2654,22 +2830,24 @@
             }
         }
 
-        function toggleHubCollapse() {
+       function toggleHubCollapse() {
             const musicHub = document.getElementById('musicHub');
             const collapseBtn = document.getElementById('collapseBtn');
             
-            isHubCollapsed = !isHubCollapsed;
+            hubState.isCollapsed = !hubState.isCollapsed;
             
-            if (isHubCollapsed) {
-                lastHubHeight = hubHeight;
+            if (hubState.isCollapsed) {
+                hubState.lastHeight = hubState.height;
                 musicHub.classList.add('collapsed');
                 collapseBtn.textContent = '▲ Show';
                 updateHubHeight(40);
+                console.log('🔻 Music hub collapsed');
             } else {
                 musicHub.classList.remove('collapsed');
                 collapseBtn.textContent = '▼ Hide';
-                hubHeight = lastHubHeight;
-                updateHubHeight(hubHeight);
+                hubState.height = hubState.lastHeight;
+                updateHubHeight(hubState.height);
+                console.log('🔺 Music hub expanded');
             }
         }
 
@@ -2703,44 +2881,118 @@
             }
         }
 
-        // ===== PLACEHOLDER FUNCTIONS FOR SPOTIFY INTEGRATION =====
-        // (These would use your existing Spotify integration code)
-
-        async function autoInitializeSpotify() {
+        async function initializeSpotifyPlayer() {
+            console.log('🎵 Initializing Spotify Web Playback SDK...');
+            
             try {
-                // Check if user is authenticated
-                const authResponse = await fetch('/api/spotify/check-auth/');
-                const authData = await authResponse.json();
+                // Get access token from backend
+                const tokenResponse = await fetch('/api/spotify/token/');
+                const tokenData = await tokenResponse.json();
                 
-                if (authData.authenticated) {
-                    console.log('✅ User authenticated, initializing Spotify Player...');
-                    isSpotifyPremium = authData.premium;
-                    
-                    if (isSpotifyPremium) {
-                        await initializeSpotifyPlayer();
-                    } else {
-                        updateStatus('Spotify Premium required for full playback', 'error');
-                    }
-                    
-                    // Auto-load playlists
-                    setTimeout(() => {
-                        loadPlaylists();
-                    }, 1000);
-                } else {
-                    // Redirect to authentication
-                    console.log('❌ User not authenticated, redirecting...');
-                    window.location.href = '/api/spotify/auth/';
+                if (!tokenResponse.ok) {
+                    throw new Error(tokenData.error || 'Failed to get access token');
                 }
+                
+                spotifyAccessToken = tokenData.access_token;
+                
+                // Initialize Spotify Web Playback SDK
+                window.onSpotifyWebPlaybackSDKReady = () => {
+                    console.log('🎵 Spotify Web Playback SDK Ready');
+                    
+                    const player = new Spotify.Player({
+                        name: 'HandMixed Pro DJ Studio',
+                        getOAuthToken: cb => { cb(spotifyAccessToken); },
+                        volume: 0.5
+                    });
+                    
+                    // Error handling
+                    player.addListener('initialization_error', ({ message }) => {
+                        console.error('🚫 Spotify initialization error:', message);
+                        updateStatus('Spotify player initialization failed', 'error');
+                    });
+                    
+                    player.addListener('authentication_error', ({ message }) => {
+                        console.error('🚫 Spotify authentication error:', message);
+                        updateStatus('Spotify authentication failed', 'error');
+                    });
+                    
+                    player.addListener('account_error', ({ message }) => {
+                        console.error('🚫 Spotify account error:', message);
+                        updateStatus('Spotify Premium required', 'error');
+                    });
+                    
+                    player.addListener('playback_error', ({ message }) => {
+                        console.error('🚫 Spotify playback error:', message);
+                        updateStatus('Playback error occurred', 'error');
+                    });
+                    
+                    // Ready
+                    player.addListener('ready', ({ device_id }) => {
+                        console.log('✅ Spotify Player Ready with Device ID:', device_id);
+                        spotifyDeviceId = device_id;
+                        spotifyPlayer = player;
+                        isSpotifyPlayerReady = true;
+                        
+                        updateStatus('Spotify Premium Player ready for full track playback', 'success');
+                        
+                        // Transfer playback to this device
+                        transferPlaybackToDevice(device_id);
+                    });
+                    
+                    // Not Ready
+                    player.addListener('not_ready', ({ device_id }) => {
+                        console.log('❌ Spotify Player Device has gone offline:', device_id);
+                        isSpotifyPlayerReady = false;
+                        updateStatus('Spotify Player disconnected', 'error');
+                    });
+                    
+                    // Player state changes
+                    player.addListener('player_state_changed', (state) => {
+                        if (!state) return;
+                        
+                        currentPlaybackState = state;
+                        const currentTrack = state.track_window.current_track;
+                        
+                        console.log('🎵 Player state changed:', {
+                            track: currentTrack.name,
+                            artist: currentTrack.artists[0].name,
+                            paused: state.paused,
+                            position: state.position,
+                            duration: state.duration
+                        });
+                        
+                        // Update UI if needed
+                        updateTrackListPlayingStateFull(currentTrack, !state.paused);
+                    });
+                    
+                    // Connect to the player
+                    player.connect().then(success => {
+                        if (success) {
+                            console.log('✅ Successfully connected to Spotify Player');
+                        } else {
+                            console.error('❌ Failed to connect to Spotify Player');
+                            updateStatus('Failed to connect to Spotify Player', 'error');
+                        }
+                    });
+                };
+                
+                // Load the Spotify Web Playback SDK script if not already loaded
+                if (!window.Spotify) {
+                    const script = document.createElement('script');
+                    script.src = 'https://sdk.scdn.co/spotify-player.js';
+                    script.async = true;
+                    document.head.appendChild(script);
+                } else {
+                    // SDK already loaded, trigger ready callback
+                    window.onSpotifyWebPlaybackSDKReady();
+                }
+                
             } catch (error) {
-                console.error('❌ Auto-initialization failed:', error);
-                updateStatus('Failed to connect to Spotify', 'error');
+                console.error('❌ Spotify Player initialization failed:', error);
+                updateStatus(`Spotify Player failed: ${error.message}`, 'error');
+                throw error;
             }
         }
-
-        window.onSpotifyWebPlaybackSDKReady = () => {
-    console.log('🎵 Spotify Web Playback SDK is ready');
-};
-
         async function autoInitializeSpotify() {
             try {
                 console.log('🎵 Checking Spotify authentication...');
@@ -2766,6 +3018,8 @@
                     // Initialize Spotify Web Playback SDK if Premium
                     if (isSpotifyPremium) {
                         await initializeSpotifyPlayer();
+                    } else {
+                        updateStatus('Spotify Free - Limited to 30-second previews', 'info');
                     }
                     
                     // Auto-load playlists after a short delay
@@ -2791,20 +3045,43 @@
 
         async function transferPlaybackToDevice(deviceId) {
             try {
+                console.log('🎵 Transferring playback to HandMixed device...');
+                
                 const response = await fetch('/api/spotify/transfer-playback/', {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
+                    headers: { 
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': getCsrfToken() // Add CSRF token if needed
+                    },
+                    credentials: 'same-origin',
                     body: JSON.stringify({ device_id: deviceId })
                 });
                 
+                const data = await response.json();
+                
                 if (response.ok) {
                     console.log('✅ Playback transferred to HandMixed device');
+                    updateStatus('Spotify Player connected and ready', 'success');
                 } else {
-                    console.warn('⚠️ Playback transfer failed, but player is ready');
+                    console.warn('⚠️ Playback transfer failed, but player is ready:', data.error);
+                    // Don't show error status as player is still functional
                 }
             } catch (error) {
                 console.warn('⚠️ Playback transfer error:', error);
+                // Don't show error status as player might still work
             }
+        }
+
+        // Helper function to get CSRF token if needed
+        function getCsrfToken() {
+            const cookies = document.cookie.split(';');
+            for (let cookie of cookies) {
+                const [name, value] = cookie.trim().split('=');
+                if (name === 'csrftoken') {
+                    return value;
+                }
+            }
+            return '';
         }
 
         async function playSpotifyTrack(trackUri) {
