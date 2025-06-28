@@ -124,20 +124,21 @@
             transform: translateY(-1px);
         }
 
-        /* Main Video Area - Takes most of the screen */
+        /* Main Video Area - Dynamic height based on hub size */
         .video-main-area {
             position: relative;
             width: 100vw;
-            height: 100vh;
+            height: calc(100vh - var(--hub-height, 140px));
             display: flex;
             align-items: center;
             justify-content: center;
+            transition: height 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
         .video-container {
             position: relative;
             width: 95vw;
-            height: 85vh;
+            height: calc(100% - 60px);
             background: #000;
             border-radius: 15px;
             border: 3px solid #00d4ff;
@@ -329,10 +330,11 @@
         /* Center Hand DJ Control - Floating */
         .hand-control-overlay {
             position: absolute;
-            bottom: 180px;
+            bottom: calc(var(--hub-height, 140px) + 60px);
             left: 50%;
             transform: translateX(-50%);
             z-index: 200;
+            transition: bottom 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
         .hand-dj-btn {
@@ -371,10 +373,11 @@
         /* Status Messages - Floating */
         .status-overlay {
             position: absolute;
-            bottom: 130px;
+            bottom: calc(var(--hub-height, 140px) + 10px);
             left: 50%;
             transform: translateX(-50%);
             z-index: 150;
+            transition: bottom 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
         .status {
@@ -434,18 +437,119 @@
             max-width: 350px;
         }
 
-        /* Bottom Music Hub - Like Game HUD */
+        /* Bottom Music Hub - Resizable and Collapsible */
         .music-hub {
             position: absolute;
             bottom: 0;
             left: 0;
             right: 0;
-            height: 140px;
+            height: var(--hub-height, 140px);
+            min-height: 40px;
+            max-height: 60vh;
             background: linear-gradient(135deg, rgba(0, 0, 0, 0.9), rgba(26, 26, 26, 0.85));
             backdrop-filter: blur(20px);
             border-top: 2px solid rgba(0, 212, 255, 0.4);
             display: flex;
+            flex-direction: column;
             z-index: 500;
+            transition: height 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            overflow: hidden;
+        }
+
+        .music-hub.collapsed {
+            height: 40px !important;
+        }
+
+        /* NEW: Resize Handle */
+        .resize-handle {
+            position: absolute;
+            top: -5px;
+            left: 0;
+            right: 0;
+            height: 10px;
+            cursor: ns-resize;
+            background: linear-gradient(135deg, rgba(0, 212, 255, 0.1), rgba(243, 156, 18, 0.1));
+            border-radius: 5px 5px 0 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.2s ease;
+            z-index: 1000;
+        }
+
+        .resize-handle:hover {
+            background: linear-gradient(135deg, rgba(0, 212, 255, 0.3), rgba(243, 156, 18, 0.3));
+        }
+
+        .resize-handle::before {
+            content: '⋯';
+            color: #00d4ff;
+            font-size: 16px;
+            font-weight: bold;
+            letter-spacing: 3px;
+            opacity: 0.6;
+            transform: rotate(90deg);
+        }
+
+        /* NEW: Hub Controls Bar */
+        .hub-controls-bar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 8px 15px;
+            background: rgba(0, 0, 0, 0.6);
+            border-bottom: 1px solid rgba(0, 212, 255, 0.2);
+            min-height: 40px;
+        }
+
+        .hub-main-title {
+            font-family: 'Orbitron', monospace;
+            font-weight: 700;
+            color: #00d4ff;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-size: 0.9rem;
+        }
+
+        .hub-controls {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+
+        .collapse-btn {
+            background: linear-gradient(135deg, #00d4ff, #f39c12);
+            border: none;
+            padding: 4px 8px;
+            border-radius: 8px;
+            color: #1a1a1a;
+            font-size: 0.7rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-family: 'Orbitron', monospace;
+            min-width: 60px;
+        }
+
+        .collapse-btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(0, 212, 255, 0.3);
+        }
+
+        /* Hub Content - Scrollable when expanded */
+        .hub-content {
+            display: flex;
+            flex: 1;
+            min-height: 0;
+            opacity: 1;
+            transition: opacity 0.2s ease;
+        }
+
+        .music-hub.collapsed .hub-content {
+            opacity: 0;
+            pointer-events: none;
         }
 
         .hub-playlists {
@@ -454,6 +558,8 @@
             border-right: 1px solid rgba(255, 255, 255, 0.1);
             overflow-y: auto;
             padding: 8px;
+            display: flex;
+            flex-direction: column;
         }
 
         .hub-header {
@@ -463,6 +569,7 @@
             justify-content: space-between;
             align-items: center;
             font-size: 0.9rem;
+            flex-shrink: 0;
         }
 
         .hub-title {
@@ -552,6 +659,8 @@
             flex: 1;
             overflow-y: auto;
             padding: 8px 12px;
+            display: flex;
+            flex-direction: column;
         }
 
         .tracks-header-small {
@@ -561,6 +670,7 @@
             margin-bottom: 8px;
             padding-bottom: 6px;
             border-bottom: 1px solid rgba(0, 212, 255, 0.3);
+            flex-shrink: 0;
         }
 
         .tracks-title-small {
@@ -765,11 +875,10 @@
             
             .video-container {
                 width: 98vw;
-                height: 80vh;
             }
             
             .music-hub {
-                height: 120px;
+                --hub-height: 120px;
             }
             
             .hub-playlists {
@@ -785,7 +894,6 @@
             
             .video-container {
                 width: 100vw;
-                height: 75vh;
                 border-radius: 0;
             }
         }
@@ -884,39 +992,53 @@
         </div>
     </div>
 
-    <!-- Bottom Music Hub - Like Game HUD -->
-    <div class="music-hub">
-        <!-- Playlists Sidebar -->
-        <div class="hub-playlists">
-            <div class="hub-header">
-                <div class="hub-title">🎵 Playlists</div>
-                <button class="hub-btn" onclick="loadPlaylists()" id="loadPlaylistsBtn">Load</button>
-                <button class="hub-btn" onclick="refreshPlaylists()" style="display: none;" id="refreshBtn">Refresh</button>
-            </div>
-            <div id="playlistsContainer">
-                <div class="loading-small">
-                    Loading your Spotify playlists...
-                </div>
+    <!-- Bottom Music Hub - Resizable and Collapsible -->
+    <div class="music-hub" id="musicHub">
+        <!-- NEW: Resize Handle -->
+        <div class="resize-handle" id="resizeHandle"></div>
+        
+        <!-- NEW: Hub Controls Bar -->
+        <div class="hub-controls-bar">
+            <div class="hub-main-title">🎵 Music Hub</div>
+            <div class="hub-controls">
+                <button class="collapse-btn" onclick="toggleHubCollapse()" id="collapseBtn">▼ Hide</button>
+                <button class="hub-btn" onclick="toggleDebugMode()" id="debugToggleBtn">Debug</button>
             </div>
         </div>
         
-        <!-- Tracks Section -->
-        <div class="hub-tracks">
-            <div class="tracks-header-small">
-                <div class="tracks-title-small">🎵 Tracks</div>
-                <div style="display: flex; gap: 8px; align-items: center;">
-                    <button class="back-to-playlists-small" onclick="showPlaylists()" style="display: none;" id="backToPlaylistsBtn">
-                        ← Playlists
-                    </button>
-                    <button class="hub-btn" onclick="toggleDebugMode()" id="debugToggleBtn">Debug</button>
+        <!-- Hub Content -->
+        <div class="hub-content">
+            <!-- Playlists Sidebar -->
+            <div class="hub-playlists">
+                <div class="hub-header">
+                    <div class="hub-title">🎵 Playlists</div>
+                    <button class="hub-btn" onclick="loadPlaylists()" id="loadPlaylistsBtn">Load</button>
+                    <button class="hub-btn" onclick="refreshPlaylists()" style="display: none;" id="refreshBtn">Refresh</button>
+                </div>
+                <div id="playlistsContainer">
+                    <div class="loading-small">
+                        Loading your Spotify playlists...
+                    </div>
                 </div>
             </div>
-            <div class="tracks-info-small" id="tracksInfo" style="margin-bottom: 8px;">
-                Select a playlist to view tracks • Click deck first, then track to load
-            </div>
-            <div id="tracksContainer">
-                <div class="loading-small">
-                    Select a playlist to view tracks
+            
+            <!-- Tracks Section -->
+            <div class="hub-tracks">
+                <div class="tracks-header-small">
+                    <div class="tracks-title-small">🎵 Tracks</div>
+                    <div style="display: flex; gap: 8px; align-items: center;">
+                        <button class="back-to-playlists-small" onclick="showPlaylists()" style="display: none;" id="backToPlaylistsBtn">
+                            ← Playlists
+                        </button>
+                    </div>
+                </div>
+                <div class="tracks-info-small" id="tracksInfo" style="margin-bottom: 8px;">
+                    Select a playlist to view tracks • Click deck first, then track to load
+                </div>
+                <div id="tracksContainer">
+                    <div class="loading-small">
+                        Select a playlist to view tracks
+                    </div>
                 </div>
             </div>
         </div>
@@ -932,7 +1054,7 @@
     <script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js"></script>
 
     <script>
-        console.log('🎛️ HandMixed DJ Studio Ready - Webcam Focused Interface');
+        console.log('🎛️ HandMixed DJ Studio Ready - Webcam Focused Interface with Resizable Hub');
         
         // Global variables
         let stream = null;
@@ -940,6 +1062,12 @@
         let camera = null;
         let isTracking = false;
         let debugMode = false;
+        
+        // NEW: Hub resize variables
+        let isResizing = false;
+        let hubHeight = 140; // Default height
+        let isHubCollapsed = false;
+        let lastHubHeight = 140; // Store last height before collapse
         
         // Spotify Integration Variables
         let spotifyPlayer = null;
@@ -989,11 +1117,126 @@
             { main: '#1abc9c', accent: '#e67e22', name: 'Quaternary' }
         ];
 
+        // ========== NEW: HUB RESIZE FUNCTIONALITY ==========
+
+        function initializeHubResize() {
+            const resizeHandle = document.getElementById('resizeHandle');
+            const musicHub = document.getElementById('musicHub');
+            
+            // Update CSS custom property for initial height
+            updateHubHeight(hubHeight);
+            
+            // Mouse events for resize handle
+            resizeHandle.addEventListener('mousedown', startResize);
+            document.addEventListener('mousemove', handleResize);
+            document.addEventListener('mouseup', stopResize);
+            
+            // Touch events for mobile
+            resizeHandle.addEventListener('touchstart', startResizeTouch, { passive: false });
+            document.addEventListener('touchmove', handleResizeTouch, { passive: false });
+            document.addEventListener('touchend', stopResize);
+        }
+
+        function startResize(e) {
+            e.preventDefault();
+            isResizing = true;
+            document.body.style.cursor = 'ns-resize';
+            document.body.style.userSelect = 'none';
+        }
+
+        function startResizeTouch(e) {
+            e.preventDefault();
+            isResizing = true;
+            document.body.style.userSelect = 'none';
+        }
+
+        function handleResize(e) {
+            if (!isResizing || isHubCollapsed) return;
+            
+            const windowHeight = window.innerHeight;
+            const mouseY = e.clientY;
+            const newHeight = Math.max(40, Math.min(windowHeight * 0.6, windowHeight - mouseY));
+            
+            hubHeight = newHeight;
+            updateHubHeight(hubHeight);
+        }
+
+        function handleResizeTouch(e) {
+            if (!isResizing || isHubCollapsed) return;
+            
+            e.preventDefault();
+            const touch = e.touches[0];
+            const windowHeight = window.innerHeight;
+            const touchY = touch.clientY;
+            const newHeight = Math.max(40, Math.min(windowHeight * 0.6, windowHeight - touchY));
+            
+            hubHeight = newHeight;
+            updateHubHeight(hubHeight);
+        }
+
+        function stopResize() {
+            if (isResizing) {
+                isResizing = false;
+                document.body.style.cursor = '';
+                document.body.style.userSelect = '';
+                
+                // Store the height as last known height if not collapsed
+                if (!isHubCollapsed) {
+                    lastHubHeight = hubHeight;
+                }
+                
+                console.log(`🎚️ Hub resized to: ${hubHeight}px`);
+            }
+        }
+
+        function updateHubHeight(height) {
+            document.documentElement.style.setProperty('--hub-height', `${height}px`);
+            
+            // Update the hub element directly for immediate feedback during resize
+            const musicHub = document.getElementById('musicHub');
+            if (musicHub && !isHubCollapsed) {
+                musicHub.style.height = `${height}px`;
+            }
+        }
+
+        function toggleHubCollapse() {
+            const musicHub = document.getElementById('musicHub');
+            const collapseBtn = document.getElementById('collapseBtn');
+            
+            isHubCollapsed = !isHubCollapsed;
+            
+            if (isHubCollapsed) {
+                // Store current height before collapsing
+                lastHubHeight = hubHeight;
+                
+                // Collapse
+                musicHub.classList.add('collapsed');
+                collapseBtn.textContent = '▲ Show';
+                updateHubHeight(40);
+                
+                console.log('🔽 Hub collapsed');
+                updateStatus('Music hub collapsed', 'info');
+            } else {
+                // Expand to last known height
+                musicHub.classList.remove('collapsed');
+                collapseBtn.textContent = '▼ Hide';
+                hubHeight = lastHubHeight;
+                updateHubHeight(hubHeight);
+                
+                console.log('🔼 Hub expanded');
+                updateStatus('Music hub expanded', 'info');
+            }
+        }
+
         // ========== SPOTIFY AUTO-INITIALIZATION ==========
         
         // Auto-initialize Spotify when page loads
         document.addEventListener('DOMContentLoaded', function() {
             console.log('🎵 Auto-initializing Spotify connection...');
+            
+            // Initialize hub resize functionality
+            initializeHubResize();
+            
             autoInitializeSpotify();
         });
 
@@ -2190,17 +2433,99 @@
             updateStatus('An error occurred - check console for details', 'error');
         });
 
+        // ========== KEYBOARD SHORTCUTS ==========
+
+        document.addEventListener('keydown', function(event) {
+            // Don't trigger shortcuts when typing in inputs
+            if (event.target.tagName === 'INPUT' || event.target.tagName === 'TEXTAREA') {
+                return;
+            }
+            
+            switch(event.key) {
+                case 'h':
+                case 'H':
+                    // Toggle hub collapse
+                    if (!event.ctrlKey && !event.altKey) {
+                        toggleHubCollapse();
+                        event.preventDefault();
+                    }
+                    break;
+                case 'd':
+                case 'D':
+                    // Toggle debug mode
+                    if (!event.ctrlKey && !event.altKey) {
+                        toggleDebugMode();
+                        event.preventDefault();
+                    }
+                    break;
+                case ' ':
+                    // Spacebar - play/pause active deck
+                    if (!event.ctrlKey && !event.altKey) {
+                        if (deckA.isPlaying) {
+                            pauseDeck('A');
+                        } else if (deckB.isPlaying) {
+                            pauseDeck('B');
+                        } else if (deckA.track) {
+                            playDeck('A');
+                        } else if (deckB.track) {
+                            playDeck('B');
+                        }
+                        event.preventDefault();
+                    }
+                    break;
+                case '1':
+                    // Play Deck A
+                    if (!event.ctrlKey && !event.altKey) {
+                        if (deckA.track) playDeck('A');
+                        event.preventDefault();
+                    }
+                    break;
+                case '2':
+                    // Play Deck B
+                    if (!event.ctrlKey && !event.altKey) {
+                        if (deckB.track) playDeck('B');
+                        event.preventDefault();
+                    }
+                    break;
+                case 'Escape':
+                    // Stop all decks
+                    stopDeck('A');
+                    stopDeck('B');
+                    event.preventDefault();
+                    break;
+            }
+        });
+
+        // ========== WINDOW RESIZE HANDLING ==========
+
+        window.addEventListener('resize', function() {
+            // Ensure hub doesn't exceed screen bounds
+            const maxHeight = window.innerHeight * 0.6;
+            if (hubHeight > maxHeight) {
+                hubHeight = maxHeight;
+                updateHubHeight(hubHeight);
+                if (!isHubCollapsed) {
+                    lastHubHeight = hubHeight;
+                }
+            }
+        });
+
         // ========== INITIALIZATION ==========
 
         // Initialize application
         updateStatus('Initializing HandMixed DJ Studio...', 'info');
         
-        console.log('🎮 HandMixed DJ Studio Ready - Webcam Focused');
+        console.log('🎮 HandMixed DJ Studio Ready - Webcam Focused with Resizable Hub');
         console.log('🎵 Features:');
         console.log('  - Full-screen webcam interface');
         console.log('  - Floating deck controls');
-        console.log('  - Compact music hub');
+        console.log('  - Resizable and collapsible music hub');
         console.log('  - Hand gesture controls: ✋=play/pause, ☝️=deck A, ✌️=deck B, ✊=stop all');
+        console.log('  - Keyboard shortcuts: H=toggle hub, D=debug, Space=play/pause, 1/2=deck A/B, Esc=stop all');
+        console.log('💡 Hub Controls:');
+        console.log('  - Drag resize handle (⋯) to resize');
+        console.log('  - Click "Hide/Show" to collapse/expand');
+        console.log('  - Hub remembers last size when expanding');
         console.log('💡 Steps: 1) Playlists auto-load, 2) Load tracks to decks, 3) Start hand tracking!');
     </script>
 </body>
