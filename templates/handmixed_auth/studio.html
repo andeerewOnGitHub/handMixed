@@ -713,6 +713,32 @@
             box-shadow: 0 4px 12px rgba(0, 212, 255, 0.3);
         }
 
+         .skip-btn {
+            background: linear-gradient(135deg, #9b59b6, #8e44ad);
+            border: none;
+            padding: 8px 6px;
+            border-radius: 6px;
+            color: white;
+            font-size: 0.8rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-family: 'Orbitron', monospace;
+        }
+
+        .skip-btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(155, 89, 182, 0.4);
+        }
+
+        .skip-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
         /* ========================================== */
         /* CROSSFADER STYLES */
         /* ========================================== */
@@ -1295,11 +1321,12 @@
                 </div>
             </div>
 
-            <!-- Main Deck Controls -->
-            <div class="deck-main-controls" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px;">
+            <!-- Main Deck Controls A -->
+            <div class="deck-main-controls" style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px;">
                 <button class="deck-btn play" onclick="playDeck('A')" id="deckAPlayBtn">▶️ Play</button>
                 <button class="deck-btn pause" onclick="pauseDeck('A')" id="deckAPauseBtn">⏸️ Pause</button>
                 <button class="deck-btn stop" onclick="stopDeck('A')" id="deckAStopBtn">⏹️ Stop</button>
+                <button class="skip-btn" onclick="skipTrackOnDeck('A')" id="deckASkipBtn">⏭️ Skip</button>
             </div>
         </div>
 
@@ -1350,11 +1377,12 @@
                 </div>
             </div>
 
-            <!-- Main Deck Controls -->
-            <div class="deck-main-controls" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px;">
+            <!-- Main Deck Controls B -->
+            <div class="deck-main-controls" style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px;">
                 <button class="deck-btn play" onclick="playDeck('B')" id="deckBPlayBtn">▶️ Play</button>
                 <button class="deck-btn pause" onclick="pauseDeck('B')" id="deckBPauseBtn">⏸️ Pause</button>
                 <button class="deck-btn stop" onclick="stopDeck('B')" id="deckBStopBtn">⏹️ Stop</button>
+                <button class="skip-btn" onclick="skipTrackOnDeck('B')" id="deckBSkipBtn">⏭️ Skip</button>
             </div>
         </div>
 
@@ -1563,7 +1591,11 @@
                 eq: { high: 0, mid: 0, low: 0 }, // EQ settings
                 waveform: null,          // Waveform visualization
                 progressInterval: null,   // Progress update timer
-                isLoadedFromQueue: false // Whether track was auto-loaded from queue
+                isLoadedFromQueue: false, // Whether track was auto-loaded from queue
+                isFinished: false,
+                trackEndListener: null,
+                isFinished: false,        // NEW: Track if song finished
+                trackEndListener: null    // NEW: Store end event listener
 
             },
             B: {
@@ -1574,7 +1606,11 @@
                 currentTime: 0, duration: 0, cuePoints: {}, isLooping: false,
                 loopStart: 0, loopEnd: 0, loopLength: 0,
                 eq: { high: 0, mid: 0, low: 0 }, waveform: null, progressInterval: null,
-                isLoadedFromQueue: false
+                isLoadedFromQueue: false,
+                isFinished: false,
+                trackEndListener: null,
+                isFinished: false,        // NEW: Track if song finished
+                trackEndListener: null    // NEW: Store end event listener
             }
         };
 
@@ -1663,16 +1699,16 @@
             function checkAndAutoLoadTracks() {
                 if (!queueState.isAutoMode || spotifyState.currentPlaylist.length === 0) return;
                 
-                // Check if deck A needs a track
-                if (!deckState.A.track || (deckState.A.isLoadedFromQueue && !deckState.A.isPlaying && !deckState.A.isPaused)) {
+                // Check if deck A needs a track (only if no track OR track finished)
+                if (!deckState.A.track || deckState.A.isFinished) {
                     const nextTrack = getNextTrackFromPlaylist('A');
                     if (nextTrack) {
                         autoLoadTrackToDeck('A', nextTrack);
                     }
                 }
                 
-                // Check if deck B needs a track
-                if (!deckState.B.track || (deckState.B.isLoadedFromQueue && !deckState.B.isPlaying && !deckState.B.isPaused)) {
+                // Check if deck B needs a track (only if no track OR track finished)
+                if (!deckState.B.track || deckState.B.isFinished) {
                     const nextTrack = getNextTrackFromPlaylist('B');
                     if (nextTrack) {
                         autoLoadTrackToDeck('B', nextTrack);
@@ -1699,47 +1735,156 @@
             }
 
             /**
-             * Auto-load track to deck from playlist
-             */
-            function autoLoadTrackToDeck(deckLetter, trackData) {
-                if (!trackData || !trackData.track) return;
-                
-                console.log(`🤖 Auto-loading "${trackData.track.name}" to Deck ${deckLetter} (Track ${trackData.playlistIndex + 1})`);
-                
-                const deck = deckState[deckLetter];
-                
-                // Stop current track if playing
-                if (deck.isPlaying || deck.isPaused) {
-                    stopDeck(deckLetter);
+         * Auto-load track to deck from playlist
+         */
+        function autoLoadTrackToDeck(deckLetter, trackData) {
+            if (!trackData || !trackData.track) return;
+            
+            console.log(`🤖 Auto-loading "${trackData.track.name}" to Deck ${deckLetter} (Track ${trackData.playlistIndex + 1})`);
+            
+            const deck = deckState[deckLetter];
+            
+            // Clean up previous track
+            cleanupDeckTrack(deckLetter);
+            
+            // Load new track
+            deck.track = trackData.track;
+            deck.isLoadedFromQueue = true;
+            deck.isFinished = false; // Reset finished state
+            
+            // Initialize deck audio
+            initializeDeckAudio(deckLetter);
+            
+            // Set up track end detection
+            setupTrackEndDetection(deckLetter);
+            
+            // Detect BPM
+            deck.bpm = 120 + Math.floor(Math.random() * 60);
+            
+            // Update deck display
+            updateDeckDisplay(deckLetter, trackData.track);
+            updateDeckUI(deckLetter);
+            
+            // Generate waveform
+            generatePlaceholderWaveform(deckLetter);
+            
+            // Update deck display styling
+            const deckDisplay = document.getElementById(`deck${deckLetter}TrackDisplay`);
+            deckDisplay.classList.add('auto-loaded');
+            
+            // Update queue display
+            updateQueueDisplay();
+            updateQueueToggleButton();
+            
+            updateStatus(`Auto-loaded "${trackData.track.name}" to Deck ${deckLetter} (${trackData.playlistIndex + 1}/${spotifyState.currentPlaylist.length})`, 'success');
+        }
+
+        /**
+         * NEW: Skip to next track on specified deck
+         */
+        function skipTrackOnDeck(deckLetter) {
+            const deck = deckState[deckLetter];
+            
+            if (!deck.track) {
+                updateStatus(`No track to skip on Deck ${deckLetter}`, 'error');
+                return;
+            }
+            
+            console.log(`⏭️ Skipping track on Deck ${deckLetter}: ${deck.track.name}`);
+            
+            // Stop current track
+            stopDeck(deckLetter);
+            
+            // Mark as finished to trigger auto-load
+            deck.isFinished = true;
+            
+            // Update status
+            updateStatus(`Skipped track on Deck ${deckLetter}`, 'success');
+            
+            // Load next track if auto-mode is enabled
+            if (queueState.isAutoMode) {
+                setTimeout(() => {
+                    checkAndAutoLoadTracks();
+                }, 500);
+            }
+        }
+
+        /**
+         * NEW: Set up track end detection for automatic cycling
+         */
+        function setupTrackEndDetection(deckLetter) {
+            const deck = deckState[deckLetter];
+            
+            if (deck.audio) {
+                // Remove previous listener if exists
+                if (deck.trackEndListener) {
+                    deck.audio.removeEventListener('ended', deck.trackEndListener);
                 }
                 
-                // Load track into deck
-                deck.track = trackData.track;
-                deck.isLoadedFromQueue = true;
+                // Create new end listener
+                deck.trackEndListener = function() {
+                    console.log(`🏁 Track finished on Deck ${deckLetter}: ${deck.track.name}`);
+                    handleTrackEnd(deckLetter);
+                };
                 
-                // Initialize deck audio
-                initializeDeckAudio(deckLetter);
+                // Add listener for when track ends
+                deck.audio.addEventListener('ended', deck.trackEndListener);
                 
-                // Detect BPM
-                deck.bpm = 120 + Math.floor(Math.random() * 60);
-                
-                // Update deck display
-                updateDeckDisplay(deckLetter, trackData.track);
-                updateDeckUI(deckLetter);
-                
-                // Generate waveform
-                generatePlaceholderWaveform(deckLetter);
-                
-                // Update deck display styling
-                const deckDisplay = document.getElementById(`deck${deckLetter}TrackDisplay`);
-                deckDisplay.classList.add('auto-loaded');
-                
-                // Update queue display
-                updateQueueDisplay();
-                updateQueueToggleButton();
-                
-                updateStatus(`Auto-loaded "${trackData.track.name}" to Deck ${deckLetter} (${trackData.playlistIndex + 1}/${spotifyState.currentPlaylist.length})`, 'success');
+                console.log(`👂 Track end detection set up for Deck ${deckLetter}`);
             }
+        }
+
+        /**
+         * NEW: Handle when a track ends
+         */
+        function handleTrackEnd(deckLetter) {
+            const deck = deckState[deckLetter];
+            
+            // Mark track as finished
+            deck.isFinished = true;
+            deck.isPlaying = false;
+            deck.isPaused = false;
+            
+            // Update UI
+            updateDeckStatus(deckLetter, 'Finished');
+            updateDeckUI(deckLetter);
+            
+            // Update status
+            updateStatus(`Track finished on Deck ${deckLetter} - Loading next...`, 'info');
+            
+            // Trigger auto-load if enabled
+            if (queueState.isAutoMode) {
+                setTimeout(() => {
+                    checkAndAutoLoadTracks();
+                }, 1000);
+            }
+        }
+
+        /**
+         * NEW: Clean up deck track before loading new one
+         */
+        function cleanupDeckTrack(deckLetter) {
+            const deck = deckState[deckLetter];
+            
+            // Stop any playing audio
+            if (deck.isPlaying || deck.isPaused) {
+                stopDeck(deckLetter);
+            }
+            
+            // Remove track end listener
+            if (deck.audio && deck.trackEndListener) {
+                deck.audio.removeEventListener('ended', deck.trackEndListener);
+                deck.trackEndListener = null;
+            }
+            
+            // Reset deck state
+            deck.isFinished = false;
+            deck.currentTime = 0;
+            
+            console.log(`🧹 Cleaned up Deck ${deckLetter}`);
+        }
+
+
 
             // ========================================== 
             // QUEUE UI FUNCTIONS (Simplified)
@@ -1870,6 +2015,72 @@
                     updateQueueToggleButton();
                     updateStatus('Skipped to next track in playlist', 'info');
                 }
+            }
+
+            /**
+            * Clear any auto-loaded tracks from previous playlist
+            */
+            function clearAutoLoadedTracks() {
+                console.log('🧹 Clearing auto-loaded tracks from previous playlist...');
+                
+                // Clear Deck A if it was auto-loaded and not currently playing
+                if (deckState.A.isLoadedFromQueue && !deckState.A.isPlaying && !deckState.A.isPaused) {
+                    console.log('🧹 Clearing auto-loaded track from Deck A');
+                    stopDeck('A');
+                    deckState.A.track = null;
+                    deckState.A.isLoadedFromQueue = false;
+                    updateDeckDisplay('A');
+                    
+                    // Remove auto-loaded styling
+                    const deckADisplay = document.getElementById('deckATrackDisplay');
+                    deckADisplay.classList.remove('auto-loaded', 'loaded');
+                }
+                
+                // Clear Deck B if it was auto-loaded and not currently playing
+                if (deckState.B.isLoadedFromQueue && !deckState.B.isPlaying && !deckState.B.isPaused) {
+                    console.log('🧹 Clearing auto-loaded track from Deck B');
+                    stopDeck('B');
+                    deckState.B.track = null;
+                    deckState.B.isLoadedFromQueue = false;
+                    updateDeckDisplay('B');
+                    
+                    // Remove auto-loaded styling
+                    const deckBDisplay = document.getElementById('deckBTrackDisplay');
+                    deckBDisplay.classList.remove('auto-loaded', 'loaded');
+                }
+                
+                console.log('✅ Previous auto-loaded tracks cleared');
+            }
+
+            /**
+            * Force auto-loading tracks from new playlist
+            */
+            function forceAutoLoadNewPlaylist() {
+                console.log('🎯 Force loading tracks from new playlist...');
+                
+                if (spotifyState.currentPlaylist.length === 0) {
+                    console.log('❌ No tracks in current playlist to load');
+                    return;
+                }
+                
+                // Force load to Deck A if it doesn't have a track or has an auto-loaded track
+                if (!deckState.A.track || deckState.A.isLoadedFromQueue) {
+                    const nextTrackA = getNextTrackFromPlaylist('A');
+                    if (nextTrackA) {
+                        autoLoadTrackToDeck('A', nextTrackA);
+                    }
+                }
+                
+                // Force load to Deck B if it doesn't have a track or has an auto-loaded track
+                if (!deckState.B.track || deckState.B.isLoadedFromQueue) {
+                    const nextTrackB = getNextTrackFromPlaylist('B');
+                    if (nextTrackB) {
+                        autoLoadTrackToDeck('B', nextTrackB);
+                    }
+                }
+                
+                updateStatus('New playlist tracks loaded into decks', 'success');
+                console.log('✅ New playlist tracks force-loaded into available decks');
             }
 
 
@@ -2400,14 +2611,17 @@
                     // Reset the playlist position when a new playlist is loaded
                     queueState.loadingIndex = 0;
                     
+                    // Clear any auto-loaded tracks from previous playlist
+                    clearAutoLoadedTracks();
+                    
                     // Update queue display
                     updateQueueDisplay();
                     updateQueueToggleButton();
                     
-                    // Auto-load first tracks if auto-mode is enabled
+                    // Auto-load first tracks from new playlist if auto-mode is enabled
                     if (queueState.isAutoMode) {
                         setTimeout(() => {
-                            checkAndAutoLoadTracks();
+                            forceAutoLoadNewPlaylist();
                         }, 1000);
                     }
                     
@@ -2624,7 +2838,7 @@
         function stopDeck(deckLetter) {
             const deck = deckState[deckLetter];
             
-            if (spotifyState.isPlayerReady && deck.track.uri) {
+            if (spotifyState.isPlayerReady && deck.track && deck.track.uri) {
                 controlSpotifyPlayback('pause');
             } else if (deck.audio) {
                 deck.audio.pause();
@@ -2641,6 +2855,18 @@
             updateProgressDisplay(deckLetter);
             updatePlayhead(deckLetter);
             updateDeckUI(deckLetter);
+            
+            // If this was an auto-loaded track that's now stopped, mark it as ready for new auto-loading
+            if (deck.isLoadedFromQueue) {
+                updateDeckStatus(deckLetter, 'Ready for next track');
+                
+                // If auto-mode is enabled, queue up the next track after a short delay
+                if (queueState.isAutoMode && spotifyState.currentPlaylist.length > 0) {
+                    setTimeout(() => {
+                        checkAndAutoLoadTracks();
+                    }, 2000); // 2-second delay before auto-loading next track
+                }
+            }
             
             console.log(`⏹️ Stopped Professional Deck ${deckLetter}`);
         }
@@ -3046,18 +3272,26 @@
             const playBtn = document.getElementById(`deck${deckLetter}PlayBtn`);
             const pauseBtn = document.getElementById(`deck${deckLetter}PauseBtn`);
             const stopBtn = document.getElementById(`deck${deckLetter}StopBtn`);
+            const skipBtn = document.getElementById(`deck${deckLetter}SkipBtn`);
+            
+            // Add null checks to prevent errors
+            if (!playBtn || !pauseBtn || !stopBtn) {
+                console.warn(`Missing deck buttons for Deck ${deckLetter}`);
+                return;
+            }
             
             if (deck.isPlaying) {
                 playBtn.disabled = true;
                 pauseBtn.disabled = false;
                 stopBtn.disabled = false;
+                if (skipBtn) skipBtn.disabled = false;
             } else {
-                playBtn.disabled = false;
+                playBtn.disabled = !deck.track || deck.isFinished;
                 pauseBtn.disabled = true;
                 stopBtn.disabled = !deck.isPaused;
+                if (skipBtn) skipBtn.disabled = !deck.track;
             }
         }
-
         // ========================================== 
         // HUB RESIZE FUNCTIONALITY
         // ==========================================
