@@ -1,253 +1,147 @@
-{% load static %}
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>HandMixed Pro - Professional DJ Studio</title>
-    
-    <!-- External Libraries -->
-    <script src="https://unpkg.com/tone@14.7.77/build/Tone.js"></script>
-    <script src="https://unpkg.com/wavesurfer.js@7.7.3/dist/wavesurfer.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/control_utils/control_utils.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/drawing_utils/drawing_utils.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js"></script>
+/* Crossfader */
+.crossfader-section {
+    position: absolute;
+    bottom: calc(var(--hub-height, 140px) + 80px);
+    left: 50%;
+    transform: translateX(-50%);
+    background: linear-gradient(135deg, rgba(0, 0, 0, 0.95), rgba(26, 26, 26, 0.95));
+    backdrop-filter: blur(20px);
+    border-radius: 15px;
+    padding: 15px 25px;
+    border: 2px solid rgba(0, 212, 255, 0.4);
+    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.8);
+    z-index: 200;
+    min-width: 300px;
+}
 
-    <!-- CSS Files -->
-    <link rel="stylesheet" href="{% static 'css/base.css' %}">
-    <link rel="stylesheet" href="{% static 'css/header.css' %}">
-    <link rel="stylesheet" href="{% static 'css/video.css' %}">
-    <link rel="stylesheet" href="{% static 'css/decks.css' %}">
-    <link rel="stylesheet" href="{% static 'css/controls.css' %}">
-    <link rel="stylesheet" href="{% static 'css/music-hub.css' %}">
-    <link rel="stylesheet" href="{% static 'css/responsive.css' %}">
-</head>
+.crossfader-label {
+    font-family: 'Orbitron', monospace;
+    font-size: 1rem;
+    color: #00d4ff;
+    font-weight: 700;
+    text-align: center;
+    margin-bottom: 10px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
 
-<body>
-    <!-- Header -->
-    <div class="header">
-        <div class="logo">HandMixed Pro</div>
-        <div class="user-info">
-            <div class="username">Audius DJ</div>
-            <a href="/logout/" class="logout-btn">Logout</a>
-        </div>
-    </div>
+.crossfader-container {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
 
-    <!-- Main Container -->
-    <div class="main-container">
-        <!-- Video Area -->
-        <div class="video-main-area">
-            <div class="video-container" id="videoContainer">
-                <video id="video" autoplay muted playsinline></video>
-                <canvas id="canvas"></canvas>
-                <div class="video-placeholder" id="videoPlaceholder">
-                    🖐️ Professional Hand Control<br>
-                    <small style="font-size: 1rem; margin-top: 10px; display: block;">Powered by Audius & MediaPipe</small>
-                </div>
-            </div>
-        </div>
+.crossfader-label-side {
+    font-family: 'Orbitron', monospace;
+    font-size: 0.9rem;
+    font-weight: 600;
+}
 
-        <!-- Hand Detection Indicators -->
-        <div class="hand-indicators" id="handIndicators">
-            <div class="hand-indicator">
-                <div class="hand-status" id="leftHandStatus"></div>
-                <span>Right Hand (Deck A)</span>
-            </div>
-            <div class="hand-indicator">
-                <div class="hand-status" id="rightHandStatus"></div>
-                <span>Left Hand (Deck B)</span>
-            </div>
-        </div>
+.crossfader-label-side.deck-a {
+    color: #00d4ff;
+}
 
-        <!-- Left Deck A -->
-        <div class="deck-overlay left" id="deckAOverlay">
-            <div class="deck-header">
-                <div class="deck-title">🎚️ Deck A</div>
-                <div class="deck-bpm" id="deckABPM">120 BPM</div>
-            </div>
+.crossfader-label-side.deck-b {
+    color: #f39c12;
+}
 
-            <div class="deck-track-display" id="deckATrackDisplay" onclick="selectDeck('A')">
-                <div class="deck-track-artwork" id="deckAArtwork">🎵</div>
-                <div class="deck-track-info">
-                    <div class="deck-track-name" id="deckATrackName">No track loaded</div>
-                    <div class="deck-track-artist" id="deckATrackArtist">Select track from Audius</div>
-                    <div class="deck-track-status" id="deckATrackStatus">Ready</div>
-                </div>
-            </div>
+.crossfader {
+    flex: 1;
+    height: 8px;
+    border-radius: 4px;
+    background: linear-gradient(90deg, #00d4ff, rgba(255,255,255,0.3), #f39c12);
+    outline: none;
+    -webkit-appearance: none;
+    cursor: pointer;
+}
 
-            <div class="deck-volume-indicator">
-                <div class="deck-volume-bar">
-                    <div class="deck-volume-fill" id="deckAVolumeFill" style="width: 70%;"></div>
-                </div>
-                <div class="deck-volume-text" id="deckAVolumeText">Volume: 70%</div>
-            </div>
+.crossfader::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #fff, #e0e0e0);
+    cursor: pointer;
+    box-shadow: 0 0 8px rgba(0, 0, 0, 0.6);
+    border: 2px solid #00d4ff;
+}
 
-            <div class="deck-waveform" id="deckAWaveform">
-                <div class="waveform-container" id="deckAWaveformContainer"></div>
-            </div>
+/* Hand Control */
+.hand-control-overlay {
+    position: absolute;
+    bottom: calc(var(--hub-height, 140px) + 150px);
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 200;
+}
 
-            <div class="deck-controls">
-                <button class="deck-btn" onclick="playDeck('A')" id="deckAPlayBtn">▶️ Play</button>
-                <button class="deck-btn" onclick="pauseDeck('A')" id="deckAPauseBtn">⏸️ Pause</button>
-                <button class="deck-btn" onclick="stopDeck('A')" id="deckAStopBtn">⏹️ Stop</button>
-                <button class="skip-btn" onclick="skipTrackOnDeck('A')" id="deckASkipBtn">⏭️ Skip</button>
-            </div>
-        </div>
+.hand-dj-btn {
+    background: linear-gradient(135deg, #00d4ff, #f39c12);
+    border: none;
+    padding: 12px 24px;
+    border-radius: 20px;
+    color: #1a1a1a;
+    font-size: 1rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.4s ease;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    font-family: 'Orbitron', monospace;
+    box-shadow: 0 8px 25px rgba(0, 212, 255, 0.4);
+    min-width: 180px;
+}
 
-        <!-- Right Deck B -->
-        <div class="deck-overlay right" id="deckBOverlay">
-            <div class="deck-header">
-                <div class="deck-title">🎚️ Deck B</div>
-                <div class="deck-bpm" id="deckBBPM">120 BPM</div>
-            </div>
+.hand-dj-btn:hover {
+    transform: translateY(-3px) scale(1.05);
+    box-shadow: 0 12px 35px rgba(0, 212, 255, 0.6);
+    background: linear-gradient(135deg, #f39c12, #00d4ff);
+}
 
-            <div class="deck-track-display" id="deckBTrackDisplay" onclick="selectDeck('B')">
-                <div class="deck-track-artwork" id="deckBArtwork">🎵</div>
-                <div class="deck-track-info">
-                    <div class="deck-track-name" id="deckBTrackName">No track loaded</div>
-                    <div class="deck-track-artist" id="deckBTrackArtist">Select track from Audius</div>
-                    <div class="deck-track-status" id="deckBTrackStatus">Ready</div>
-                </div>
-            </div>
+.hand-dj-btn.stop {
+    background: linear-gradient(135deg, #ff6b6b, #e74c3c);
+    box-shadow: 0 8px 25px rgba(255, 107, 107, 0.4);
+}
 
-            <div class="deck-volume-indicator">
-                <div class="deck-volume-bar">
-                    <div class="deck-volume-fill" id="deckBVolumeFill" style="width: 70%;"></div>
-                </div>
-                <div class="deck-volume-text" id="deckBVolumeText">Volume: 70%</div>
-            </div>
+.hand-dj-btn.stop:hover {
+    background: linear-gradient(135deg, #e74c3c, #ff6b6b);
+}
 
-            <div class="deck-waveform" id="deckBWaveform">
-                <div class="waveform-container" id="deckBWaveformContainer"></div>
-            </div>
+/* Status */
+.status-overlay {
+    position: absolute;
+    bottom: calc(var(--hub-height, 140px) + 10px);
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 150;
+}
 
-            <div class="deck-controls">
-                <button class="deck-btn" onclick="playDeck('B')" id="deckBPlayBtn">▶️ Play</button>
-                <button class="deck-btn" onclick="pauseDeck('B')" id="deckBPauseBtn">⏸️ Pause</button>
-                <button class="deck-btn" onclick="stopDeck('B')" id="deckBStopBtn">⏹️ Stop</button>
-                <button class="skip-btn" onclick="skipTrackOnDeck('B')" id="deckBSkipBtn">⏭️ Skip</button>
-            </div>
-        </div>
+.status {
+    background: linear-gradient(135deg, rgba(0, 212, 255, 0.15), rgba(243, 156, 18, 0.15));
+    backdrop-filter: blur(10px);
+    border-radius: 12px;
+    padding: 8px 16px;
+    font-size: 0.9rem;
+    border: 1px solid rgba(0, 212, 255, 0.4);
+    text-align: center;
+    font-weight: 500;
+    max-width: 400px;
+}
 
-        <!-- Crossfader -->
-        <div class="crossfader-section">
-            <div class="crossfader-label">🎚️ Crossfader</div>
-            <div class="crossfader-container">
-                <div class="crossfader-label-side deck-a">A</div>
-                <input type="range" class="crossfader" id="crossfader" min="0" max="100" value="50" 
-                       oninput="setCrossfader(this.value)">
-                <div class="crossfader-label-side deck-b">B</div>
-            </div>
-        </div>
+.status.success {
+    background: linear-gradient(135deg, rgba(46, 204, 113, 0.2), rgba(0, 212, 255, 0.2));
+    border-color: #2ecc71;
+    color: #2ecc71;
+}
 
-        <!-- Hand Control -->
-        <div class="hand-control-overlay">
-            <button id="startBtn" class="hand-dj-btn" onclick="startHandTracking()">
-                🖐️ Start Hand DJ
-            </button>
-            <button id="stopBtn" class="hand-dj-btn stop" onclick="stopHandTracking()" style="display: none;">
-                ✋ Stop Hand DJ
-            </button>
-        </div>
+.status.error {
+    background: linear-gradient(135deg, rgba(255, 107, 107, 0.2), rgba(231, 76, 60, 0.2));
+    border-color: #ff6b6b;
+    color: #ff6b6b;
+}
 
-        <!-- Status -->
-        <div class="status-overlay">
-            <div id="status" class="status info">
-                Professional DJ Studio ready - Load tracks from Audius!
-            </div>
-        </div>
-    </div>
-
-    <!-- Music Hub -->
-    <div class="music-hub collapsed" id="musicHub">
-        <div class="hub-controls-bar">
-            <div class="hub-main-title">🎵 Audius Music Library</div>
-            <div class="hub-controls">
-                <button class="collapse-btn" onclick="toggleHubCollapse()" id="collapseBtn">▲ Show</button>
-            </div>
-        </div>
-        
-        <div class="hub-content">
-            <!-- Playlists Section -->
-            <div class="hub-playlists">
-                <!-- Playlist Creator -->
-                <div class="playlist-creator">
-                    <div class="playlist-input-group">
-                        <input type="text" class="playlist-name-input" id="playlistNameInput" 
-                            placeholder="New playlist name..." maxlength="20" style="width: 120px;">
-                        <button class="create-playlist-btn" onclick="createPlaylist()">Create</button>
-                    </div>
-                </div>
-
-                <div class="hub-header">
-                    <div class="hub-title">📋 My Playlists</div>
-                    <div id="playlistsCount">0</div>
-                </div>
-                
-                <div id="playlistsContainer">
-                    <div class="loading">
-                        Create your first playlist above
-                    </div>
-                </div>
-            </div>
-            
-            <!-- Tracks Section -->
-            <div class="hub-tracks">
-                <div class="search-section">
-                    <input type="text" class="search-input" id="searchInput" placeholder="Search Audius tracks..." 
-                           onkeypress="if(event.key==='Enter') searchTracks()">
-                    <div class="search-controls">
-                        <button class="hub-btn" onclick="searchTracks()">🔍 Search</button>
-                        <button class="hub-btn" onclick="clearSearch()">🗑️ Clear</button>
-                    </div>
-                </div>
-                
-                <div class="hub-header">
-                    <div class="hub-title">🎵 Tracks</div>
-                    <div id="tracksCount">0 tracks</div>
-                </div>
-                
-                <div id="tracksContainer">
-                    <div class="loading">
-                        🎵 Search for tracks or select a playlist
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- JavaScript Files - Load in proper order -->
-    <!-- Core Application State -->
-    <script src="{% static 'js/core/app-state.js' %}"></script>
-    
-    <!-- Utility Functions -->
-    <script src="{% static 'js/utils/status-manager.js' %}"></script>
-    <script src="{% static 'js/utils/ui-helpers.js' %}"></script>
-    <script src="{% static 'js/utils/deck-ui.js' %}"></script>
-    <script src="{% static 'js/utils/track-ui.js' %}"></script>
-    <script src="{% static 'js/utils/playlist-storage.js' %}"></script>
-    <script src="{% static 'js/utils/playlist-ui.js' %}"></script>
-    <script src="{% static 'js/utils/playlist-manager.js' %}"></script>
-    <script src="{% static 'js/utils/search-manager.js' %}"></script>
-    
-    <!-- Audio System -->
-    <script src="{% static 'js/audio/tone-setup.js' %}"></script>
-    <script src="{% static 'js/audio/wavesurfer-setup.js' %}"></script>
-    <script src="{% static 'js/audio/deck-manager.js' %}"></script>
-    
-    <!-- Controls -->
-    <script src="{% static 'js/controls/crossfader.js' %}"></script>
-    
-    <!-- Hand Tracking & Gestures -->
-    <script src="{% static 'js/gestures/hand-gestures.js' %}"></script>
-    <script src="{% static 'js/gestures/gesture-detector.js' %}"></script>
-    <script src="{% static 'js/controls/hand-tracking.js' %}"></script>
-    
-    <!-- Core Initialization -->
-    <script src="{% static 'js/core/initialization.js' %}"></script>
-    
-    <!-- Main Application -->
-    <script src="{% static 'js/app.js' %}"></script>
-</body>
-</html>
+.status.info {
+    background: linear-gradient(135deg, rgba(0, 212, 255, 0.2), rgba(243, 156, 18, 0.2));
+    border-color: #00d4ff;
+    color: #00d4ff;
+}
