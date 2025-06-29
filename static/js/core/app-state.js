@@ -201,7 +201,7 @@ function cleanupBPMCache() {
     const now = Date.now();
     let cleaned = 0;
     
-    for (const [trackId, cached] of bmpState.detectionCache.entries()) {
+    for (const [trackId, cached] of bpmState.detectionCache.entries()) {
         const age = now - cached.timestamp;
         if (age > BPM_CONFIG.cacheExpiry) {
             bmpState.detectionCache.delete(trackId);

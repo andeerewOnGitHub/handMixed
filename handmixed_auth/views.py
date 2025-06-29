@@ -218,7 +218,7 @@ def search_tracks(request):
             bpm = extract_bpm_from_track(track)
             
             # Log BPM extraction for debugging
-            if bmp:
+            if bpm:
                 logger.info(f"🎵 Found BPM {bpm} for search result: {track.get('title')}")
             else:
                 logger.warning(f"⚠️ No BPM found for search result: {track.get('title')}")
