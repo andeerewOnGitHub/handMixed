@@ -22,6 +22,7 @@
     <link rel="stylesheet" href="{% static 'css/controls.css' %}">
     <link rel="stylesheet" href="{% static 'css/music-hub.css' %}">
     <link rel="stylesheet" href="{% static 'css/responsive.css' %}">
+    <link rel="stylesheet" href="{% static 'css/bmp-styles.css' %}">
 </head>
 
 <body>
@@ -64,7 +65,7 @@
         <div class="deck-overlay left" id="deckAOverlay">
             <div class="deck-header">
                 <div class="deck-title">🎚️ Deck A</div>
-                <div class="deck-bpm" id="deckABPM">120 BPM</div>
+                <div class="deck-bpm" id="deckABPM">-- BPM</div>
             </div>
 
             <div class="deck-track-display" id="deckATrackDisplay" onclick="selectDeck('A')">
@@ -99,7 +100,7 @@
         <div class="deck-overlay right" id="deckBOverlay">
             <div class="deck-header">
                 <div class="deck-title">🎚️ Deck B</div>
-                <div class="deck-bpm" id="deckBBPM">120 BPM</div>
+                <div class="deck-bpm" id="deckBBPM">-- BPM</div>
             </div>
 
             <div class="deck-track-display" id="deckBTrackDisplay" onclick="selectDeck('B')">
@@ -232,10 +233,11 @@
     <script src="{% static 'js/utils/search-manager.js' %}"></script>
     
     <!-- Audio System -->
+    <!-- Audio System -->
     <script src="{% static 'js/audio/tone-setup.js' %}"></script>
     <script src="{% static 'js/audio/wavesurfer-setup.js' %}"></script>
-    <script src="{% static 'js/audio/deck-manager.js' %}"></script>
-    
+    <script src="{% static 'js/audio/deck-manager.js' %}"></script> <!-- This file is u
+        
     <!-- Controls -->
     <script src="{% static 'js/controls/crossfader.js' %}"></script>
     
@@ -249,5 +251,9 @@
     
     <!-- Main Application -->
     <script src="{% static 'js/app.js' %}"></script>
+
+    <!-- BPM Detection (NEW) -->
+    <script src="{% static 'js/utils/bmp-detector.js' %}"></script>
+
 </body>
 </html>
