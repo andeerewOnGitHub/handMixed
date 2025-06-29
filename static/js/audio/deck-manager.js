@@ -1,7 +1,4 @@
-// static/js/audio/deck-manager.js - Updated with BPM Detection
-
-// Initialize BPM detector
-const bpmDetector = new BPMDetector();
+// static/js/audio/deck-manager.js - Simplified with Audius BPM Data
 
 // Select deck for loading
 function selectDeck(deckLetter) {
@@ -21,7 +18,7 @@ function selectDeck(deckLetter) {
         'linear-gradient(135deg, rgba(243, 156, 18, 0.4), rgba(30, 215, 96, 0.4))';
 }
 
-// Load track to selected deck with BPM detection
+// Load track to selected deck with BPM from Audius
 async function loadTrackToDeck(trackIndex) {
     if (!appState.selectedDeck) {
         updateStatus('Please select a deck first (click on a deck display)', 'error');
@@ -38,6 +35,7 @@ async function loadTrackToDeck(trackIndex) {
     const deck = deckState[deckLetter];
 
     console.log(`🎵 Loading track to Deck ${deckLetter}:`, track.title);
+    console.log(`🎵 Track BPM from Audius: ${track.bpm || 'Not available'}`);
     updateStatus(`Loading "${track.title}" to Deck ${deckLetter}...`, 'info');
 
     try {
@@ -51,7 +49,19 @@ async function loadTrackToDeck(trackIndex) {
 
         // Store track info
         deck.track = track;
-        deck.bpm = null; // Reset BPM
+
+        // Set BPM immediately from Audius metadata
+        if (track.bpm && track.bpm > 0) {
+            deck.bpm = track.bpm;
+            updateDeckBPM(deckLetter, `${track.bpm} BPM`);
+            console.log(`✅ BPM set from Audius metadata: ${track.bpm} BPM`);
+        } else {
+            // Fallback BPM based on genre or default
+            const fallbackBPM = getFallbackBPM(track.genre);
+            deck.bpm = fallbackBPM;
+            updateDeckBPM(deckLetter, `~${fallbackBPM} BPM`);
+            console.log(`⚠️ Using fallback BPM: ${fallbackBPM} BPM (Genre: ${track.genre || 'Unknown'})`);
+        }
 
         // Create HTML5 Audio element for playback
         deck.audio = new Audio();
@@ -70,16 +80,13 @@ async function loadTrackToDeck(trackIndex) {
             }
         }, 15000); // 15 second timeout
         
-        // Set up audio event listeners with improved error handling
-        deck.audio.addEventListener('loadeddata', async () => {
+        // Set up audio event listeners
+        deck.audio.addEventListener('loadeddata', () => {
             clearTimeout(loadTimeout);
             console.log(`✅ Track loaded in Deck ${deckLetter}: ${track.title}`);
-            updateStatus(`"${track.title}" loaded in Deck ${deckLetter}`, 'success');
+            updateStatus(`"${track.title}" loaded in Deck ${deckLetter} (${deck.bpm} BPM)`, 'success');
             updateDeckDisplay(deckLetter, track);
             updateDeckUI(deckLetter);
-
-            // Start BPM detection in background
-            detectTrackBPM(deckLetter);
         });
 
         deck.audio.addEventListener('canplaythrough', () => {
@@ -117,27 +124,6 @@ async function loadTrackToDeck(trackIndex) {
             // Reset deck display
             cleanupDeckTrack(deckLetter);
             updateDeckDisplay(deckLetter, null);
-        });
-
-        // Additional event listeners for debugging
-        deck.audio.addEventListener('loadstart', () => {
-            console.log(`🔄 Started loading track in Deck ${deckLetter}`);
-        });
-
-        deck.audio.addEventListener('progress', () => {
-            if (deck.audio.buffered.length > 0) {
-                const buffered = (deck.audio.buffered.end(0) / deck.audio.duration) * 100;
-                console.log(`📊 Deck ${deckLetter} buffered: ${buffered.toFixed(1)}%`);
-            }
-        });
-
-        deck.audio.addEventListener('stalled', () => {
-            console.warn(`⚠️ Audio stalled in Deck ${deckLetter}`);
-            updateStatus(`Audio streaming stalled in Deck ${deckLetter}`, 'error');
-        });
-
-        deck.audio.addEventListener('waiting', () => {
-            console.log(`⏳ Waiting for data in Deck ${deckLetter}`);
         });
 
         // Set up track end detection
@@ -180,171 +166,65 @@ async function loadTrackToDeck(trackIndex) {
     }
 }
 
-// Detect BPM for a track
-async function detectTrackBPM(deckLetter) {
-    const deck = deckState[deckLetter];
+// Get fallback BPM based on genre
+function getFallbackBPM(genre) {
+    if (!genre) return 120;
     
-    if (!deck.audio || !deck.track) {
-        console.warn(`⚠️ Cannot detect BPM: No audio loaded for Deck ${deckLetter}`);
+    const genreLower = genre.toLowerCase();
+    
+    // Genre-based BPM mapping
+    if (genreLower.includes('house')) return 128;
+    if (genreLower.includes('techno')) return 132;
+    if (genreLower.includes('trance')) return 138;
+    if (genreLower.includes('drum') && genreLower.includes('bass')) return 174;
+    if (genreLower.includes('dubstep')) return 140;
+    if (genreLower.includes('hip hop') || genreLower.includes('rap')) return 95;
+    if (genreLower.includes('trap')) return 140;
+    if (genreLower.includes('reggae')) return 90;
+    if (genreLower.includes('jazz')) return 120;
+    if (genreLower.includes('rock')) return 120;
+    if (genreLower.includes('pop')) return 120;
+    if (genreLower.includes('electronic')) return 128;
+    if (genreLower.includes('ambient')) return 80;
+    if (genreLower.includes('breakbeat')) return 130;
+    
+    return 120; // Default BPM
+}
+
+// Update deck BPM display
+function updateDeckBPM(deckLetter, bpmText) {
+    console.log(`🎵 Updating Deck ${deckLetter} BPM: ${bpmText}`);
+    
+    const bpmElement = document.getElementById(`deck${deckLetter}BPM`);
+    
+    if (!bpmElement) {
+        console.error(`❌ BPM element not found: deck${deckLetter}BPM`);
         return;
     }
-
-    try {
-        console.log(`🎵 Starting BPM detection for Deck ${deckLetter}: ${deck.track.title}`);
-        updateStatus(`Analyzing BPM for "${deck.track.title}"...`, 'info');
-        
-        // Show analyzing state
-        updateDeckBPM(deckLetter, 'Analyzing...');
-
-        // Decode audio for BPM analysis
-        const audioBuffer = await decodeAudioFromURL(deck.track.stream_url);
-        
-        if (!audioBuffer) {
-            throw new Error('Failed to decode audio for BPM analysis');
-        }
-
-        // Detect BPM
-        const detectedBPM = await bpmDetector.detectBPM(audioBuffer);
-        
-        // Store BPM in deck state
-        deck.bpm = detectedBPM;
-        deck.track.bpm = detectedBPM; // Also store in track object
-        
-        // Update display
-        updateDeckBPM(deckLetter, `${detectedBPM} BPM`);
-        
-        console.log(`✅ BPM detected for Deck ${deckLetter}: ${detectedBPM} BPM`);
-        updateStatus(`BPM detected: ${detectedBPM} BPM for "${deck.track.title}"`, 'success');
-
-    } catch (error) {
-        console.error(`❌ BPM detection failed for Deck ${deckLetter}:`, error);
-        
-        // Set default BPM
-        deck.bpm = 120;
-        updateDeckBPM(deckLetter, '120 BPM');
-        
-        updateStatus(`BPM detection failed, using default 120 BPM`, 'error');
-    }
-}
-
-// Decode audio from URL for BPM analysis
-async function decodeAudioFromURL(url) {
-    try {
-        // Create or get audio context
-        if (!appState.audioContext) {
-            appState.audioContext = new (window.AudioContext || window.webkitAudioContext)();
-        }
-
-        // Fetch audio data
-        console.log(`🌐 Fetching audio data for BPM analysis: ${url}`);
-        const response = await fetch(url);
-        
-        if (!response.ok) {
-            throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-        }
-        
-        const arrayBuffer = await response.arrayBuffer();
-        
-        // Decode audio data
-        console.log(`🔄 Decoding audio data...`);
-        const audioBuffer = await appState.audioContext.decodeAudioData(arrayBuffer);
-        
-        console.log(`✅ Audio decoded: ${audioBuffer.duration.toFixed(2)}s, ${audioBuffer.sampleRate}Hz`);
-        return audioBuffer;
-
-    } catch (error) {
-        console.error('❌ Audio decoding failed:', error);
-        
-        // Try alternative method with Web Audio API from HTML audio element
-        try {
-            return await decodeAudioFromHTMLAudio(url);
-        } catch (altError) {
-            console.error('❌ Alternative audio decoding also failed:', altError);
-            return null;
-        }
-    }
-}
-
-// Alternative audio decoding method
-async function decodeAudioFromHTMLAudio(url) {
-    return new Promise((resolve, reject) => {
-        const audio = new Audio();
-        audio.crossOrigin = 'anonymous';
-        
-        const timeout = setTimeout(() => {
-            reject(new Error('Audio loading timeout'));
-        }, 30000);
-
-        audio.addEventListener('canplaythrough', async () => {
-            clearTimeout(timeout);
-            
-            try {
-                // This method is limited but may work for some streams
-                // Note: This won't work for all streaming URLs
-                console.log('⚠️ Using limited audio analysis method');
-                
-                // Create a simple audio buffer with estimated data
-                // This is a fallback that provides basic functionality
-                const duration = audio.duration || 180;
-                const sampleRate = 44100;
-                const length = Math.floor(duration * sampleRate);
-                
-                if (!appState.audioContext) {
-                    appState.audioContext = new (window.AudioContext || window.webkitAudioContext)();
-                }
-                
-                const audioBuffer = appState.audioContext.createBuffer(1, length, sampleRate);
-                
-                // Fill with basic data (this won't be accurate for BPM)
-                // This is just to prevent errors - real BPM will be estimated
-                const channelData = audioBuffer.getChannelData(0);
-                for (let i = 0; i < channelData.length; i++) {
-                    channelData[i] = Math.random() * 0.1 - 0.05;
-                }
-                
-                resolve(audioBuffer);
-                
-            } catch (error) {
-                reject(error);
-            }
-        });
-
-        audio.addEventListener('error', () => {
-            clearTimeout(timeout);
-            reject(new Error('Audio loading failed'));
-        });
-
-        audio.src = url;
-    });
-}
-
-// Quick BPM estimation for immediate feedback
-async function quickBPMEstimate(deckLetter) {
-    const deck = deckState[deckLetter];
     
-    if (!deck.audio || !deck.track) return;
-
-    try {
-        updateDeckBPM(deckLetter, 'Quick scan...');
-        
-        // Try to get a quick estimate
-        const audioBuffer = await decodeAudioFromURL(deck.track.stream_url);
-        
-        if (audioBuffer) {
-            const quickBPM = await bpmDetector.quickBPMEstimate(audioBuffer);
-            deck.bpm = quickBPM;
-            updateDeckBPM(deckLetter, `~${quickBPM} BPM`);
-            
-            console.log(`⚡ Quick BPM estimate for Deck ${deckLetter}: ${quickBPM} BPM`);
-        }
-
-    } catch (error) {
-        console.warn(`⚠️ Quick BPM estimation failed for Deck ${deckLetter}:`, error);
-        updateDeckBPM(deckLetter, '120 BPM');
+    // Update text content
+    bpmElement.textContent = bpmText;
+    
+    // Remove all BPM state classes
+    bpmElement.classList.remove('detecting', 'detected', 'error');
+    
+    // Add appropriate class based on BPM text
+    if (bpmText.includes('~')) {
+        // Estimated BPM (fallback)
+        bpmElement.classList.add('detecting');
+        bpmElement.style.color = '#f39c12';
+    } else if (bpmText.includes('BPM') && !bpmText.includes('--')) {
+        // Actual BPM from Audius
+        bpmElement.classList.add('detected');
+        bpmElement.style.color = '#1ed760';
+    } else {
+        // No BPM
+        bpmElement.classList.add('error');
+        bpmElement.style.color = '#666';
     }
 }
 
-// Set up track end detection
+// Rest of the functions remain the same...
 function setupTrackEndDetection(deckLetter) {
     const deck = deckState[deckLetter];
     
@@ -367,7 +247,6 @@ function setupTrackEndDetection(deckLetter) {
     }
 }
 
-// Handle when a track ends
 function handleTrackEnd(deckLetter) {
     const deck = deckState[deckLetter];
     
@@ -384,7 +263,6 @@ function handleTrackEnd(deckLetter) {
     updateStatus(`Track finished on Deck ${deckLetter}`, 'info');
 }
 
-// Clean up deck track
 function cleanupDeckTrack(deckLetter) {
     const deck = deckState[deckLetter];
     
@@ -417,7 +295,6 @@ function cleanupDeckTrack(deckLetter) {
     console.log(`🧹 Cleaned up Deck ${deckLetter}`);
 }
 
-// Play deck
 async function playDeck(deckLetter) {
     const deck = deckState[deckLetter];
     
@@ -463,8 +340,8 @@ async function playDeck(deckLetter) {
         updateDeckStatus(deckLetter, 'Playing');
         updateDeckUI(deckLetter);
         
-        console.log(`▶️ Playing Deck ${deckLetter}: ${deck.track.title}`);
-        updateStatus(`Playing: ${deck.track.title}`, 'success');
+        console.log(`▶️ Playing Deck ${deckLetter}: ${deck.track.title} (${deck.bmp} BPM)`);
+        updateStatus(`Playing: ${deck.track.title} (${deck.bpm} BPM)`, 'success');
 
     } catch (error) {
         console.error(`❌ Error playing Deck ${deckLetter}:`, error);
@@ -483,7 +360,6 @@ async function playDeck(deckLetter) {
     }
 }
 
-// Pause deck
 function pauseDeck(deckLetter) {
     const deck = deckState[deckLetter];
     
@@ -508,7 +384,6 @@ function pauseDeck(deckLetter) {
     console.log(`⏸️ Paused Deck ${deckLetter}`);
 }
 
-// Stop deck
 function stopDeck(deckLetter) {
     const deck = deckState[deckLetter];
     
@@ -535,7 +410,6 @@ function stopDeck(deckLetter) {
     console.log(`⏹️ Stopped Deck ${deckLetter}`);
 }
 
-// Skip track on deck
 function skipTrackOnDeck(deckLetter) {
     const deck = deckState[deckLetter];
     
