@@ -1,8 +1,8 @@
-// static/js/gestures/hand-gestures.js - Hand Gesture Processing
+// static/js/gestures/hand-gestures.js - Hand Gesture Processing with Corrected Mapping
 
-// Also update the processHandControl function to match the new mapping
+// Process hand control with corrected mapping
 function processHandControl(handSide, handHeight) {
-    // Now left hand controls Deck A and right hand controls Deck B
+    // Corrected mapping: left hand controls Deck A, right hand controls Deck B
     const deckLetter = handSide === 'leftHand' ? 'A' : 'B';
     const deck = deckState[deckLetter];
     
@@ -25,9 +25,9 @@ function processHandControl(handSide, handHeight) {
     console.log(`🖐️ ${handSide} controlling Deck ${deckLetter}: ${Math.round(volume * 100)}%`);
 }
 
-// Process deck control based on hand presence
+// Process deck control based on hand presence with corrected mapping
 function processHandDeckControl() {
-    // Deck A (Left Hand) Control - now that camera is unmirrored
+    // Deck A (Left Hand) Control - corrected mapping
     if (handState.leftHand.detected && handState.leftHand.controlling) {
         const deck = deckState.A;
         if (deck.track && !deck.isPlaying && !deck.isPaused) {
@@ -48,7 +48,7 @@ function processHandDeckControl() {
         updateDeckVolumeIndicator('A', deck.volume * 100);
     }
 
-    // Deck B (Right Hand) Control - now that camera is unmirrored
+    // Deck B (Right Hand) Control - corrected mapping
     if (handState.rightHand.detected && handState.rightHand.controlling) {
         const deck = deckState.B;
         if (deck.track && !deck.isPlaying && !deck.isPaused) {
