@@ -12,10 +12,11 @@ function selectDeck(deckLetter) {
     });
     
     const selectedDisplay = document.getElementById(`deck${deckLetter}TrackDisplay`);
-    selectedDisplay.style.borderColor = deckLetter === 'A' ? '#00d4ff' : '#f39c12';
+    // Updated colors: Default green, Deck A gets blue when selected, Deck B gets orange when selected
+    selectedDisplay.style.borderColor = deckLetter === 'A' ? '#1ed760' : '#1ed760'; // Both green for default
     selectedDisplay.style.background = deckLetter === 'A' ? 
-        'linear-gradient(135deg, rgba(0, 212, 255, 0.4), rgba(30, 215, 96, 0.4))' :
-        'linear-gradient(135deg, rgba(243, 156, 18, 0.4), rgba(30, 215, 96, 0.4))';
+        'linear-gradient(135deg, rgba(30, 215, 96, 0.4), rgba(255, 140, 0, 0.4))' :
+        'linear-gradient(135deg, rgba(30, 215, 96, 0.4), rgba(255, 140, 0, 0.4))';
 }
 
 // Load track to selected deck with BPM from Audius
@@ -216,7 +217,7 @@ function updateDeckBPM(deckLetter, bpmText) {
     } else if (bpmText.includes('BPM') && !bpmText.includes('--')) {
         // Actual BPM from Audius
         bpmElement.classList.add('detected');
-        bpmElement.style.color = '#1ed760';
+        bpmElement.style.color = '#ff8c00'; // Updated to orange
     } else {
         // No BPM
         bpmElement.classList.add('error');
@@ -340,7 +341,7 @@ async function playDeck(deckLetter) {
         updateDeckStatus(deckLetter, 'Playing');
         updateDeckUI(deckLetter);
         
-        console.log(`▶️ Playing Deck ${deckLetter}: ${deck.track.title} (${deck.bmp} BPM)`);
+        console.log(`▶️ Playing Deck ${deckLetter}: ${deck.track.title} (${deck.bpm} BPM)`);
         updateStatus(`Playing: ${deck.track.title} (${deck.bpm} BPM)`, 'success');
 
     } catch (error) {

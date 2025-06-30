@@ -26,18 +26,25 @@ body {
 /* Hand Control Animations */
 @keyframes handPulse {
     0%, 100% { 
-        box-shadow: 0 0 20px rgba(0, 212, 255, 0.6);
+        box-shadow: 0 0 30px rgba(30, 215, 96, 0.8);
         transform: scale(1);
     }
     50% { 
-        box-shadow: 0 0 40px rgba(0, 212, 255, 0.9);
+        box-shadow: 0 0 50px rgba(30, 215, 96, 1.0);
         transform: scale(1.02);
     }
 }
 
-@keyframes deckActivePulse {
-    0%, 100% { border-color: rgba(30, 215, 96, 0.6); }
-    50% { border-color: rgba(30, 215, 96, 1); }
+/* Deck A (Left) - Blue when hand detected */
+@keyframes deckAPulse {
+    0%, 100% { border-color: rgba(0, 212, 255, 0.8); }   /* BLUE */
+    50% { border-color: rgba(0, 212, 255, 1.0); }        /* BRIGHT BLUE */
+}
+
+/* Deck B (Right) - Orange when hand detected */
+@keyframes deckBPulse {
+    0%, 100% { border-color: rgba(255, 140, 0, 0.8); }   /* ORANGE */
+    50% { border-color: rgba(255, 140, 0, 1.0); }        /* BRIGHT ORANGE */
 }
 
 /* Scrollbar */
@@ -51,6 +58,6 @@ body {
 }
 
 ::-webkit-scrollbar-thumb {
-    background: linear-gradient(135deg, #00d4ff, #f39c12);
+    background: linear-gradient(135deg, #1ed760, #f39c12);
     border-radius: 3px;
 }

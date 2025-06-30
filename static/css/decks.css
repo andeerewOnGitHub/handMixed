@@ -7,7 +7,7 @@
     backdrop-filter: blur(20px);
     border-radius: 15px;
     padding: 15px;
-    border: 2px solid rgba(0, 212, 255, 0.4);
+    border: 2px solid rgba(30, 215, 96, 0.4);  /* GREEN default border */
     box-shadow: 0 15px 40px rgba(0, 0, 0, 0.8);
     z-index: 100;
     transition: all 0.3s ease;
@@ -15,16 +15,22 @@
 
 .deck-overlay.left {
     left: 20px;
-    border-color: #00d4ff;
+    border-color: rgba(30, 215, 96, 0.6);  /* GREEN default for Deck A */
 }
 
 .deck-overlay.right {
     right: 20px;
-    border-color: #f39c12;
+    border-color: rgba(30, 215, 96, 0.6);  /* GREEN default for Deck B */
 }
 
-.deck-overlay.hand-active {
-    animation: deckActivePulse 1.5s ease-in-out infinite;
+/* When hand is detected */
+.deck-overlay.left.hand-active {
+    animation: deckAPulse 1.5s ease-in-out infinite;  /* BLUE animation for Deck A */
+    transform: translateY(-5px);
+}
+
+.deck-overlay.right.hand-active {
+    animation: deckBPulse 1.5s ease-in-out infinite;  /* ORANGE animation for Deck B */
     transform: translateY(-5px);
 }
 
@@ -46,7 +52,7 @@
 }
 
 .deck-overlay.left .deck-title {
-    background: linear-gradient(45deg, #00d4ff, #0ea5e9);
+    background: linear-gradient(45deg, #1ed760, #0ea5e9);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
 }
@@ -90,7 +96,7 @@
 }
 
 .deck-overlay.left .deck-volume-fill {
-    background: linear-gradient(90deg, #00d4ff, #0ea5e9);
+    background: linear-gradient(90deg, #1ed760, #0ea5e9);
 }
 
 .deck-overlay.right .deck-volume-fill {
@@ -107,8 +113,8 @@
 
 /* Track Display */
 .deck-track-display {
-    background: linear-gradient(135deg, rgba(30, 215, 96, 0.15), rgba(0, 212, 255, 0.15));
-    border: 2px solid rgba(30, 215, 96, 0.4);
+    background: linear-gradient(135deg, rgba(255, 140, 0, 0.15), rgba(30, 215, 96, 0.15));
+    border: 2px solid rgba(255, 140, 0, 0.4);
     border-radius: 12px;
     padding: 12px;
     margin-bottom: 12px;
@@ -121,26 +127,26 @@
 }
 
 .deck-track-display:hover {
-    border-color: #1ed760;
-    background: linear-gradient(135deg, rgba(30, 215, 96, 0.25), rgba(0, 212, 255, 0.25));
+    border-color: #ff8c00;
+    background: linear-gradient(135deg, rgba(255, 140, 0, 0.25), rgba(30, 215, 96, 0.25));
     transform: translateY(-2px);
 }
 
 .deck-track-display.loaded {
-    border-color: #1ed760;
-    background: linear-gradient(135deg, rgba(30, 215, 96, 0.3), rgba(0, 212, 255, 0.3));
+    border-color: #ff8c00;
+    background: linear-gradient(135deg, rgba(255, 140, 0, 0.3), rgba(30, 215, 96, 0.3));
 }
 
 .deck-track-display.auto-loaded {
     border-color: #9b59b6;
-    background: linear-gradient(135deg, rgba(155, 89, 182, 0.3), rgba(0, 212, 255, 0.3));
+    background: linear-gradient(135deg, rgba(155, 89, 182, 0.3), rgba(30, 215, 96, 0.3));
 }
 
 .deck-track-artwork {
     width: 50px;
     height: 50px;
     border-radius: 8px;
-    background: linear-gradient(135deg, #1ed760, #00d4ff);
+    background: linear-gradient(135deg, #ff8c00, #1ed760);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -165,7 +171,7 @@
 .deck-track-name {
     font-size: 0.9rem;
     font-weight: 600;
-    color: #1ed760;
+    color: #ff8c00;
     margin-bottom: 4px;
     font-family: 'Orbitron', monospace;
     white-space: nowrap;
@@ -185,7 +191,7 @@
 
 .deck-track-status {
     font-size: 0.7rem;
-    color: #00d4ff;
+    color: #1ed760;
 }
 
 /* Waveform Container */
@@ -214,7 +220,7 @@
 }
 
 .deck-btn, .control-btn {
-    background: linear-gradient(135deg, #00d4ff, #f39c12);
+    background: linear-gradient(135deg, #1ed760, #f39c12);
     border: none;
     padding: 8px 6px;
     border-radius: 6px;
@@ -230,7 +236,7 @@
 
 .deck-btn:hover, .control-btn:hover {
     transform: translateY(-1px);
-    box-shadow: 0 4px 12px rgba(0, 212, 255, 0.3);
+    box-shadow: 0 4px 12px rgba(30, 215, 96, 0.3);
 }
 
 .deck-btn:disabled {
