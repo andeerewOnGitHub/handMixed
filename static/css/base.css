@@ -26,15 +26,16 @@ body {
 /* Hand Control Animations */
 @keyframes handPulse {
     0%, 100% { 
-        box-shadow: 0 0 30px rgba(30, 215, 96, 0.8);
+        box-shadow: 0 0 30px rgba(0, 212, 255, 0.8);  /* BLUE glow */
         transform: scale(1);
     }
     50% { 
-        box-shadow: 0 0 50px rgba(30, 215, 96, 1.0);
+        box-shadow: 0 0 50px rgba(0, 212, 255, 1.0);  /* BRIGHT BLUE glow */
         transform: scale(1.02);
     }
 }
 
+/* Hand Control Animations - Removed pulsing */
 /* Deck A (Left) - Blue when hand detected */
 @keyframes deckAPulse {
     0%, 100% { border-color: rgba(0, 212, 255, 0.8); }   /* BLUE */
@@ -58,6 +59,6 @@ body {
 }
 
 ::-webkit-scrollbar-thumb {
-    background: linear-gradient(135deg, #1ed760, #f39c12);
+    background: linear-gradient(135deg, #00d4ff, #f39c12);  /* BLUE to ORANGE gradient */
     border-radius: 3px;
 }
