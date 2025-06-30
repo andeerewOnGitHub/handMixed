@@ -1,4 +1,4 @@
-// static/js/controls/hand-tracking.js - MediaPipe Hand Tracking System (Text Labels Removed)
+// static/js/controls/hand-tracking.js - MediaPipe Hand Tracking System (Camera Flip Corrected)
 
 // Check MediaPipe dependencies on load
 function checkMediaPipeDependencies() {
@@ -168,12 +168,12 @@ function onHandResults(results) {
                 
                 if (!landmarks || !handedness) continue;
                 
-                // Determine if it's left or right hand 
-                // MediaPipe labels hands from the viewer's perspective
-                // User's left hand = MediaPipe "Left" = Deck A
-                // User's right hand = MediaPipe "Right" = Deck B  
-                const isRightHand = handedness.label === 'Right';
-                const handSide = isRightHand ? 'rightHand' : 'leftHand';
+                // CORRECTED MAPPING: Account for camera flip
+                // MediaPipe sees mirrored view, so we need to flip the mapping
+                // MediaPipe "Left" = User's right hand (appears on left of mirrored camera) = Deck B
+                // MediaPipe "Right" = User's left hand (appears on right of mirrored camera) = Deck A
+                const isUserLeftHand = handedness.label === 'Right'; // Flipped due to camera
+                const handSide = isUserLeftHand ? 'leftHand' : 'rightHand';
                 
                 // Update hand state
                 handState[handSide].detected = true;
@@ -184,7 +184,7 @@ function onHandResults(results) {
                 handState[handSide].y = wrist.y;
                 
                 // Draw hand landmarks and connections
-                drawHandLandmarks(landmarks, isRightHand);
+                drawHandLandmarks(landmarks, isUserLeftHand);
                 
                 // Check if hand is controlling (middle region of screen)
                 const handHeight = 1 - wrist.y;
@@ -210,10 +210,11 @@ function onHandResults(results) {
 }
 
 // Draw hand landmarks with visual effects
-function drawHandLandmarks(landmarks, isRightHand) {
+function drawHandLandmarks(landmarks, isUserLeftHand) {
     try {
-        const handColor = isRightHand ? '#00d4ff' : '#f39c12';
-        const glowColor = isRightHand ? 'rgba(0, 212, 255, 0.3)' : 'rgba(243, 156, 18, 0.3)';
+        // Color based on user's actual hand (not MediaPipe label)
+        const handColor = isUserLeftHand ? '#00d4ff' : '#f39c12'; // Left=blue, Right=orange
+        const glowColor = isUserLeftHand ? 'rgba(0, 212, 255, 0.3)' : 'rgba(243, 156, 18, 0.3)';
         
         // Draw connections
         if (typeof drawConnectors !== 'undefined' && typeof HAND_CONNECTIONS !== 'undefined') {
@@ -237,21 +238,20 @@ function drawHandLandmarks(landmarks, isRightHand) {
             console.warn('⚠️ drawLandmarks not available');
         }
 
-        // Draw hand mask/overlay (WITHOUT TEXT)
-        drawHandMask(landmarks, isRightHand);
+        // Draw hand mask/overlay WITH corrected text labels
+        drawHandMask(landmarks, isUserLeftHand);
         
     } catch (error) {
         console.error('❌ Drawing error:', error);
     }
 }
 
-// Draw hand mask overlay WITHOUT text labels
-function drawHandMask(landmarks, isRightHand) {
+function drawHandMask(landmarks, isUserLeftHand) {
     if (!landmarks || landmarks.length === 0) return;
 
     try {
-        const maskColor = isRightHand ? 'rgba(0, 212, 255, 0.15)' : 'rgba(243, 156, 18, 0.15)';
-        const borderColor = isRightHand ? '#00d4ff' : '#f39c12';
+        const maskColor = isUserLeftHand ? 'rgba(0, 212, 255, 0.15)' : 'rgba(243, 156, 18, 0.15)';
+        const borderColor = isUserLeftHand ? '#00d4ff' : '#f39c12';
 
         // Get canvas dimensions
         const rect = canvas.getBoundingClientRect();
@@ -281,7 +281,7 @@ function drawHandMask(landmarks, isRightHand) {
         const height = Math.round((maxY - minY) * canvasHeight);
         const radius = 15;
 
-        // Draw rounded rectangle mask (NO TEXT)
+        // Draw rounded rectangle mask
         canvasCtx.save();
         canvasCtx.fillStyle = maskColor;
         canvasCtx.strokeStyle = borderColor;
@@ -303,7 +303,34 @@ function drawHandMask(landmarks, isRightHand) {
         canvasCtx.stroke();
         canvasCtx.restore();
 
-        // TEXT LABELS COMPLETELY REMOVED - No more "DECK A" or "DECK B" text above hands
+        // Draw deck label text (mirrored to appear correctly in flipped camera)
+        const deckLabel = isUserLeftHand ? 'DECK A' : 'DECK B';
+        const textX = x + width / 2;
+        const textY = y - 10;
+
+        // Save context for text transformation
+        canvasCtx.save();
+
+        // Apply horizontal flip to counter the camera's mirroring effect
+        canvasCtx.scale(-1, 1);
+        
+        // Calculate flipped x position (negative because of the scale transform)
+        const flippedTextX = -textX;
+
+        // Set text properties
+        canvasCtx.font = 'bold 16px Orbitron, monospace';
+        canvasCtx.fillStyle = borderColor;
+        canvasCtx.strokeStyle = '#000';
+        canvasCtx.lineWidth = 3;
+        canvasCtx.textAlign = 'center';
+        canvasCtx.textBaseline = 'bottom';
+
+        // Draw text with outline (text will appear correctly oriented)
+        canvasCtx.strokeText(deckLabel, flippedTextX, textY);
+        canvasCtx.fillText(deckLabel, flippedTextX, textY);
+
+        // Restore context to remove the flip transformation
+        canvasCtx.restore();
         
     } catch (error) {
         console.error('❌ Hand mask drawing error:', error);
