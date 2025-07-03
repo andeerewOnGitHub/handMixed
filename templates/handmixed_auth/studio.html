@@ -22,7 +22,8 @@
     <link rel="stylesheet" href="{% static 'css/controls.css' %}">
     <link rel="stylesheet" href="{% static 'css/music-hub.css' %}">
     <link rel="stylesheet" href="{% static 'css/responsive.css' %}">
-    <link rel="stylesheet" href="{% static 'css/bpm-styles.css' %}">
+    <link rel="stylesheet" href="{% static 'css/bmp-styles.css' %}">
+    <link rel="stylesheet" href="{% static 'css/multi-channel-styles.css' %}">
 </head>
 
 <body>
@@ -30,7 +31,7 @@
     <div class="header">
         <div class="logo">HandMixed Pro</div>
         <div class="user-info">
-            <div class="username">Audius DJ</div>
+            <div class="username">Multi-Channel DJ</div>
             <a href="/logout/" class="logout-btn">Logout</a>
         </div>
     </div>
@@ -43,13 +44,15 @@
                 <video id="video" autoplay muted playsinline></video>
                 <canvas id="canvas"></canvas>
                 <div class="video-placeholder" id="videoPlaceholder">
-                    🖐️ Professional Hand Control<br>
-                    <small style="font-size: 1rem; margin-top: 10px; display: block;">Powered by Audius & MediaPipe</small>
+                    🖐️ Multi-Channel Hand Control<br>
+                    <small style="font-size: 1rem; margin-top: 10px; display: block;">
+                        Use finger gestures to control audio channels
+                    </small>
                 </div>
             </div>
         </div>
 
-    
+
 
         <!-- Left Deck A -->
         <div class="deck-overlay left" id="deckAOverlay">
@@ -67,22 +70,43 @@
                 </div>
             </div>
 
+            <!-- Audio Channel Indicators -->
+            <div class="audio-channels">
+                <div class="channel-indicator" id="deckABassChannel">
+                    <span class="channel-label">👆 Bass</span>
+                    <div class="channel-status active"></div>
+                </div>
+                <div class="channel-indicator" id="deckADrumsChannel">
+                    <span class="channel-label">🖕 Drums</span>
+                    <div class="channel-status active"></div>
+                </div>
+                <div class="channel-indicator" id="deckASynthChannel">
+                    <span class="channel-label">💍 Synth</span>
+                    <div class="channel-status active"></div>
+                </div>
+            </div>
+
             <div class="deck-volume-indicator">
                 <div class="deck-volume-bar">
-                    <div class="deck-volume-fill" id="deckAVolumeFill" style="width: 70%;"></div>
+                    <div class="deck-volume-fill" id="deckAVolumeFill" style="width: 0%;"></div>
                 </div>
-                <div class="deck-volume-text" id="deckAVolumeText">Volume: 70%</div>
+                <div class="deck-volume-text" id="deckAVolumeText">Volume: 0%</div>
             </div>
 
-            <div class="deck-waveform" id="deckAWaveform">
-                <div class="waveform-container" id="deckAWaveformContainer"></div>
-            </div>
-
-            <div class="deck-controls">
-                <button class="deck-btn" onclick="playDeck('A')" id="deckAPlayBtn">▶️ Play</button>
-                <button class="deck-btn" onclick="pauseDeck('A')" id="deckAPauseBtn">⏸️ Pause</button>
-                <button class="deck-btn" onclick="stopDeck('A')" id="deckAStopBtn">⏹️ Stop</button>
-                <button class="skip-btn" onclick="skipTrackOnDeck('A')" id="deckASkipBtn">⏭️ Skip</button>
+            <!-- Multi-Channel Waveforms -->
+            <div class="multi-channel-waveforms">
+                <div class="waveform-channel">
+                    <div class="waveform-label">Bass/Kick</div>
+                    <div class="waveform-container" id="deckAWaveformBass"></div>
+                </div>
+                <div class="waveform-channel">
+                    <div class="waveform-label">Drums</div>
+                    <div class="waveform-container" id="deckAWaveformDrums"></div>
+                </div>
+                <div class="waveform-channel">
+                    <div class="waveform-label">Synth</div>
+                    <div class="waveform-container" id="deckAWaveformSynth"></div>
+                </div>
             </div>
         </div>
 
@@ -102,22 +126,43 @@
                 </div>
             </div>
 
+            <!-- Audio Channel Indicators -->
+            <div class="audio-channels">
+                <div class="channel-indicator" id="deckBBassChannel">
+                    <span class="channel-label">👆 Bass</span>
+                    <div class="channel-status active"></div>
+                </div>
+                <div class="channel-indicator" id="deckBDrumsChannel">
+                    <span class="channel-label">🖕 Drums</span>
+                    <div class="channel-status active"></div>
+                </div>
+                <div class="channel-indicator" id="deckBSynthChannel">
+                    <span class="channel-label">💍 Synth</span>
+                    <div class="channel-status active"></div>
+                </div>
+            </div>
+
             <div class="deck-volume-indicator">
                 <div class="deck-volume-bar">
-                    <div class="deck-volume-fill" id="deckBVolumeFill" style="width: 70%;"></div>
+                    <div class="deck-volume-fill" id="deckBVolumeFill" style="width: 0%;"></div>
                 </div>
-                <div class="deck-volume-text" id="deckBVolumeText">Volume: 70%</div>
+                <div class="deck-volume-text" id="deckBVolumeText">Volume: 0%</div>
             </div>
 
-            <div class="deck-waveform" id="deckBWaveform">
-                <div class="waveform-container" id="deckBWaveformContainer"></div>
-            </div>
-
-            <div class="deck-controls">
-                <button class="deck-btn" onclick="playDeck('B')" id="deckBPlayBtn">▶️ Play</button>
-                <button class="deck-btn" onclick="pauseDeck('B')" id="deckBPauseBtn">⏸️ Pause</button>
-                <button class="deck-btn" onclick="stopDeck('B')" id="deckBStopBtn">⏹️ Stop</button>
-                <button class="skip-btn" onclick="skipTrackOnDeck('B')" id="deckBSkipBtn">⏭️ Skip</button>
+            <!-- Multi-Channel Waveforms -->
+            <div class="multi-channel-waveforms">
+                <div class="waveform-channel">
+                    <div class="waveform-label">Bass/Kick</div>
+                    <div class="waveform-container" id="deckBWaveformBass"></div>
+                </div>
+                <div class="waveform-channel">
+                    <div class="waveform-label">Drums</div>
+                    <div class="waveform-container" id="deckBWaveformDrums"></div>
+                </div>
+                <div class="waveform-channel">
+                    <div class="waveform-label">Synth</div>
+                    <div class="waveform-container" id="deckBWaveformSynth"></div>
+                </div>
             </div>
         </div>
 
@@ -132,6 +177,16 @@
             </div>
         </div>
 
+        <!-- Global Play Controls -->
+        <div class="global-controls">
+            <button id="globalPlayBtn" class="global-play-btn" onclick="playBothDecks()">
+                ▶️ PLAY BOTH DECKS
+            </button>
+            <button id="globalPauseBtn" class="global-pause-btn" onclick="pauseBothDecks()" style="display: none;">
+                ⏸️ PAUSE BOTH DECKS
+            </button>
+        </div>
+
         <!-- Hand Control -->
         <div class="hand-control-overlay">
             <button id="startBtn" class="hand-dj-btn" onclick="startHandTracking()">
@@ -142,10 +197,12 @@
             </button>
         </div>
 
+
+
         <!-- Status -->
         <div class="status-overlay">
             <div id="status" class="status info">
-                Professional DJ Studio ready - Load tracks from Audius!
+                Multi-Channel DJ Studio ready - Load tracks and use hand gestures!
             </div>
         </div>
     </div>
@@ -223,10 +280,10 @@
     <script src="{% static 'js/utils/search-manager.js' %}"></script>
     
     <!-- Audio System -->
-    <!-- Audio System -->
     <script src="{% static 'js/audio/tone-setup.js' %}"></script>
+    <script src="{% static 'js/audio/source-separation.js' %}"></script>
     <script src="{% static 'js/audio/wavesurfer-setup.js' %}"></script>
-    <script src="{% static 'js/audio/deck-manager.js' %}"></script> <!-- This file is u
+    <script src="{% static 'js/audio/deck-manager.js' %}"></script>
         
     <!-- Controls -->
     <script src="{% static 'js/controls/crossfader.js' %}"></script>
@@ -242,8 +299,8 @@
     <!-- Main Application -->
     <script src="{% static 'js/app.js' %}"></script>
 
-    <!-- BPM Detection (NEW) -->
-    <script src="{% static 'js/utils/bmp-detector.js' %}"></script>
+    <!-- BPM Detection -->
+    <script src="{% static 'js/utils/bpm-detector.js' %}"></script>
 
 </body>
 </html>

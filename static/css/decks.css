@@ -1,39 +1,46 @@
-/* Deck Overlays - Updated with Blue for Deck A */
+/* Updated static/css/decks.css - Multi-Channel Support */
+
+/* Deck Overlays - Updated with expanded size for multi-channel */
 .deck-overlay {
     position: absolute;
     top: 60px;
-    width: 320px;
+    width: 380px;
     background: linear-gradient(135deg, rgba(0, 0, 0, 0.95), rgba(26, 26, 26, 0.95));
     backdrop-filter: blur(20px);
     border-radius: 15px;
     padding: 15px;
-    border: 2px solid rgba(0, 212, 255, 0.4);  /* BLUE default border */
+    border: 2px solid rgba(0, 212, 255, 0.4);
     box-shadow: 0 15px 40px rgba(0, 0, 0, 0.8);
     z-index: 100;
     transition: all 0.3s ease;
+    max-height: 80vh;
+    overflow-y: auto;
 }
 
 .deck-overlay.left {
     left: 20px;
-    border-color: rgba(0, 212, 255, 0.6);  /* BLUE default for Deck A */
+    border-color: rgba(0, 212, 255, 0.6);
 }
 
 .deck-overlay.right {
     right: 20px;
-    border-color: rgba(243, 156, 18, 0.6);  /* ORANGE default for Deck B */
+    border-color: rgba(243, 156, 18, 0.6);
 }
 
-/* When hand is detected */
+/* Enhanced hand active states */
 .deck-overlay.left.hand-active {
-    animation: deckAPulse 1.5s ease-in-out infinite;  /* BLUE animation for Deck A */
+    animation: deckAPulse 1.5s ease-in-out infinite;
     transform: translateY(-5px);
+    box-shadow: 0 20px 50px rgba(0, 212, 255, 0.4);
 }
 
 .deck-overlay.right.hand-active {
-    animation: deckBPulse 1.5s ease-in-out infinite;  /* ORANGE animation for Deck B */
+    animation: deckBPulse 1.5s ease-in-out infinite;
     transform: translateY(-5px);
+    box-shadow: 0 20px 50px rgba(243, 156, 18, 0.4);
 }
 
+/* Deck Header - Same as before */
 .deck-header {
     display: flex;
     justify-content: space-between;
@@ -52,13 +59,13 @@
 }
 
 .deck-overlay.left .deck-title {
-    background: linear-gradient(45deg, #00d4ff, #0ea5e9);  /* BLUE gradient for Deck A */
+    background: linear-gradient(45deg, #00d4ff, #0ea5e9);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
 }
 
 .deck-overlay.right .deck-title {
-    background: linear-gradient(45deg, #f39c12, #e67e22);  /* ORANGE gradient for Deck B */
+    background: linear-gradient(45deg, #f39c12, #e67e22);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
 }
@@ -73,48 +80,85 @@
     border: 1px solid rgba(255, 255, 255, 0.3);
 }
 
-.deck-volume-indicator {
-    margin-top: 8px;
-    background: rgba(0, 0, 0, 0.6);
-    border-radius: 6px;
-    padding: 6px;
-    border: 1px solid rgba(255, 255, 255, 0.2);
+/* Audio Channel Indicators - NEW */
+.audio-channels {
+    display: flex;
+    justify-content: space-between;
+    margin: 12px 0;
+    padding: 10px;
+    background: rgba(0, 0, 0, 0.4);
+    border-radius: 8px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
-.deck-volume-bar {
-    height: 6px;
-    background: linear-gradient(90deg, #333, #666);
-    border-radius: 3px;
+.channel-indicator {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    flex: 1;
+}
+
+.channel-label {
+    font-family: 'Orbitron', monospace;
+    font-size: 0.7rem;
+    font-weight: 600;
+    color: #e0e0e0;
+    text-align: center;
+}
+
+.channel-status {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.2);
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    transition: all 0.3s ease;
+}
+
+.channel-status.active {
+    background: linear-gradient(135deg, #1ed760, #00d4ff);
+    border-color: #1ed760;
+    box-shadow: 0 0 10px rgba(30, 215, 96, 0.5);
+}
+
+/* Multi-Channel Waveforms - NEW */
+.multi-channel-waveforms {
+    margin: 12px 0;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.waveform-channel {
+    background: rgba(0, 0, 0, 0.4);
+    border-radius: 6px;
+    padding: 8px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.waveform-label {
+    font-family: 'Orbitron', monospace;
+    font-size: 0.7rem;
+    font-weight: 600;
+    color: #00d4ff;
+    margin-bottom: 4px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.waveform-container {
+    height: 40px;
+    background: rgba(0, 0, 0, 0.6);
+    border-radius: 4px;
     overflow: hidden;
     position: relative;
 }
 
-.deck-volume-fill {
-    height: 100%;
-    transition: width 0.1s ease;
-    border-radius: 3px;
-}
-
-.deck-overlay.left .deck-volume-fill {
-    background: linear-gradient(90deg, #00d4ff, #0ea5e9);  /* BLUE gradient for Deck A */
-}
-
-.deck-overlay.right .deck-volume-fill {
-    background: linear-gradient(90deg, #f39c12, #e67e22);  /* ORANGE gradient for Deck B */
-}
-
-.deck-volume-text {
-    font-family: 'Orbitron', monospace;
-    font-size: 0.7rem;
-    color: #ccc;
-    text-align: center;
-    margin-top: 4px;
-}
-
-/* Track Display */
+/* Track Display - Same as before */
 .deck-track-display {
-    background: linear-gradient(135deg, rgba(0, 212, 255, 0.15), rgba(243, 156, 18, 0.15));  /* BLUE/ORANGE mix */
-    border: 2px solid rgba(0, 212, 255, 0.4);  /* BLUE border */
+    background: linear-gradient(135deg, rgba(0, 212, 255, 0.15), rgba(243, 156, 18, 0.15));
+    border: 2px solid rgba(0, 212, 255, 0.4);
     border-radius: 12px;
     padding: 12px;
     margin-bottom: 12px;
@@ -127,26 +171,21 @@
 }
 
 .deck-track-display:hover {
-    border-color: #00d4ff;  /* BLUE hover for both decks */
+    border-color: #00d4ff;
     background: linear-gradient(135deg, rgba(0, 212, 255, 0.25), rgba(243, 156, 18, 0.25));
     transform: translateY(-2px);
 }
 
 .deck-track-display.loaded {
-    border-color: #00d4ff;  /* BLUE when loaded */
+    border-color: #00d4ff;
     background: linear-gradient(135deg, rgba(0, 212, 255, 0.3), rgba(243, 156, 18, 0.3));
-}
-
-.deck-track-display.auto-loaded {
-    border-color: #9b59b6;
-    background: linear-gradient(135deg, rgba(155, 89, 182, 0.3), rgba(0, 212, 255, 0.3));
 }
 
 .deck-track-artwork {
     width: 50px;
     height: 50px;
     border-radius: 8px;
-    background: linear-gradient(135deg, #00d4ff, #f39c12);  /* BLUE to ORANGE gradient */
+    background: linear-gradient(135deg, #00d4ff, #f39c12);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -171,7 +210,7 @@
 .deck-track-name {
     font-size: 0.9rem;
     font-weight: 600;
-    color: #00d4ff;  /* BLUE text for track names */
+    color: #00d4ff;
     margin-bottom: 4px;
     font-family: 'Orbitron', monospace;
     white-space: nowrap;
@@ -191,82 +230,104 @@
 
 .deck-track-status {
     font-size: 0.7rem;
-    color: #00d4ff;  /* BLUE status text */
+    color: #00d4ff;
 }
 
-/* Waveform Container */
-.deck-waveform {
-    height: 60px;
+/* Volume Indicator - Same as before */
+.deck-volume-indicator {
+    margin: 12px 0;
     background: rgba(0, 0, 0, 0.6);
-    border-radius: 8px;
-    margin-bottom: 12px;
+    border-radius: 6px;
+    padding: 6px;
     border: 1px solid rgba(255, 255, 255, 0.2);
-    position: relative;
+}
+
+.deck-volume-bar {
+    height: 8px;
+    background: linear-gradient(90deg, #333, #666);
+    border-radius: 4px;
     overflow: hidden;
-}
-
-.waveform-container {
-    width: 100%;
-    height: 100%;
     position: relative;
 }
 
-/* Controls */
-.deck-controls {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 6px;
-    margin-bottom: 12px;
+.deck-volume-fill {
+    height: 100%;
+    transition: width 0.1s ease;
+    border-radius: 4px;
 }
 
-.deck-btn, .control-btn {
-    background: linear-gradient(135deg, #00d4ff, #f39c12);  /* BLUE to ORANGE gradient */
-    border: none;
-    padding: 8px 6px;
-    border-radius: 6px;
-    color: #1a1a1a;
-    font-size: 0.8rem;
-    font-weight: 700;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
+.deck-overlay.left .deck-volume-fill {
+    background: linear-gradient(90deg, #00d4ff, #0ea5e9);
+}
+
+.deck-overlay.right .deck-volume-fill {
+    background: linear-gradient(90deg, #f39c12, #e67e22);
+}
+
+.deck-volume-text {
     font-family: 'Orbitron', monospace;
+    font-size: 0.7rem;
+    color: #ccc;
+    text-align: center;
+    margin-top: 4px;
 }
 
-.deck-btn:hover, .control-btn:hover {
-    transform: translateY(-1px);
-    box-shadow: 0 4px 12px rgba(0, 212, 255, 0.3);  /* BLUE glow */
+/* BPM Display States - Same as before */
+.deck-bpm.detected {
+    color: #1ed760;
+    border-color: #1ed760;
+    background: rgba(30, 215, 96, 0.15);
+    box-shadow: 0 0 8px rgba(30, 215, 96, 0.3);
 }
 
-.deck-btn:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-    transform: none;
+.deck-bpm.detecting {
+    color: #f39c12;
+    border-color: #f39c12;
+    background: rgba(243, 156, 18, 0.15);
 }
 
-.skip-btn {
-    background: linear-gradient(135deg, #9b59b6, #8e44ad);
-    border: none;
-    padding: 8px 6px;
-    border-radius: 6px;
-    color: white;
-    font-size: 0.8rem;
-    font-weight: 700;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    font-family: 'Orbitron', monospace;
+.deck-bpm.error {
+    color: #666;
+    border-color: rgba(255, 255, 255, 0.2);
+    background: rgba(0, 0, 0, 0.6);
 }
 
-.skip-btn:hover {
-    transform: translateY(-1px);
-    box-shadow: 0 4px 12px rgba(155, 89, 182, 0.4);
+/* Responsive adjustments */
+@media (max-width: 1400px) {
+    .deck-overlay {
+        width: 340px;
+    }
 }
 
-.skip-btn:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-    transform: none;
+@media (max-width: 1200px) {
+    .deck-overlay {
+        width: 300px;
+        padding: 12px;
+    }
+    
+    .audio-channels {
+        flex-direction: column;
+        gap: 8px;
+    }
+    
+    .channel-indicator {
+        flex-direction: row;
+        justify-content: space-between;
+    }
+}
+
+@media (max-width: 768px) {
+    .deck-overlay {
+        width: 250px;
+        padding: 10px;
+        font-size: 0.9rem;
+    }
+    
+    .multi-channel-waveforms {
+        gap: 4px;
+    }
+    
+    .waveform-container {
+        height: 30px;
+    }
 }

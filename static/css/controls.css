@@ -1,7 +1,9 @@
-/* Crossfader */
+/* Updated static/css/controls.css - Global Controls & Gesture Instructions */
+
+/* Crossfader - Same as before */
 .crossfader-section {
     position: absolute;
-    bottom: calc(var(--hub-height, 140px) + 80px);
+    bottom: calc(var(--hub-height, 140px) + 140px);
     left: 50%;
     transform: translateX(-50%);
     background: linear-gradient(135deg, rgba(0, 0, 0, 0.95), rgba(26, 26, 26, 0.95));
@@ -66,10 +68,54 @@
     border: 2px solid #00d4ff;
 }
 
-/* Hand Control */
+/* Global Play Controls - NEW */
+.global-controls {
+    position: absolute;
+    bottom: calc(var(--hub-height, 140px) + 80px);
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 250;
+    display: flex;
+    gap: 15px;
+}
+
+.global-play-btn, .global-pause-btn {
+    background: linear-gradient(135deg, #1ed760, #00d4ff);
+    border: none;
+    padding: 15px 30px;
+    border-radius: 25px;
+    color: #1a1a1a;
+    font-size: 1.2rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.4s ease;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    font-family: 'Orbitron', monospace;
+    box-shadow: 0 10px 30px rgba(30, 215, 96, 0.4);
+    min-width: 200px;
+}
+
+.global-play-btn:hover, .global-pause-btn:hover {
+    transform: translateY(-3px) scale(1.05);
+    box-shadow: 0 15px 40px rgba(30, 215, 96, 0.6);
+    background: linear-gradient(135deg, #00d4ff, #1ed760);
+}
+
+.global-pause-btn {
+    background: linear-gradient(135deg, #f39c12, #e67e22);
+    box-shadow: 0 10px 30px rgba(243, 156, 18, 0.4);
+}
+
+.global-pause-btn:hover {
+    background: linear-gradient(135deg, #e67e22, #f39c12);
+    box-shadow: 0 15px 40px rgba(243, 156, 18, 0.6);
+}
+
+/* Hand Control - Updated positioning */
 .hand-control-overlay {
     position: absolute;
-    bottom: calc(var(--hub-height, 140px) + 150px);
+    bottom: calc(var(--hub-height, 140px) + 220px);
     left: 50%;
     transform: translateX(-50%);
     z-index: 200;
@@ -107,7 +153,98 @@
     background: linear-gradient(135deg, #e74c3c, #ff6b6b);
 }
 
-/* Status */
+/* Gesture Instructions - NEW */
+.gesture-instructions {
+    position: absolute;
+    top: 60px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: linear-gradient(135deg, rgba(0, 0, 0, 0.95), rgba(26, 26, 26, 0.95));
+    backdrop-filter: blur(20px);
+    border-radius: 15px;
+    padding: 15px 20px;
+    border: 2px solid rgba(155, 89, 182, 0.4);
+    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.8);
+    z-index: 150;
+    min-width: 300px;
+}
+
+.instruction-title {
+    font-family: 'Orbitron', monospace;
+    font-size: 1rem;
+    color: #9b59b6;
+    font-weight: 700;
+    text-align: center;
+    margin-bottom: 10px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.instruction-item {
+    font-family: 'Orbitron', monospace;
+    font-size: 0.8rem;
+    color: #e0e0e0;
+    text-align: center;
+    margin: 4px 0;
+    padding: 4px 8px;
+    background: rgba(155, 89, 182, 0.1);
+    border-radius: 6px;
+    border: 1px solid rgba(155, 89, 182, 0.3);
+}
+
+/* Hand Detection Indicators - Enhanced */
+.hand-indicators {
+    position: absolute;
+    top: 70px;
+    right: 20px;
+    background: linear-gradient(135deg, rgba(0, 0, 0, 0.95), rgba(26, 26, 26, 0.95));
+    backdrop-filter: blur(20px);
+    border-radius: 10px;
+    padding: 15px;
+    border: 2px solid rgba(0, 212, 255, 0.4);
+    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.8);
+    z-index: 200;
+    min-width: 180px;
+}
+
+.hand-indicator {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 8px 0;
+    font-family: 'Orbitron', monospace;
+    font-size: 0.8rem;
+    color: #e0e0e0;
+}
+
+.hand-status {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: #333;
+    transition: all 0.3s ease;
+    border: 2px solid #555;
+}
+
+.hand-status.detected {
+    background: #1ed760;
+    border-color: #1ed760;
+    box-shadow: 0 0 10px rgba(30, 215, 96, 0.6);
+}
+
+.hand-status.controlling {
+    background: #00d4ff;
+    border-color: #00d4ff;
+    box-shadow: 0 0 15px rgba(0, 212, 255, 0.8);
+    animation: pulse 1s ease-in-out infinite;
+}
+
+@keyframes pulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.2); }
+}
+
+/* Status - Updated positioning */
 .status-overlay {
     position: absolute;
     bottom: calc(var(--hub-height, 140px) + 10px);
@@ -125,7 +262,8 @@
     border: 1px solid rgba(0, 212, 255, 0.4);
     text-align: center;
     font-weight: 500;
-    max-width: 400px;
+    max-width: 500px;
+    font-family: 'Orbitron', monospace;
 }
 
 .status.success {
@@ -144,4 +282,53 @@
     background: linear-gradient(135deg, rgba(0, 212, 255, 0.2), rgba(243, 156, 18, 0.2));
     border-color: #00d4ff;
     color: #00d4ff;
+}
+
+/* Responsive adjustments */
+@media (max-width: 1200px) {
+    .gesture-instructions {
+        top: 120px;
+        left: 20px;
+        transform: none;
+        min-width: 250px;
+    }
+    
+    .hand-indicators {
+        top: 120px;
+        right: 20px;
+        min-width: 150px;
+    }
+    
+    .global-controls {
+        flex-direction: column;
+        align-items: center;
+        gap: 10px;
+    }
+}
+
+@media (max-width: 768px) {
+    .gesture-instructions {
+        display: none; /* Hide on mobile to save space */
+    }
+    
+    .hand-indicators {
+        top: 70px;
+        right: 10px;
+        padding: 10px;
+    }
+    
+    .global-controls {
+        bottom: calc(var(--hub-height, 140px) + 60px);
+    }
+    
+    .global-play-btn, .global-pause-btn {
+        padding: 12px 20px;
+        font-size: 1rem;
+        min-width: 150px;
+    }
+    
+    .crossfader-section {
+        bottom: calc(var(--hub-height, 140px) + 120px);
+        min-width: 250px;
+    }
 }
