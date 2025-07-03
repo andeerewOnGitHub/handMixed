@@ -1,8 +1,9 @@
-// static/js/gestures/hand-gestures.js - Hand Gesture Processing with Corrected Mapping
+// static/js/gestures/hand-gestures.js - NEVER PAUSE VERSION
 
-// Process hand control with corrected mapping
+console.log('🎵 Hand Gestures Loaded - NEVER PAUSE VERSION');
+
+// Process hand control - ONLY volume control
 function processHandControl(handSide, handHeight) {
-    // Corrected mapping: left hand controls Deck A, right hand controls Deck B
     const deckLetter = handSide === 'leftHand' ? 'A' : 'B';
     const deck = deckState[deckLetter];
     
@@ -13,59 +14,113 @@ function processHandControl(handSide, handHeight) {
     deck.handVolume = volume;
     deck.handControlled = true;
     
-    // Apply volume to audio if track is loaded
+    // Apply volume to audio
     if (deck.audio && deck.track) {
         const finalVolume = deck.volume * volume;
         deck.audio.volume = finalVolume;
+        console.log(`🔊 Deck ${deckLetter} volume: ${Math.round(finalVolume * 100)}%`);
     }
     
-    // Update visual volume indicator
+    // Update visual indicator
     updateDeckVolumeIndicator(deckLetter, volume * 100);
-    
-    console.log(`🖐️ ${handSide} controlling Deck ${deckLetter}: ${Math.round(volume * 100)}%`);
 }
 
-// Process deck control based on hand presence with corrected mapping
+// Process deck control - START ONCE, NEVER PAUSE
 function processHandDeckControl() {
-    // Deck A (Left Hand) Control - corrected mapping
+    // Deck A (Left Hand)
     if (handState.leftHand.detected && handState.leftHand.controlling) {
         const deck = deckState.A;
-        if (deck.track && !deck.isPlaying && !deck.isPaused) {
-            // Auto-play when hand is detected and track is loaded
+        
+        // ONLY start if not already playing
+        if (deck.track && !deck.isPlaying) {
+            console.log('🎵 STARTING Deck A - will never pause again');
             playDeck('A');
-            updateStatus('Left hand detected - Playing Deck A', 'success');
+            updateStatus('Deck A started - will continue playing', 'success');
         }
+        
         document.getElementById('deckAOverlay').classList.add('hand-active');
+        
     } else {
-        // Pause/stop when hand is not detected
+        // Hand gone - ONLY set volume to 0, NEVER pause
         const deck = deckState.A;
-        if (deck.isPlaying && deck.handControlled) {
-            pauseDeck('A');
-            updateStatus('Left hand lost - Pausing Deck A', 'info');
+        
+        if (deck.handControlled) {
+            console.log('🔇 Hand gone - Deck A volume to 0 (STILL PLAYING)');
+            deck.handVolume = 0;
+            
+            // Set volume to 0 but DO NOT PAUSE
+            if (deck.audio) {
+                deck.audio.volume = 0;
+            }
+            
+            updateDeckVolumeIndicator('A', 0);
+            updateStatus('Hand lost - Deck A muted (still playing)', 'info');
         }
+        
         deck.handControlled = false;
         document.getElementById('deckAOverlay').classList.remove('hand-active');
-        updateDeckVolumeIndicator('A', deck.volume * 100);
     }
 
-    // Deck B (Right Hand) Control - corrected mapping
+    // Deck B (Right Hand)
     if (handState.rightHand.detected && handState.rightHand.controlling) {
         const deck = deckState.B;
-        if (deck.track && !deck.isPlaying && !deck.isPaused) {
-            // Auto-play when hand is detected and track is loaded
+        
+        // ONLY start if not already playing
+        if (deck.track && !deck.isPlaying) {
+            console.log('🎵 STARTING Deck B - will never pause again');
             playDeck('B');
-            updateStatus('Right hand detected - Playing Deck B', 'success');
+            updateStatus('Deck B started - will continue playing', 'success');
         }
+        
         document.getElementById('deckBOverlay').classList.add('hand-active');
+        
     } else {
-        // Pause/stop when hand is not detected
+        // Hand gone - ONLY set volume to 0, NEVER pause
         const deck = deckState.B;
-        if (deck.isPlaying && deck.handControlled) {
-            pauseDeck('B');
-            updateStatus('Right hand lost - Pausing Deck B', 'info');
+        
+        if (deck.handControlled) {
+            console.log('🔇 Hand gone - Deck B volume to 0 (STILL PLAYING)');
+            deck.handVolume = 0;
+            
+            // Set volume to 0 but DO NOT PAUSE
+            if (deck.audio) {
+                deck.audio.volume = 0;
+            }
+            
+            updateDeckVolumeIndicator('B', 0);
+            updateStatus('Hand lost - Deck B muted (still playing)', 'info');
         }
+        
         deck.handControlled = false;
         document.getElementById('deckBOverlay').classList.remove('hand-active');
-        updateDeckVolumeIndicator('B', deck.volume * 100);
     }
 }
+
+// BLOCK any automatic pausing from other code
+let blockAutoPause = false;
+
+// Override pauseDeck to prevent automatic pausing
+const originalPauseDeck = window.pauseDeck;
+window.pauseDeck = function(deckLetter) {
+    console.log(`🛑 pauseDeck called for Deck ${deckLetter}`);
+    
+    // Check if this pause is from hand control (which we want to block)
+    const stack = new Error().stack;
+    if (stack.includes('processHand') || blockAutoPause) {
+        console.log('❌ BLOCKED automatic pause from hand control');
+        return;
+    }
+    
+    console.log('✅ Allowing manual pause');
+    return originalPauseDeck(deckLetter);
+};
+
+// Set flag to block auto-pause when hands disappear
+function blockAutoPauseTemporarily() {
+    blockAutoPause = true;
+    setTimeout(() => {
+        blockAutoPause = false;
+    }, 100);
+}
+
+console.log('🎛️ Never-pause hand control loaded!');
